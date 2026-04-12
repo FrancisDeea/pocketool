@@ -1,0 +1,54 @@
+{
+  "sidebar": {
+    "title": "Pocketool",
+    "subtitle": "Dev tools hub",
+    "allTools": "All tools",
+    "categories": {
+      "data": "Data",
+      "text": "Text",
+      "media": "Media",
+      "productivity": "Productivity"
+    }
+  },
+  "topbar": {
+    "search": "Search tools...",
+    "searchShortcut": "⌘K",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "themes": {
+    "light": "Light",
+    "light-hc": "Light (High Contrast)",
+    "dark": "Dark",
+    "dark-hc": "Dark (High Contrast)"
+  },
+  "home": {
+    "hero": "Essential tools for developers",
+    "heroSub": "Fast, private and serverless. Everything runs in your browser.",
+    "explore": "Explore tools"
+  },
+  "common": {
+    "copy": "Copy",
+    "copied": "Copied!",
+    "download": "Download",
+    "upload": "Upload file",
+    "clear": "Clear",
+    "format": "Format",
+    "minify": "Minify",
+    "search": "Search",
+    "noResults": "No results",
+    "error": "Error",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "settings": "Settings",
+    "dragDrop": "Drag and drop here"
+  },
+  "storage": {
+    "quotaExceeded": "Storage full. Free up space by clearing tool data.",
+    "unavailable": "Storage unavailable. Data will not persist between sessions.",
+    "parseError": "Corrupt data detected. Data has been reset."
+  }
+}

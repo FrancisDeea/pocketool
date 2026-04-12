@@ -1,0 +1,54 @@
+{
+  "sidebar": {
+    "title": "Pocketool",
+    "subtitle": "Herramientas para devs",
+    "allTools": "Todas las herramientas",
+    "categories": {
+      "data": "Datos",
+      "text": "Texto",
+      "media": "Media",
+      "productivity": "Productividad"
+    }
+  },
+  "topbar": {
+    "search": "Buscar herramientas...",
+    "searchShortcut": "⌘K",
+    "theme": "Tema",
+    "language": "Idioma"
+  },
+  "themes": {
+    "light": "Claro",
+    "light-hc": "Claro (Alto Contraste)",
+    "dark": "Oscuro",
+    "dark-hc": "Oscuro (Alto Contraste)"
+  },
+  "home": {
+    "hero": "Herramientas esenciales para desarrolladores",
+    "heroSub": "Rápidas, privadas y sin servidor. Todo funciona en tu navegador.",
+    "explore": "Explorar herramientas"
+  },
+  "common": {
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "download": "Descargar",
+    "upload": "Subir archivo",
+    "clear": "Limpiar",
+    "format": "Formatear",
+    "minify": "Minificar",
+    "search": "Buscar",
+    "noResults": "Sin resultados",
+    "error": "Error",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "settings": "Ajustes",
+    "dragDrop": "Arrastra y suelta aquí"
+  },
+  "storage": {
+    "quotaExceeded": "Almacenamiento lleno. Libera espacio eliminando datos de herramientas.",
+    "unavailable": "Almacenamiento no disponible. Los datos no se guardarán entre sesiones.",
+    "parseError": "Datos corruptos detectados. Se han reiniciado."
+  }
+}

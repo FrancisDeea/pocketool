@@ -1,0 +1,50 @@
+{
+  "json-viewer": {
+    "title": "JSON Viewer",
+    "description": "Explora y formatea JSON de cualquier tamaño",
+    "input": "Pega tu JSON aquí...",
+    "invalidJson": "JSON inválido",
+    "nodes": "nodos",
+    "expandAll": "Expandir todo",
+    "collapseAll": "Colapsar todo",
+    "searchPlaceholder": "Buscar por clave o valor...",
+    "depth": "Profundidad"
+  },
+  "markdown-editor": {
+    "title": "Markdown Editor",
+    "description": "Editor con preview, GFM y diagramas Mermaid",
+    "editorTab": "Editor",
+    "previewTab": "Preview",
+    "placeholder": "Escribe tu Markdown aquí...",
+    "downloadMd": "Descargar .md",
+    "downloadHtml": "Descargar .html"
+  },
+  "image-optimizer": {
+    "title": "Image Optimizer",
+    "description": "Optimiza imágenes con wasm-vips en el navegador",
+    "dropzone": "Arrastra una imagen o haz clic para seleccionar",
+    "original": "Original",
+    "optimized": "Optimizada",
+    "quality": "Calidad",
+    "format": "Formato",
+    "resize": "Redimensionar",
+    "width": "Ancho",
+    "height": "Alto",
+    "optimize": "Optimizar",
+    "downloading": "Procesando...",
+    "savings": "Ahorro"
+  },
+  "notes": {
+    "title": "Quick Notes",
+    "description": "Notas rápidas con etiquetas y persistencia local",
+    "newNote": "Nueva nota",
+    "untitled": "Sin título",
+    "allNotes": "Todas",
+    "searchPlaceholder": "Buscar notas...",
+    "tags": "Etiquetas",
+    "addTag": "Añadir etiqueta",
+    "deleteConfirm": "¿Eliminar esta nota?",
+    "lastEdited": "Última edición",
+    "emptyState": "No hay notas aún. ¡Crea una!"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "json-viewer": {
+    "title": "JSON Viewer",
+    "description": "Explore and format JSON of any size",
+    "input": "Paste your JSON here...",
+    "invalidJson": "Invalid JSON",
+    "nodes": "nodes",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "searchPlaceholder": "Search by key or value...",
+    "depth": "Depth"
+  },
+  "markdown-editor": {
+    "title": "Markdown Editor",
+    "description": "Editor with preview, GFM and Mermaid diagrams",
+    "editorTab": "Editor",
+    "previewTab": "Preview",
+    "placeholder": "Write your Markdown here...",
+    "downloadMd": "Download .md",
+    "downloadHtml": "Download .html"
+  },
+  "image-optimizer": {
+    "title": "Image Optimizer",
+    "description": "Optimize images with wasm-vips in the browser",
+    "dropzone": "Drag an image or click to select",
+    "original": "Original",
+    "optimized": "Optimized",
+    "quality": "Quality",
+    "format": "Format",
+    "resize": "Resize",
+    "width": "Width",
+    "height": "Height",
+    "optimize": "Optimize",
+    "downloading": "Processing...",
+    "savings": "Savings"
+  },
+  "notes": {
+    "title": "Quick Notes",
+    "description": "Quick notes with tags and local persistence",
+    "newNote": "New note",
+    "untitled": "Untitled",
+    "allNotes": "All",
+    "searchPlaceholder": "Search notes...",
+    "tags": "Tags",
+    "addTag": "Add tag",
+    "deleteConfirm": "Delete this note?",
+    "lastEdited": "Last edited",
+    "emptyState": "No notes yet. Create one!"
+  }
+}
