@@ -1,0 +1,44 @@
+---
+import ToolLayout from '@/layouts/ToolLayout.astro';
+import { getAllTools } from '@/tools/registry';
+
+export function getStaticPaths() {
+  const tools = getAllTools();
+  return tools.map((tool) => ({
+    params: { slug: tool.id },
+  }));
+}
+
+const { slug } = Astro.params;
+const tools = getAllTools();
+const toolConfig = tools.find((t) => t.id === slug);
+
+if (!toolConfig) {
+  return Astro.redirect('/');
+}
+
+// We'll dynamically load the tool component on the client side
+---
+
+<ToolLayout toolId={slug!} lang="es">
+  <div id={`tool-${slug}`} data-tool-id={slug}></div>
+
+  <script>
+    import { loadTool } from '@/tools/registry';
+    import { createRoot } from 'react-dom/client';
+    import { createElement } from 'react';
+
+    const container = document.querySelector('[data-tool-id]');
+    if (container) {
+      const toolId = container.getAttribute('data-tool-id');
+      if (toolId) {
+        loadTool(toolId).then((Component) => {
+          if (Component) {
+            const root = createRoot(container);
+            root.render(createElement(Component));
+          }
+        });
+      }
+    }
+  </script>
+</ToolLayout>

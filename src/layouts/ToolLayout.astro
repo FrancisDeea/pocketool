@@ -1,0 +1,29 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Shell from '@/components/layout/Shell';
+import { getAllTools, getToolConfig } from '@/tools/registry';
+
+interface Props {
+  toolId: string;
+  lang?: string;
+}
+
+const { toolId, lang = 'es' } = Astro.props;
+const tools = getAllTools();
+const currentTool = getToolConfig(toolId);
+
+const title = currentTool?.title ?? 'Tool';
+const description = currentTool?.description ?? '';
+---
+
+<Layout title={title} description={description} lang={lang}>
+  <Shell
+    tools={tools}
+    currentToolId={toolId}
+    currentToolTitle={title}
+    locale={lang}
+    client:load
+  >
+    <slot />
+  </Shell>
+</Layout>

@@ -7,22 +7,22 @@ import { Wrench, ArrowRight } from 'lucide-react';
 const tools = getAllTools();
 ---
 
-<Layout title="Home" lang="es">
-  <Shell tools={tools} locale="es" client:load>
+<Layout title="Home" lang="en">
+  <Shell tools={tools} locale="en" client:load>
     <!-- Hero -->
     <div class="max-w-3xl mx-auto text-center py-12 md:py-20">
       <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-medium text-accent bg-accent-muted rounded-full border border-accent/20">
         <Wrench size={12} />
-        100% en tu navegador
+        100% in your browser
       </div>
       <h1 class="text-3xl md:text-5xl font-bold text-text-primary mb-4 leading-tight">
-        Herramientas esenciales
+        Essential tools
         <br />
-        <span class="text-accent">para desarrolladores</span>
+        <span class="text-accent">for developers</span>
       </h1>
       <p class="text-base md:text-lg text-text-secondary max-w-xl mx-auto mb-8">
-        Rápidas, privadas y sin servidor. Todo funciona en tu navegador.
-        Sin cuentas, sin tracking, sin límites.
+        Fast, private and serverless. Everything runs in your browser.
+        No accounts, no tracking, no limits.
       </p>
     </div>
 
@@ -30,7 +30,7 @@ const tools = getAllTools();
     <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pb-12">
       {tools.map((tool) => (
         <a
-          href={`/tool/${tool.id}`}
+          href={`/en/tool/${tool.id}`}
           data-astro-prefetch
           class="group relative flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-border-hover transition-all duration-[var(--transition-base)] hover:shadow-md"
         >
