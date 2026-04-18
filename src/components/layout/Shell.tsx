@@ -15,6 +15,8 @@ import {
   FileText,
   ImageIcon,
   StickyNote,
+  Monitor,
+  Code,
   Wrench,
 } from 'lucide-react';
 
@@ -31,6 +33,8 @@ const iconMap: Record<string, typeof Braces> = {
   FileText,
   Image: ImageIcon,
   StickyNote,
+  Monitor,
+  Code,
 };
 
 export default function Shell({
@@ -47,11 +51,23 @@ export default function Shell({
   
   const theme = useStore($theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   // Apply theme on mount and changes
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleToolNavigate = useCallback(
     (toolId: string) => {
@@ -61,16 +77,26 @@ export default function Shell({
     [locale],
   );
 
+  const handleOpenSearch = useCallback(() => {
+    setCommandPaletteOpen(true);
+  }, []);
+
   return (
     <ToastProvider>
-      <CommandPalette>
+      <CommandPalette
+        open={commandPaletteOpen}
+        onOpenChange={setCommandPaletteOpen}
+      >
         <CommandPaletteGroup heading="Herramientas">
           {tools.map((tool) => {
             const Icon = iconMap[tool.icon] ?? Wrench;
             return (
               <CommandPaletteItem
                 key={tool.id}
-                onSelect={() => handleToolNavigate(tool.id)}
+                onSelect={() => {
+                  handleToolNavigate(tool.id);
+                  setCommandPaletteOpen(false);
+                }}
                 keywords={tool.tags}
               >
                 <Icon size={16} className="shrink-0 text-text-tertiary" />
@@ -86,18 +112,28 @@ export default function Shell({
         </CommandPaletteGroup>
       </CommandPalette>
 
+      {/* Desktop sidebar */}
       <Sidebar
         tools={tools}
         currentToolId={currentToolId}
         locale={locale}
       />
 
-      {/* Mobile sidebar overlay */}
+      {/* Mobile sidebar overlay + slide-in */}
       {mobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-[var(--z-overlay)] bg-black/50"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-[var(--z-overlay)] bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <Sidebar
+            tools={tools}
+            currentToolId={currentToolId}
+            locale={locale}
+            isMobile
+            onClose={() => setMobileMenuOpen(false)}
+          />
+        </>
       )}
 
       <div
@@ -111,6 +147,7 @@ export default function Shell({
       >
         <TopBar
           currentTool={currentTool}
+          onOpenSearch={handleOpenSearch}
           onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
         />
         <main className="p-4 md:p-6">{children}</main>
