@@ -7,21 +7,38 @@ import type { ReactNode } from 'react';
 
 type CommandPaletteProps = {
   children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export default function CommandPalette({ children }: CommandPaletteProps) {
-  const [open, setOpen] = useState(false);
+export default function CommandPalette({
+  children,
+  open: controlledOpen,
+  onOpenChange,
+}: CommandPaletteProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      onOpenChange?.(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setOpen((prev) => !prev);
+        setOpen(!open);
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, []);
+  }, [open]);
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
