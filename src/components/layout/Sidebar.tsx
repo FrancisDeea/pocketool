@@ -48,14 +48,14 @@ export default function Sidebar({ tools, currentToolId, locale }: SidebarProps) 
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-[var(--topbar-height)] shrink-0 border-b border-border">
         {!collapsed && (
-          <div className="flex items-center gap-2">
+          <a href="/" data-astro-prefetch className="flex items-center gap-2 cursor-pointer">
             <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
               <Wrench size={14} className="text-white" />
             </div>
             <span className="text-sm font-semibold text-text-primary">
               Pocketool
             </span>
-          </div>
+          </a>
         )}
         <button
           onClick={() => toggleSidebar()}

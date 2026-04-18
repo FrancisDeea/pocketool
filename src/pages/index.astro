@@ -13,17 +13,31 @@ const tools = getAllTools();
     <div class="max-w-3xl mx-auto text-center py-12 md:py-20">
       <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-medium text-accent bg-accent-muted rounded-full border border-accent/20">
         <Wrench size={12} />
-        100% en tu navegador
+        100% Local-First
       </div>
-      <h1 class="text-3xl md:text-5xl font-bold text-text-primary mb-4 leading-tight">
+      <h1 class="text-4xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
         Herramientas esenciales
         <br />
         <span class="text-accent">para desarrolladores</span>
       </h1>
-      <p class="text-base md:text-lg text-text-secondary max-w-xl mx-auto mb-8">
-        Rápidas, privadas y sin servidor. Todo funciona en tu navegador.
-        Sin cuentas, sin tracking, sin límites.
+      <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-10">
+        Una suite de herramientas extremadamente rápidas, enfocadas en la privacidad y con cero configuraciones. Todo funciona directamente en tu navegador.
       </p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto mb-16">
+        <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
+          <h3 class="text-base font-semibold text-text-primary mb-2">Privacidad Absoluta</h3>
+          <p class="text-sm text-text-secondary">Sin bases de datos externas ni subida de archivos confidenciales. Todo el procesamiento se realiza localmente.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
+          <h3 class="text-base font-semibold text-text-primary mb-2">Offline Ready (PWA)</h3>
+          <p class="text-sm text-text-secondary">Instálalo una vez y úsalo siempre, incluso sin conexión a internet. Los datos se guardan en IndexedDB.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
+          <h3 class="text-base font-semibold text-text-primary mb-2">Velocidad Extrema</h3>
+          <p class="text-sm text-text-secondary">Construido con Astro y Web Workers para un rendimiento óptimo sin bloqueo del hilo principal.</p>
+        </div>
+      </div>
     </div>
 
     <!-- Tools Grid -->

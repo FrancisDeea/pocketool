@@ -21,7 +21,7 @@ import {
 type ShellProps = {
   tools: ToolConfig[];
   currentToolId?: string;
-  currentToolTitle?: string;
+  currentTool?: ToolConfig;
   locale: string;
   children: React.ReactNode;
 };
@@ -36,7 +36,7 @@ const iconMap: Record<string, typeof Braces> = {
 export default function Shell({
   tools,
   currentToolId,
-  currentToolTitle,
+  currentTool,
   locale,
   children,
 }: ShellProps) {
@@ -106,7 +106,7 @@ export default function Shell({
         ].join(' ')}
       >
         <TopBar
-          title={currentToolTitle}
+          currentTool={currentTool}
           onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
         />
         <main className="p-4 md:p-6">{children}</main>
