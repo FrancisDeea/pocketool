@@ -1,4 +1,3 @@
-import { useState, useCallback, useMemo } from 'react';
 import {
   Copy,
   Check,
@@ -7,7 +6,12 @@ import {
   ChevronDown,
   Search,
   AlertCircle,
+  ChevronUp,
+  Maximize2,
+  Minimize2,
+  Regex,
 } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Button from '@ui/Button';
 import Badge from '@ui/Badge';
 
@@ -17,6 +21,7 @@ type JsonNodeProps = {
   depth?: number;
   maxDepth: number;
   searchQuery: string;
+  exactMatch: boolean;
   isLast?: boolean;
 };
 
@@ -26,9 +31,16 @@ function JsonNode({
   depth = 0,
   maxDepth,
   searchQuery,
+  exactMatch,
   isLast = true,
 }: JsonNodeProps) {
   const [expanded, setExpanded] = useState(depth < maxDepth);
+
+  // Auto-expand when search query changes
+  useEffect(() => {
+    if (searchQuery) setExpanded(true);
+    else setExpanded(depth < maxDepth);
+  }, [searchQuery, depth, maxDepth]);
 
   const isObject = data !== null && typeof data === 'object';
   const isArray = Array.isArray(data);
@@ -37,11 +49,18 @@ function JsonNode({
     : [];
   const count = entries.length;
 
-  const matchesSearch =
-    searchQuery &&
-    (name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (!isObject &&
-        String(data).toLowerCase().includes(searchQuery.toLowerCase())));
+  const matchesSearch = useMemo(() => {
+    if (!searchQuery) return false;
+    if (exactMatch) {
+      const matchName = name === searchQuery;
+      const matchData = !isObject && String(data) === searchQuery;
+      return matchName || matchData;
+    }
+    const q = searchQuery.toLowerCase();
+    const matchName = name?.toLowerCase().includes(q) ?? false;
+    const matchData = !isObject && String(data).toLowerCase().includes(q);
+    return matchName || matchData;
+  }, [searchQuery, exactMatch, name, data, isObject]);
 
   const getValueColor = (val: unknown): string => {
     if (val === null) return 'text-text-tertiary';
@@ -69,7 +88,7 @@ function JsonNode({
         className={[
           'flex items-center gap-1 py-0.5 pl-4',
           'text-sm font-mono',
-          matchesSearch ? 'bg-accent-muted rounded' : '',
+          matchesSearch ? 'match-node bg-accent-muted rounded transition-colors' : '',
         ].join(' ')}
         style={{ paddingLeft: `${(depth + 1) * 20}px` }}
       >
@@ -90,8 +109,8 @@ function JsonNode({
       <div
         className={[
           'flex items-center gap-1 py-0.5 cursor-pointer select-none',
-          'text-sm font-mono hover:bg-surface-hover rounded',
-          matchesSearch ? 'bg-accent-muted' : '',
+          'text-sm font-mono hover:bg-surface-hover rounded transition-colors',
+          matchesSearch ? 'match-node bg-accent-muted' : '',
         ].join(' ')}
         style={{ paddingLeft: `${depth * 20}px` }}
         onClick={() => setExpanded(!expanded)}
@@ -131,6 +150,7 @@ function JsonNode({
               depth={depth + 1}
               maxDepth={maxDepth}
               searchQuery={searchQuery}
+              exactMatch={exactMatch}
               isLast={idx === count - 1}
             />
           ))}
@@ -151,8 +171,13 @@ function JsonNode({
 export default function JsonViewer() {
   const [input, setInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [exactMatch, setExactMatch] = useState(false);
   const [maxDepth, setMaxDepth] = useState(3);
   const [copied, setCopied] = useState(false);
+  const [matchCount, setMatchCount] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState(-1);
+  const [treeKey, setTreeKey] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const parsed = useMemo(() => {
     if (!input.trim()) return { ok: false as const, error: '' };
@@ -165,6 +190,61 @@ export default function JsonViewer() {
       };
     }
   }, [input]);
+
+  // Scroll to matches logic
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+    
+    // Slight timeout allows React to re-render expanded states and DOM classes first
+    const timer = setTimeout(() => {
+      const matches = scrollContainerRef.current!.querySelectorAll('.match-node');
+      setMatchCount(matches.length);
+      
+      // If we have matches but currentMatch is uninitialized or out of bounds, reset it
+      if (matches.length > 0) {
+        if (currentMatch >= matches.length || currentMatch === -1) {
+          setCurrentMatch(0);
+        }
+      } else {
+        setCurrentMatch(-1);
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [parsed, searchQuery, currentMatch]); // Added currentMatch to avoid stale closure if needed, though we only use it for range check
+
+  useEffect(() => {
+    if (!scrollContainerRef.current || currentMatch === -1) return;
+    const matches = scrollContainerRef.current.querySelectorAll('.match-node');
+    if (matches.length === 0) return;
+    
+    // Clear previous highlights
+    matches.forEach(el => {
+      el.classList.remove('bg-accent', 'text-white', '[&_*]:text-white');
+      el.classList.add('bg-accent-muted');
+    });
+    
+    // Highlight current match
+    const target = matches[currentMatch] as HTMLElement;
+    if (target) {
+      target.classList.remove('bg-accent-muted');
+      target.classList.add('bg-accent', 'text-white', '[&_*]:text-white');
+      target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }, [currentMatch]); // Only runs when currentMatch changes manually or via range reset
+
+  const handleNextMatch = useCallback(() => {
+    if (matchCount > 0) {
+      setCurrentMatch((prev) => (prev + 1) % matchCount);
+    }
+  }, [matchCount]);
+
+  const handlePrevMatch = useCallback(() => {
+    if (matchCount > 0) {
+      setCurrentMatch((prev) => (prev - 1 + matchCount) % matchCount);
+    }
+  }, [matchCount]);
+
+
 
   const nodeCount = useMemo(() => {
     if (!parsed.ok) return 0;
@@ -285,14 +365,37 @@ export default function JsonViewer() {
         {/* Search & Depth */}
         {parsed.ok && (
           <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-lg">
+            <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-surface border border-border rounded-lg focus-within:border-accent transition-colors">
               <Search size={14} className="text-text-tertiary shrink-0" />
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (e.shiftKey) handlePrevMatch();
+                    else handleNextMatch();
+                  }
+                }}
                 placeholder="Buscar por clave o valor..."
-                className="flex-1 bg-transparent text-sm outline-none text-text-primary placeholder:text-text-tertiary"
+                className="flex-1 min-w-0 bg-transparent text-sm outline-none text-text-primary placeholder:text-text-tertiary"
               />
+              <button
+                onClick={() => setExactMatch(!exactMatch)}
+                className={['p-1.5 rounded transition-colors', exactMatch ? 'text-white bg-accent' : 'text-text-tertiary hover:text-text-primary hover:bg-surface-hover'].join(' ')}
+                title="Coincidencia Exacta"
+              >
+                <Regex size={14} />
+              </button>
+              {searchQuery && matchCount > 0 && (
+                <div className="flex items-center gap-2 text-xs text-text-tertiary shrink-0">
+                  <span>{currentMatch + 1}/{matchCount}</span>
+                  <div className="flex bg-surface-hover rounded-md border border-border">
+                    <button onClick={handlePrevMatch} className="p-1 hover:text-text-primary"><ChevronUp size={14}/></button>
+                    <button onClick={handleNextMatch} className="p-1 hover:text-text-primary border-l border-border"><ChevronDown size={14}/></button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-text-tertiary">
               <span>Prof:</span>
@@ -301,14 +404,38 @@ export default function JsonViewer() {
                 value={maxDepth}
                 onChange={(e) => setMaxDepth(Number(e.target.value))}
                 min={0}
-                max={20}
+                max={100}
                 className="w-12 px-2 py-1 bg-surface border border-border rounded-md text-center text-text-primary outline-none focus:border-accent"
               />
+            </div>
+            <div className="flex items-center gap-1.5 ml-2">
+              <button
+                onClick={() => {
+                  setMaxDepth(100);
+                  setTreeKey(k => k + 1);
+                }}
+                className="p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary rounded border border-transparent hover:border-border transition-colors"
+                title="Expandir todo"
+              >
+                <Maximize2 size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setMaxDepth(0);
+                  setTreeKey(k => k + 1);
+                }}
+                className="p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary rounded border border-transparent hover:border-border transition-colors"
+                title="Colapsar todo"
+              >
+                <Minimize2 size={14} />
+              </button>
             </div>
           </div>
         )}
 
         <div
+          ref={scrollContainerRef}
           className={[
             'flex-1 overflow-auto rounded-xl',
             'bg-surface border border-border p-4',
@@ -327,9 +454,11 @@ export default function JsonViewer() {
           )}
           {parsed.ok && (
             <JsonNode
+              key={treeKey}
               data={parsed.data}
               maxDepth={maxDepth}
               searchQuery={searchQuery}
+              exactMatch={exactMatch}
             />
           )}
         </div>
