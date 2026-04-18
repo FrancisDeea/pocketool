@@ -72,6 +72,10 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "sharp"
-    ]
+    ],
+    "overrides": {
+      "yaml@>=2.0.0 <2.8.3": ">=2.8.3",
+      "dompurify@<=3.3.3": ">=3.4.0"
+    }
   }
 }
