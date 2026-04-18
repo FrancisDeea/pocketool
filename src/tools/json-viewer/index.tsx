@@ -10,10 +10,14 @@ import {
   Maximize2,
   Minimize2,
   Regex,
+  History,
+  X,
 } from 'lucide-react';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Button from '@ui/Button';
 import Badge from '@ui/Badge';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db, addToolHistory, type ToolHistory } from '@/db';
 
 type JsonNodeProps = {
   data: unknown;
@@ -168,8 +172,23 @@ function JsonNode({
   );
 }
 
+function formatHistoryDate(ts: number): string {
+  return new Intl.DateTimeFormat('es', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(ts));
+}
+
 export default function JsonViewer() {
+  // Load last saved input from Dexie
+  const savedInput = useLiveQuery(
+    () => db.toolStates.get('tool:json-viewer:last-input'),
+    [],
+  );
   const [input, setInput] = useState('');
+  const [inputLoaded, setInputLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [exactMatch, setExactMatch] = useState(false);
   const [maxDepth, setMaxDepth] = useState(3);
@@ -177,7 +196,48 @@ export default function JsonViewer() {
   const [matchCount, setMatchCount] = useState(0);
   const [currentMatch, setCurrentMatch] = useState(-1);
   const [treeKey, setTreeKey] = useState(0);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // History entries
+  const history = useLiveQuery(
+    () =>
+      db.toolHistory
+        .where('toolId')
+        .equals('json-viewer')
+        .reverse()
+        .sortBy('timestamp'),
+    [],
+    [],
+  );
+
+  // Load persisted input once
+  useEffect(() => {
+    if (savedInput && !inputLoaded) {
+      const content = savedInput.content as string;
+      if (content) setInput(content);
+      setInputLoaded(true);
+    }
+    if (savedInput === undefined && !inputLoaded) {
+      // Still loading
+    }
+    if (savedInput === null && !inputLoaded) {
+      setInputLoaded(true);
+    }
+  }, [savedInput, inputLoaded]);
+
+  // Persist input to Dexie (debounced)
+  useEffect(() => {
+    if (!inputLoaded) return;
+    const timer = setTimeout(() => {
+      db.toolStates.put({
+        id: 'tool:json-viewer:last-input',
+        content: input,
+        updatedAt: Date.now(),
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [input, inputLoaded]);
 
   const parsed = useMemo(() => {
     if (!input.trim()) return { ok: false as const, error: '' };
@@ -296,14 +356,73 @@ export default function JsonViewer() {
     }
   }, [parsed]);
 
+  const handleClear = useCallback(async () => {
+    if (parsed.ok && input.trim()) {
+      // Save to history before clearing
+      await addToolHistory('json-viewer', {
+        input: input.trim(),
+        timestamp: Date.now(),
+      });
+    }
+    setInput('');
+  }, [parsed, input]);
+
+  const handleRestoreHistory = useCallback((entry: ToolHistory) => {
+    const data = entry.data as { input: string };
+    if (data.input) setInput(data.input);
+    setHistoryOpen(false);
+  }, []);
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 h-[calc(100dvh-var(--topbar-height)-3rem)]">
       {/* Input Panel */}
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-text-tertiary uppercase tracking-wide">
-            Input
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-text-tertiary uppercase tracking-wide">
+              Input
+            </span>
+            {/* History dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setHistoryOpen(!historyOpen)}
+                disabled={history.length === 0}
+                className={[
+                  'p-1 rounded text-text-tertiary transition-colors cursor-pointer',
+                  history.length > 0 ? 'hover:text-text-primary hover:bg-surface-hover' : 'opacity-40',
+                ].join(' ')}
+                title="Historial"
+              >
+                <History size={14} />
+              </button>
+              {historyOpen && history.length > 0 && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setHistoryOpen(false)} />
+                  <div className="absolute top-full left-0 mt-1 z-50 w-64 max-h-64 overflow-y-auto bg-surface border border-border rounded-lg shadow-lg p-1">
+                    <div className="px-2 py-1 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider">
+                      Historial reciente
+                    </div>
+                    {history.map((entry) => {
+                      const data = entry.data as { input: string; timestamp: number };
+                      const preview = data.input.slice(0, 60).replace(/\n/g, ' ');
+                      return (
+                        <button
+                          key={entry.id}
+                          onClick={() => handleRestoreHistory(entry)}
+                          className="w-full text-left px-2 py-1.5 text-xs rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors truncate cursor-pointer"
+                        >
+                          <span className="font-mono">{preview}…</span>
+                          <span className="block text-[10px] text-text-tertiary mt-0.5">
+                            {formatHistoryDate(entry.timestamp)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
           <div className="flex gap-1">
             <Button variant="ghost" size="sm" onClick={handleFormat}>
               Formatear
@@ -311,6 +430,12 @@ export default function JsonViewer() {
             <Button variant="ghost" size="sm" onClick={handleMinify}>
               Minificar
             </Button>
+            {input.trim() && (
+              <Button variant="ghost" size="sm" onClick={handleClear}>
+                <X size={14} />
+                Limpiar
+              </Button>
+            )}
           </div>
         </div>
         <textarea

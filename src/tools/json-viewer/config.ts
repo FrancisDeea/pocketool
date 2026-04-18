@@ -9,4 +9,5 @@ export const config: ToolConfig = {
   icon: 'Braces',
   author: 'pocketool',
   version: '1.0.0',
+  dbKeys: ['tool:json-viewer:last-input'],
 };
