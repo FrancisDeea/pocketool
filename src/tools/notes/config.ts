@@ -9,6 +9,5 @@ export const config: ToolConfig = {
   icon: 'StickyNote',
   author: 'pocketool',
   version: '1.0.0',
-  storageVersion: 1,
-  migrate: (oldData: unknown, _fromVersion: number) => oldData,
+  dbKeys: ['tool:notes:list'],
 };

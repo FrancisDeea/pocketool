@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -9,29 +9,9 @@ import {
   Clock,
 } from 'lucide-react';
 import Button from '@ui/Button';
-import { storageGet, storageSet } from '@/utils/storage';
 import ScrollArea from '@ui/ScrollArea';
-
-type Note = {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  createdAt: number;
-  updatedAt: number;
-};
-
-const STORAGE_KEY = 'tool:notes:list';
-
-function loadNotes(): Note[] {
-  const result = storageGet<Note[]>(STORAGE_KEY);
-  if (result.ok) return result.data;
-  return [];
-}
-
-async function saveNotes(notes: Note[]): Promise<void> {
-  await storageSet(STORAGE_KEY, notes);
-}
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/db';
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -47,7 +27,13 @@ function formatDate(ts: number): string {
 }
 
 export default function Notes() {
-  const [notes, setNotes] = useState<Note[]>(() => loadNotes());
+  // Reactive query — automatically re-renders when DB changes
+  const notes = useLiveQuery(
+    () => db.notes.orderBy('updatedAt').reverse().toArray(),
+    [],
+    [],
+  );
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTag, setFilterTag] = useState<string | null>(null);
@@ -57,11 +43,6 @@ export default function Notes() {
     () => notes.find((n) => n.id === selectedId) ?? null,
     [notes, selectedId],
   );
-
-  // Persist changes
-  useEffect(() => {
-    saveNotes(notes);
-  }, [notes]);
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -82,68 +63,66 @@ export default function Notes() {
     if (filterTag) {
       result = result.filter((n) => n.tags.includes(filterTag));
     }
-    return result.sort((a, b) => b.updatedAt - a.updatedAt);
+    return result;
   }, [notes, searchQuery, filterTag]);
 
-  const handleCreate = useCallback(() => {
-    const note: Note = {
-      id: generateId(),
+  const handleCreate = useCallback(async () => {
+    const id = generateId();
+    const now = Date.now();
+    await db.notes.add({
+      id,
       title: '',
       content: '',
       tags: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    setNotes((prev) => [note, ...prev]);
-    setSelectedId(note.id);
+      createdAt: now,
+      updatedAt: now,
+    });
+    setSelectedId(id);
   }, []);
 
   const handleUpdate = useCallback(
-    (field: 'title' | 'content', value: string) => {
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.id === selectedId
-            ? { ...n, [field]: value, updatedAt: Date.now() }
-            : n,
-        ),
-      );
+    async (field: 'title' | 'content', value: string) => {
+      if (!selectedId) return;
+      if (field === 'title') {
+        await db.notes.update(selectedId, { title: value, updatedAt: Date.now() });
+      } else {
+        await db.notes.update(selectedId, { content: value, updatedAt: Date.now() });
+      }
     },
     [selectedId],
   );
 
   const handleDelete = useCallback(
-    (id: string) => {
-      setNotes((prev) => prev.filter((n) => n.id !== id));
+    async (id: string) => {
+      await db.notes.delete(id);
       if (selectedId === id) setSelectedId(null);
     },
     [selectedId],
   );
 
-  const handleAddTag = useCallback(() => {
-    if (!newTag.trim() || !selectedId) return;
+  const handleAddTag = useCallback(async () => {
+    if (!newTag.trim() || !selectedId || !selectedNote) return;
     const tag = newTag.trim().toLowerCase();
-    setNotes((prev) =>
-      prev.map((n) =>
-        n.id === selectedId && !n.tags.includes(tag)
-          ? { ...n, tags: [...n.tags, tag], updatedAt: Date.now() }
-          : n,
-      ),
-    );
+    if (selectedNote.tags.includes(tag)) {
+      setNewTag('');
+      return;
+    }
+    await db.notes.update(selectedId, {
+      tags: [...selectedNote.tags, tag],
+      updatedAt: Date.now(),
+    });
     setNewTag('');
-  }, [newTag, selectedId]);
+  }, [newTag, selectedId, selectedNote]);
 
   const handleRemoveTag = useCallback(
-    (tag: string) => {
-      if (!selectedId) return;
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.id === selectedId
-            ? { ...n, tags: n.tags.filter((t) => t !== tag), updatedAt: Date.now() }
-            : n,
-        ),
-      );
+    async (tag: string) => {
+      if (!selectedId || !selectedNote) return;
+      await db.notes.update(selectedId, {
+        tags: selectedNote.tags.filter((t) => t !== tag),
+        updatedAt: Date.now(),
+      });
     },
-    [selectedId],
+    [selectedId, selectedNote],
   );
 
   return (
