@@ -12,6 +12,9 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-dom/client'],
+    },
   },
 
   i18n: {
