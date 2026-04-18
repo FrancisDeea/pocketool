@@ -1,4 +1,5 @@
 import { useStore } from '@nanostores/react';
+import { useEffect, useState } from 'react';
 import {
   Braces,
   FileText,
@@ -32,7 +33,12 @@ function getToolHref(toolId: string, locale: string): string {
 }
 
 export default function Sidebar({ tools, currentToolId, locale }: SidebarProps) {
-  const collapsed = useStore($sidebarCollapsed) === 'true';
+  const storeCollapsed = useStore($sidebarCollapsed) === 'true';
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
+  // SSR default is false (open) to match static HTML generation
+  const collapsed = isMounted ? storeCollapsed : false;
 
   return (
     <aside

@@ -40,7 +40,11 @@ export default function Shell({
   locale,
   children,
 }: ShellProps) {
-  const collapsed = useStore($sidebarCollapsed) === 'true';
+  const storeCollapsed = useStore($sidebarCollapsed) === 'true';
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+  const collapsed = isMounted ? storeCollapsed : false;
+  
   const theme = useStore($theme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
