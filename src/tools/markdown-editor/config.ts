@@ -9,4 +9,5 @@ export const config: ToolConfig = {
   icon: 'FileText',
   author: 'pocketool',
   version: '1.0.0',
+  dbKeys: ['tool:markdown-editor:content'],
 };

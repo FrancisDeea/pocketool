@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { Copy, Check, Download, FileText } from 'lucide-react';
+import { Copy, Check, Download, History, Trash2 } from 'lucide-react';
 import { Marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
 import DOMPurify from 'dompurify';
 import Button from '@ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@ui/Tabs';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db, addToolHistory, type ToolHistory } from '@/db';
 
 const DEFAULT_MARKDOWN = `# Bienvenido a Markdown Editor
 
@@ -51,9 +53,69 @@ sequenceDiagram
 `;
 
 export default function MarkdownEditor() {
+  // Load persisted content from Dexie
+  const savedContent = useLiveQuery(
+    () => db.toolStates.get('tool:markdown-editor:content'),
+    [],
+  );
   const [content, setContent] = useState(DEFAULT_MARKDOWN);
+  const [contentLoaded, setContentLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // History entries
+  const history = useLiveQuery(
+    () =>
+      db.toolHistory
+        .where('toolId')
+        .equals('markdown-editor')
+        .reverse()
+        .sortBy('timestamp'),
+    [],
+    [],
+  );
+
+  // Load saved content once
+  useEffect(() => {
+    if (savedContent && !contentLoaded) {
+      const saved = savedContent.content as string;
+      if (saved) setContent(saved);
+      setContentLoaded(true);
+    }
+    if (savedContent === null && !contentLoaded) {
+      setContentLoaded(true);
+    }
+  }, [savedContent, contentLoaded]);
+
+  // Persist content to Dexie (debounced)
+  useEffect(() => {
+    if (!contentLoaded) return;
+    const timer = setTimeout(() => {
+      db.toolStates.put({
+        id: 'tool:markdown-editor:content',
+        content,
+        updatedAt: Date.now(),
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [content, contentLoaded]);
+
+  const handleClear = useCallback(async () => {
+    if (content.trim() && content !== DEFAULT_MARKDOWN) {
+      await addToolHistory('markdown-editor', {
+        content: content.trim(),
+        timestamp: Date.now(),
+      });
+    }
+    setContent('');
+  }, [content]);
+
+  const handleRestoreHistory = useCallback((entry: ToolHistory) => {
+    const data = entry.data as { content: string };
+    if (data.content) setContent(data.content);
+    setHistoryOpen(false);
+  }, []);
 
   const marked = useMemo(() => {
     const m = new Marked();
@@ -73,7 +135,6 @@ export default function MarkdownEditor() {
   // Mermaid rendering
   useEffect(() => {
     if (!previewRef.current) return;
-    const currentHtml = html; // capture closure
 
     const mermaidBlocks =
       previewRef.current.querySelectorAll('code.language-mermaid');
@@ -174,12 +235,50 @@ ${html}
     <div className="h-[calc(100dvh-var(--topbar-height)-3rem)]">
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-3">
+        {/* Left: history */}
         <div className="flex items-center gap-2">
-          <FileText size={16} className="text-text-tertiary" />
-          <span className="text-xs font-medium text-text-tertiary uppercase tracking-wide">
-            Markdown Editor
-          </span>
+          <div className="relative">
+            <button
+              onClick={() => setHistoryOpen(!historyOpen)}
+              disabled={history.length === 0}
+              className={[
+                'p-1 rounded text-text-tertiary transition-colors cursor-pointer',
+                history.length > 0 ? 'hover:text-text-primary hover:bg-surface-hover' : 'opacity-40',
+              ].join(' ')}
+              title="Historial"
+            >
+              <History size={14} />
+            </button>
+            {historyOpen && history.length > 0 && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setHistoryOpen(false)} />
+                <div className="absolute top-full left-0 mt-1 z-50 w-72 max-h-64 overflow-y-auto bg-surface border border-border rounded-lg shadow-lg p-1">
+                  <div className="px-2 py-1 text-[10px] font-semibold text-text-tertiary uppercase tracking-wider">
+                    Historial reciente
+                  </div>
+                  {history.map((entry) => {
+                    const data = entry.data as { content: string; timestamp: number };
+                    const preview = data.content.slice(0, 80).replace(/\n/g, ' ');
+                    return (
+                      <button
+                        key={entry.id}
+                        onClick={() => handleRestoreHistory(entry)}
+                        className="w-full text-left px-2 py-1.5 text-xs rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors truncate cursor-pointer"
+                      >
+                        <span className="font-mono">{preview}…</span>
+                        <span className="block text-[10px] text-text-tertiary mt-0.5">
+                          {new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(entry.timestamp))}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Right: actions */}
         <div className="flex gap-1">
           <Button variant="ghost" size="sm" onClick={handleCopy}>
             {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -193,6 +292,12 @@ ${html}
             <Download size={14} />
             .html
           </Button>
+          {content.trim() && (
+            <Button variant="ghost" size="sm" onClick={handleClear}>
+              <Trash2 size={14} />
+              Limpiar
+            </Button>
+          )}
         </div>
       </div>
 
