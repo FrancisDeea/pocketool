@@ -33,6 +33,16 @@ function greet(name) {
 | Markdown Editor | ✅ Listo |
 | Image Optimizer | 🔨 En progreso |
 
+## Diagrama Mermaid
+
+\`\`\`mermaid
+sequenceDiagram
+  Usuario->>Servidor: Petición de Login
+  Servidor-->>Base de Datos: Validar credenciales
+  Base de Datos-->>Servidor: Usuario válido
+  Servidor-->>Usuario: Acceso permitido
+\`\`\`
+
 ## Lista de tareas
 
 - [x] Crear proyecto
@@ -63,12 +73,16 @@ export default function MarkdownEditor() {
   // Mermaid rendering
   useEffect(() => {
     if (!previewRef.current) return;
+    const currentHtml = html; // capture closure
 
     const mermaidBlocks =
       previewRef.current.querySelectorAll('code.language-mermaid');
     if (mermaidBlocks.length === 0) return;
 
+    let isStale = false;
+
     import('mermaid').then(({ default: mermaid }) => {
+      if (isStale) return;
       mermaid.initialize({
         startOnLoad: false,
         theme: 'dark',
@@ -79,23 +93,34 @@ export default function MarkdownEditor() {
         const pre = block.parentElement;
         if (!pre) return;
 
-        const container = document.createElement('div');
-        container.className = 'mermaid-container my-4';
-
+        // Create container while keeping the pre hidden during render
+        pre.style.display = 'none';
+        
         try {
           const { svg } = await mermaid.render(
-            `mermaid-${idx}`,
+            `mermaid-${Date.now()}-${idx}`,
             block.textContent ?? '',
           );
+          if (isStale) return; // Drop if another keypress happened
+          
+          const container = document.createElement('div');
+          container.className = 'mermaid-container my-4 flex justify-center';
           container.innerHTML = svg;
           pre.replaceWith(container);
         } catch {
-          container.innerHTML =
-            '<p class="text-danger text-sm">Error en diagrama Mermaid</p>';
-          pre.replaceWith(container);
+          if (isStale) return;
+          pre.style.display = 'block';
+          const errorMsg = document.createElement('p');
+          errorMsg.className = 'text-danger text-sm mt-2 font-mono';
+          errorMsg.textContent = 'Error en parseo Mermaid: sintaxis inválida.';
+          pre.appendChild(errorMsg);
         }
       });
     });
+
+    return () => {
+      isStale = true;
+    };
   }, [html]);
 
   const handleCopy = useCallback(async () => {
