@@ -1,5 +1,5 @@
 /** Category of a tool */
-export type ToolCategory = 'data' | 'text' | 'media' | 'productivity';
+export type ToolCategory = 'data' | 'text' | 'media' | 'productivity' | 'preview';
 
 /** Configuration contract every tool must export from config.ts */
 export type ToolConfig = {
@@ -19,10 +19,8 @@ export type ToolConfig = {
   author: string;
   /** Semver version */
   version: string;
-  /** Storage schema version (required if tool persists data) */
-  storageVersion?: number;
-  /** Migration function for storage schema changes */
-  migrate?: (oldData: unknown, fromVersion: number) => unknown;
+  /** Dexie keys this tool uses (for documentation and cleanup) */
+  dbKeys?: string[];
 };
 
 /** Result type for storage operations */
