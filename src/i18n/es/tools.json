@@ -34,6 +34,23 @@
     "downloading": "Procesando...",
     "savings": "Ahorro"
   },
+  "regex-tester": {
+    "title": "Regex Tester",
+    "description": "Prueba y depura expresiones regulares con resaltado en tiempo real",
+    "patternPlaceholder": "patrón",
+    "testStringLabel": "Texto de prueba",
+    "testStringPlaceholder": "Pega el texto para probar el patrón...",
+    "outputLabel": "Resultado resaltado",
+    "outputPlaceholder": "El resultado aparecerá aquí...",
+    "matchDetailsLabel": "Detalle de coincidencias",
+    "matches": "coincidencias",
+    "match": "coincidencia",
+    "noMatches": "Sin coincidencias",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "clear": "Limpiar",
+    "hint": "Escribe un patrón arriba. Los flags se activan debajo del input. Los resultados se actualizan en tiempo real."
+  },
   "notes": {
     "title": "Quick Notes",
     "description": "Notas rápidas con etiquetas y persistencia local",
