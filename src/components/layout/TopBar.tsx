@@ -8,6 +8,8 @@ import {
   Globe,
   Menu,
   Info,
+  Mail,
+  User,
 } from 'lucide-react';
 import type { ThemeMode } from '@/types/tool';
 import { $theme, applyTheme } from '@/stores/theme';
@@ -28,6 +30,7 @@ import {
 import Button from '@ui/Button';
 import Tooltip from '@ui/Tooltip';
 import type { ToolConfig } from '@/types/tool';
+import { contributors } from '@/data/contributors';
 
 /** GitHub icon (brand icons were removed from lucide-react v1.x) */
 function GitHubIcon({ size = 16 }: { size?: number }) {
@@ -41,6 +44,55 @@ function GitHubIcon({ size = 16 }: { size?: number }) {
     >
       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
     </svg>
+  );
+}
+
+function LinkedinIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect width="4" height="12" x="2" y="9" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+function ContributorBadge({ id, role }: { id: string; role: string }) {
+  const c = contributors[id];
+  if (!c) return <span className="text-sm text-text-secondary">@{id}</span>;
+  return (
+    <div className="flex flex-col gap-2 p-3 bg-surface-hover rounded-lg border border-border">
+      <div className="flex items-center gap-2">
+        <User size={14} className="text-text-secondary" />
+        <span className="text-sm font-medium text-text-primary">{c.name}</span>
+        <span className="text-xs text-text-tertiary ml-auto bg-surface px-2 py-0.5 rounded-full border border-border">{role}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <a href={`https://github.com/${c.github}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors" title="GitHub">
+          <GitHubIcon size={14} /> <span className="hidden sm:inline">{c.github}</span>
+        </a>
+        {c.linkedin && (
+          <a href={c.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-[#0a66c2] transition-colors" title="LinkedIn">
+            <LinkedinIcon size={14} /> <span className="hidden sm:inline">LinkedIn</span>
+          </a>
+        )}
+        {c.email && (
+          <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors" title="Email">
+            <Mail size={14} /> <span className="hidden sm:inline">Email</span>
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -120,52 +172,60 @@ export default function TopBar({
                   <Info size={16} />
                 </button>
               </DialogTrigger>
-              <DialogContent title={currentTool.title} description={currentTool.description}>
-                <div className="py-2 space-y-4">
-                  <div>
-                    <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Versión</span>
-                    <span className="text-sm text-text-primary">{currentTool.version || '1.0.0'}</span>
-                  </div>
-                  {currentTool.tags && currentTool.tags.length > 0 && (
+              <DialogContent title={currentTool.title} description={currentTool.detailedDescription || currentTool.description}>
+                <div className="py-2 mt-4 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2">
+                  {currentTool.technicalDescription && (
                     <div>
-                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Tags</span>
-                      <div className="flex flex-wrap gap-1">
-                        {currentTool.tags.map(tag => (
-                          <span key={tag} className="px-2 py-1 bg-surface-hover text-text-secondary text-xs rounded-md border border-border">
-                            {tag}
-                          </span>
-                        ))}
+                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Technical Details</span>
+                      <p className="text-sm text-text-primary leading-relaxed">{currentTool.technicalDescription}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Versión</span>
+                      <span className="text-sm text-text-primary font-mono">{currentTool.version || '1.0.0'}</span>
+                    </div>
+                    {currentTool.tags && currentTool.tags.length > 0 && (
+                      <div className="text-right">
+                        <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Tags</span>
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {currentTool.tags.map(tag => (
+                            <span key={tag} className="px-2 py-1 bg-surface-hover text-text-secondary text-xs rounded-md border border-border">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-3">Autores & Contribuidores</span>
+                    <div className="flex flex-col gap-3">
+                      {(currentTool.creator || currentTool.author) && (
+                         <ContributorBadge id={currentTool.creator || currentTool.author || ''} role="Creador" />
+                      )}
+                      {currentTool.contributors?.map(contributorId => (
+                         <ContributorBadge key={contributorId} id={contributorId} role="Contribuidor" />
+                      ))}
                     </div>
-                  )}
-                  {currentTool.author && (
-                    <div>
-                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Autor</span>
-                      <a 
-                        href={`https://github.com/${currentTool.author}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="text-sm text-accent hover:underline flex items-center gap-1"
-                      >
-                        <GitHubIcon size={14} /> @{currentTool.author}
-                      </a>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
 
             {/* Author attribution (desktop only) */}
-            {currentTool.author && (
+            {(currentTool.creator || currentTool.author) && (
               <a
-                href={`https://github.com/${currentTool.author}`}
+                href={`https://github.com/${contributors[currentTool.creator || currentTool.author || '']?.github || currentTool.creator || currentTool.author}`}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden md:flex items-center gap-1 text-xs font-medium text-text-tertiary hover:text-text-secondary px-2 py-1 rounded-md hover:bg-surface-hover transition-colors shrink-0"
-                title={`Creado por @${currentTool.author}`}
+                className="hidden md:flex items-center gap-1.5 text-xs font-medium text-text-tertiary hover:text-text-secondary px-2 py-1 flex-row rounded-md hover:bg-surface-hover transition-colors shrink-0"
+                title={`Creado por @${currentTool.creator || currentTool.author}`}
               >
                 <GitHubIcon size={12} />
-                {currentTool.author}
+                <span className="opacity-90">{contributors[currentTool.creator || currentTool.author || '']?.name || currentTool.creator || currentTool.author}</span>
               </a>
             )}
           </>
