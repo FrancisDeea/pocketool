@@ -2,14 +2,21 @@ import * as TabsPrimitive from '@radix-ui/react-tabs';
 import type { ReactNode } from 'react';
 
 type TabsProps = {
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
   children: ReactNode;
   className?: string;
 };
 
-export function Tabs({ defaultValue, children, className = '' }: TabsProps) {
+export function Tabs({ defaultValue, value, onValueChange, children, className = '' }: TabsProps) {
   return (
-    <TabsPrimitive.Root defaultValue={defaultValue} className={className}>
+    <TabsPrimitive.Root 
+      defaultValue={defaultValue} 
+      value={value} 
+      onValueChange={onValueChange} 
+      className={className}
+    >
       {children}
     </TabsPrimitive.Root>
   );

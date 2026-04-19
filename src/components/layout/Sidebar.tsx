@@ -7,10 +7,13 @@ import {
   StickyNote,
   Monitor,
   Code,
+  MonitorSmartphone,
   PanelLeftClose,
   PanelLeft,
   Wrench,
   X,
+  KeyRound,
+  Regex
 } from 'lucide-react';
 import type { ToolConfig } from '@/types/tool';
 import { $sidebarCollapsed, toggleSidebar } from '@/stores/preferences';
@@ -33,7 +36,10 @@ const iconMap: Record<string, typeof Braces> = {
   Image: ImageIcon,
   StickyNote,
   Monitor,
+  MonitorSmartphone,
   Code,
+  KeyRound,
+  Regex,
 };
 
 function getToolHref(toolId: string, locale: string): string {
