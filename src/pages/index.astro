@@ -1,8 +1,8 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import Shell from '@/components/layout/Shell';
-import { getAllTools } from '@/tools/registry';
-import { Wrench, ArrowRight } from 'lucide-react';
+import Layout from "@/layouts/Layout.astro";
+import Shell from "@/components/layout/Shell";
+import { getAllTools } from "@/tools/registry";
+import { Wrench, ArrowRight } from "lucide-react";
 
 const tools = getAllTools();
 ---
@@ -11,66 +11,91 @@ const tools = getAllTools();
   <Shell tools={tools} locale="es" client:load>
     <!-- Hero -->
     <div class="max-w-3xl mx-auto text-center py-12 md:py-20">
-      <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-medium text-accent bg-accent-muted rounded-full border border-accent/20">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-medium text-accent bg-accent-muted rounded-full border border-accent/20"
+      >
         <Wrench size={12} />
         100% Local-First
       </div>
-      <h1 class="text-4xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
+      <h1
+        class="text-4xl md:text-6xl font-bold text-text-primary mb-6 leading-tight"
+      >
         Herramientas esenciales
         <br />
         <span class="text-accent">para desarrolladores</span>
       </h1>
       <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-10">
-        Una suite de herramientas extremadamente rápidas, enfocadas en la privacidad y con cero configuraciones. Todo funciona directamente en tu navegador.
+        Una suite de herramientas extremadamente rápidas, enfocadas en la
+        privacidad y con cero configuraciones. Todo funciona directamente en tu
+        navegador.
       </p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto mb-16">
+
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto mb-16"
+      >
         <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
-          <h3 class="text-base font-semibold text-text-primary mb-2">Privacidad Absoluta</h3>
-          <p class="text-sm text-text-secondary">Sin bases de datos externas ni subida de archivos confidenciales. Todo el procesamiento se realiza localmente.</p>
+          <h3 class="text-base font-semibold text-text-primary mb-2">
+            Privacidad Absoluta
+          </h3>
+          <p class="text-sm text-text-secondary">
+            Sin bases de datos externas ni subida de archivos confidenciales.
+            Todo el procesamiento se realiza localmente.
+          </p>
         </div>
         <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
-          <h3 class="text-base font-semibold text-text-primary mb-2">Offline Ready (PWA)</h3>
-          <p class="text-sm text-text-secondary">Instálalo una vez y úsalo siempre, incluso sin conexión a internet. Los datos se guardan en IndexedDB.</p>
+          <h3 class="text-base font-semibold text-text-primary mb-2">
+            Offline Ready (PWA)
+          </h3>
+          <p class="text-sm text-text-secondary">
+            Instálalo una vez y úsalo siempre, incluso sin conexión a internet.
+            Los datos se guardan en IndexedDB.
+          </p>
         </div>
         <div class="p-6 rounded-2xl bg-surface-hover/50 border border-border">
-          <h3 class="text-base font-semibold text-text-primary mb-2">Velocidad Extrema</h3>
-          <p class="text-sm text-text-secondary">Construido con Astro y Web Workers para un rendimiento óptimo sin bloqueo del hilo principal.</p>
+          <h3 class="text-base font-semibold text-text-primary mb-2">
+            Velocidad Extrema
+          </h3>
+          <p class="text-sm text-text-secondary">
+            Construido con Astro y Web Workers para un rendimiento óptimo sin
+            bloqueo del hilo principal.
+          </p>
         </div>
       </div>
     </div>
 
     <!-- Tools Grid -->
     <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pb-12">
-      {tools.map((tool) => (
-        <a
-          href={`/tool/${tool.id}`}
-          data-astro-prefetch
-          class="group relative flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-border-hover transition-all duration-[var(--transition-base)] hover:shadow-md"
-        >
-          <div class="flex items-start justify-between mb-3">
-            <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center text-accent">
-              <Wrench size={20} />
-            </div>
-            <span class="opacity-0 group-hover:opacity-100 transition-opacity text-text-tertiary">
-              <ArrowRight size={16} />
-            </span>
-          </div>
-          <h2 class="text-base font-semibold text-text-primary mb-1">
-            {tool.title}
-          </h2>
-          <p class="text-sm text-text-secondary mb-3 flex-1">
-            {tool.description}
-          </p>
-          <div class="flex flex-wrap gap-1.5">
-            {tool.tags.slice(0, 3).map((tag) => (
-              <span class="px-2 py-0.5 text-[10px] font-medium text-text-tertiary bg-surface-hover rounded-full border border-border">
-                {tag}
+      {
+        tools.map((tool) => (
+          <a
+            href={`/tool/${tool.id}`}
+            data-astro-prefetch
+            class="group relative flex flex-col p-5 rounded-xl bg-surface border border-border hover:border-border-hover transition-all duration-[var(--transition-base)] hover:shadow-md"
+          >
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-lg bg-accent-muted flex items-center justify-center text-accent">
+                <Wrench size={20} />
+              </div>
+              <span class="opacity-0 group-hover:opacity-100 transition-opacity text-text-tertiary">
+                <ArrowRight size={16} />
               </span>
-            ))}
-          </div>
-        </a>
-      ))}
+            </div>
+            <h2 class="text-base font-semibold text-text-primary mb-1">
+              {tool.title}
+            </h2>
+            <p class="text-sm text-text-secondary mb-3 flex-1">
+              {tool.description}
+            </p>
+            <div class="flex flex-wrap gap-1.5">
+              {tool.tags.slice(0, 3).map((tag) => (
+                <span class="px-2 py-0.5 text-[10px] font-medium text-text-tertiary bg-surface-hover rounded-full border border-border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
+        ))
+      }
     </div>
   </Shell>
 </Layout>

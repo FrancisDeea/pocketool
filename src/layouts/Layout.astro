@@ -1,6 +1,6 @@
 ---
-import '@/styles/global.css';
-import { ClientRouter } from 'astro:transitions';
+import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -10,8 +10,8 @@ interface Props {
 
 const {
   title,
-  description = 'Herramientas esenciales para desarrolladores. Rápidas, privadas y sin servidor.',
-  lang = 'es',
+  description = "Herramientas esenciales para desarrolladores. Rápidas, privadas y sin servidor.",
+  lang = "es",
 } = Astro.props;
 ---
 
@@ -43,20 +43,24 @@ const {
     <script is:inline>
       (function () {
         try {
-          const stored = localStorage.getItem('app:theme');
+          const stored = localStorage.getItem("app:theme");
           if (stored) {
             const theme = JSON.parse(stored);
-            if (['light', 'light-hc', 'dark', 'dark-hc'].includes(theme)) {
-              document.documentElement.setAttribute('data-theme', theme);
+            if (["light", "light-hc", "dark", "dark-hc"].includes(theme)) {
+              document.documentElement.setAttribute("data-theme", theme);
             }
           } else {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const prefersHc = window.matchMedia('(prefers-contrast: more)').matches;
-            let theme = 'dark';
-            if (prefersDark && prefersHc) theme = 'dark-hc';
-            else if (!prefersDark && prefersHc) theme = 'light-hc';
-            else if (!prefersDark) theme = 'light';
-            document.documentElement.setAttribute('data-theme', theme);
+            const prefersDark = window.matchMedia(
+              "(prefers-color-scheme: dark)",
+            ).matches;
+            const prefersHc = window.matchMedia(
+              "(prefers-contrast: more)",
+            ).matches;
+            let theme = "dark";
+            if (prefersDark && prefersHc) theme = "dark-hc";
+            else if (!prefersDark && prefersHc) theme = "light-hc";
+            else if (!prefersDark) theme = "light";
+            document.documentElement.setAttribute("data-theme", theme);
           }
         } catch (e) {}
       })();
