@@ -7,7 +7,9 @@ export const config: ToolConfig = {
   category: 'data',
   tags: ['json', 'format', 'tree', 'search', 'validate'],
   icon: 'Braces',
-  author: 'pocketool',
+  creator: 'francisdeea',
+  detailedDescription: 'A robust utility to format and inspect structured JSON data. It automatically highlights syntax and makes navigating deep and complex structures effortless.',
+  technicalDescription: 'Parses and safely formats user stringified JSON. Utilizes React components for recursive data-tree rendering to handle deeply nested objects efficiently.',
   version: '1.0.0',
   dbKeys: ['tool:json-viewer:last-input'],
 };

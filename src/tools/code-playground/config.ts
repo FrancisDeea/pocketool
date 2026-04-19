@@ -7,7 +7,9 @@ export const config: ToolConfig = {
   icon: 'Code',
   category: 'preview',
   tags: ['code', 'html', 'css', 'js', 'editor', 'sandbox'],
-  author: 'francisdeea',
+  creator: 'francisdeea',
+  detailedDescription: 'An isolated environment for web prototyping. Write HTML, CSS, and JS/TS code to instantly preview the resulting web application in a secure sandboxed iframe.',
+  technicalDescription: 'Built with React, CodeMirror 6, and local Web Workers for unblocking TypeScript transpilation. All state persists securely in Dexie.',
   version: '1.0.0',
   dbKeys: ['tool:code-playground:state', 'tool:code-playground:snippets'],
 };
