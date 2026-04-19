@@ -34,6 +34,23 @@
     "downloading": "Processing...",
     "savings": "Savings"
   },
+  "regex-tester": {
+    "title": "Regex Tester",
+    "description": "Test and debug regular expressions with live match highlighting",
+    "patternPlaceholder": "pattern",
+    "testStringLabel": "Test String",
+    "testStringPlaceholder": "Paste text to test against your pattern...",
+    "outputLabel": "Highlighted Output",
+    "outputPlaceholder": "Output will appear here...",
+    "matchDetailsLabel": "Match Details",
+    "matches": "matches",
+    "match": "match",
+    "noMatches": "No matches",
+    "copy": "Copy",
+    "copied": "Copied",
+    "clear": "Clear",
+    "hint": "Enter a pattern above. Flags toggle below the input. Results update live."
+  },
   "notes": {
     "title": "Quick Notes",
     "description": "Quick notes with tags and local persistence",
