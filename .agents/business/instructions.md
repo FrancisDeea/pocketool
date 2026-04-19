@@ -1,134 +1,134 @@
 # PROJECT_RULES.md — Pocketool (Multi-Tool Dev Hub)
 
-> Documento vivo de arquitectura, decisiones técnicas y estándares del proyecto.
-> Actualizar con cada decisión relevante que se tome durante el desarrollo.
+> Living document covering architecture, technical decisions, and project standards.
+> Update with every relevant decision made during development.
 
 ---
 
-## 1. Visión y Filosofía
+## 1. Vision & Philosophy
 
-**Pocketool** es una aplicación web de herramientas esenciales para desarrolladores, diseñada con los principios:
+**Pocketool** is a web application of essential developer tools, built around these principles:
 
-- **Local-first:** Sin servidor, sin base de datos remota. Todo vive en el navegador del usuario.
-- **Performance-first:** Zero JS innecesario. Arquitectura de islas. Lazy load agresivo.
-- **Minimalismo funcional:** La UI sirve a la herramienta, nunca al revés.
-- **Escalabilidad por convención:** Añadir una nueva herramienta no requiere tocar código central.
-- **Offline-ready:** La app funciona sin conexión gracias a PWA + Service Worker.
+- **Local-first:** No server, no remote database. Everything lives in the user's browser.
+- **Performance-first:** Zero unnecessary JS. Island architecture. Aggressive lazy loading.
+- **Functional minimalism:** The UI serves the tool, never the other way around.
+- **Convention-driven scalability:** Adding a new tool requires no changes to core code.
+- **Offline-ready:** The app works without a connection thanks to PWA + Service Worker.
 
-### Herramientas MVP
+### MVP Tools
 
-| ID                   | Nombre             | Descripción                                                             |
-| -------------------- | ------------------ | ----------------------------------------------------------------------- |
-| `json-viewer`        | JSON Viewer        | Árbol colapsable, búsqueda, formateo, copia y descarga de JSON grandes  |
-| `markdown-editor`    | Markdown Editor    | Editor con preview, soporte GFM, diagramas Mermaid, copia y descarga    |
-| `image-optimizer`    | Image Optimizer    | Optimizador al estilo Squoosh con wasm-vips, comparación antes/después  |
-| `notes`              | Quick Notes        | Gestor de notas rápidas con etiquetas, búsqueda y persistencia local    |
-| `responsive-preview` | Responsive Preview | Vista multi-viewport de URLs externas con scroll y clicks sincronizados |
-| `code-playground`    | Code Playground    | Editor HTML/CSS/Script con preview, consola y biblioteca de snippets    |
+| ID                   | Name               | Description                                                               |
+| -------------------- | ------------------ | ------------------------------------------------------------------------- |
+| `json-viewer`        | JSON Viewer        | Collapsible tree, search, format, copy and download large JSON files      |
+| `markdown-editor`    | Markdown Editor    | Editor with preview, GFM support, Mermaid diagrams, copy and download     |
+| `image-optimizer`    | Image Optimizer    | Squoosh-style optimizer with wasm-vips, before/after comparison           |
+| `notes`              | Quick Notes        | Quick note manager with tags, search, and local persistence               |
+| `responsive-preview` | Responsive Preview | Multi-viewport view of external URLs with synchronized scroll and clicks  |
+| `code-playground`    | Code Playground    | HTML/CSS/Script editor with preview, console, and snippet library         |
 
 ---
 
-## 2. Stack Tecnológico
+## 2. Tech Stack
 
-| Capa                       | Tecnología                                  | Razón                                                               |
-| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------- |
-| Framework                  | Astro **6.x**                               | Arquitectura de islas, zero-JS por defecto, i18n nativo             |
-| UI (islas interactivas)    | React **19**                                | Concurrent features, ecosistema, compatibilidad con Radix           |
-| Estilos                    | Tailwind CSS **4.x**                        | Utility-first, configuración en CSS (no en JS), `@theme` nativo     |
-| Estado global (UI/prefs)   | Nanostores **1.2** + @nanostores/persistent | Ligero, isomorfo, solo para preferencias y estado de UI             |
-| Persistencia de tools      | Dexie.js (latest)                           | IndexedDB tipado, reactivo, capacidad ~1GB, datos binarios          |
-| Componentes primitivos     | Radix UI (latest)                           | Accesibilidad, headless, sin fricción con Astro                     |
-| Command Palette            | cmdk (latest)                               | Construido sobre Radix, semántica de búsqueda, ligero               |
-| Editores de texto          | CodeMirror **6** (latest)                   | Modular, rendimiento superior en móviles vs Monaco, accesibilidad   |
-| Iconos                     | Lucide React **1.8**                        | Tree-shakeable, consistente, mantenido activamente                  |
-| Imágenes (WASM)            | wasm-vips + Comlink                         | Multi-threading real en WebWorker, misma API que libvips            |
-| Compilador TS (Playground) | typescript (oficial, latest)                | Type-checking real, errores completos, fidelidad total              |
-| PWA                        | @vite-pwa/astro (latest)                    | Service Worker, offline, cacheo de WASM, instalable                 |
-| Testing unitario           | Vitest **4.x** + Testing Library            | Nativo con Vite, rápido, compatible con el ecosistema Astro         |
-| Testing e2e                | Playwright **1.59.x**                       | Estándar de la industria, multi-browser, visual regression          |
-| Despliegue                 | Cloudflare Pages                            | Edge CDN, integración con `_headers`, soporte WASM de primera clase |
-| Package manager            | pnpm (latest)                               | Workspace support, eficiencia de disco, más rápido que npm/yarn     |
+| Layer                      | Technology                                  | Reason                                                                 |
+| -------------------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
+| Framework                  | Astro **6.x**                               | Island architecture, zero-JS by default, native i18n                  |
+| UI (interactive islands)   | React **19**                                | Concurrent features, ecosystem, Radix compatibility                    |
+| Styling                    | Tailwind CSS **4.x**                        | Utility-first, CSS-based config (not JS), native `@theme`              |
+| Global state (UI/prefs)    | Nanostores **1.2** + @nanostores/persistent | Lightweight, isomorphic, only for preferences and UI state             |
+| Tool persistence           | Dexie.js (latest)                           | Typed IndexedDB, reactive, ~1GB capacity, binary data support          |
+| Primitive components       | Radix UI (latest)                           | Accessibility, headless, no friction with Astro                        |
+| Command Palette            | cmdk (latest)                               | Built on Radix, search semantics, lightweight                          |
+| Text editors               | CodeMirror **6** (latest)                   | Modular, superior mobile performance vs Monaco, accessible             |
+| Icons                      | Lucide React **1.8**                        | Tree-shakeable, consistent, actively maintained                        |
+| Images (WASM)              | wasm-vips + Comlink                         | Real multi-threading in WebWorker, same API as libvips                 |
+| TS compiler (Playground)   | typescript (official, latest)               | Real type-checking, full errors, complete fidelity                     |
+| PWA                        | @vite-pwa/astro (latest)                    | Service Worker, offline, WASM caching, installable                     |
+| Unit testing               | Vitest **4.x** + Testing Library            | Native with Vite, fast, compatible with the Astro ecosystem            |
+| E2E testing                | Playwright **1.59.x**                       | Industry standard, multi-browser, visual regression                    |
+| Deployment                 | Cloudflare Pages                            | Edge CDN, `_headers` integration, first-class WASM support             |
+| Package manager            | pnpm (latest)                               | Workspace support, disk efficiency, faster than npm/yarn               |
 
-### Nota importante: Tailwind CSS 4
+### Important note: Tailwind CSS 4
 
-Tailwind 4 elimina el archivo `tailwind.config.mjs`. La configuración ahora vive en CSS:
+Tailwind 4 removes `tailwind.config.mjs`. Configuration now lives in CSS:
 
 ```css
 /* src/styles/global.css */
 @import "tailwindcss";
 
 @theme {
-  --color-accent: /* por definir */;
+  --color-accent: /* to be defined */;
   --font-mono: "Space Mono", monospace;
-  /* resto de tokens del sistema de diseño */
+  /* rest of the design system tokens */
 }
 ```
 
-No hay archivo de configuración JS. Los plugins se importan también en CSS.
+No JS config file. Plugins are also imported in CSS.
 
-### Por qué Radix UI en lugar de Shadcn/ui
+### Why Radix UI instead of Shadcn/ui
 
-Shadcn está diseñado para Next.js y asume RSC. En Astro genera fricción. Radix UI son los primitivos sobre los que se construye Shadcn: accesibles, headless y sin dependencias de framework. Se estilizan directamente con Tailwind, dando control total y bundle más pequeño.
+Shadcn is designed for Next.js and assumes RSC. In Astro it creates friction. Radix UI are the primitives Shadcn is built on: accessible, headless, and framework-agnostic. They are styled directly with Tailwind, giving full control and a smaller bundle.
 
-### Por qué TypeScript oficial en lugar de esbuild-wasm
+### Why the official TypeScript compiler instead of esbuild-wasm
 
-esbuild solo transpila (elimina tipos) pero no verifica tipos. El compilador oficial de TypeScript hace type-checking completo: errores con línea, columna y mensaje exacto. En un playground de TS, mostrar errores de tipo reales es la diferencia entre una herramienta útil y una que da falsa seguridad. El peso es similar (~6MB vs ~8MB) y ambos se cargan en un Worker con lazy load.
+esbuild only transpiles (strips types) but does not verify them. The official TypeScript compiler does full type-checking: errors with line, column, and exact message. In a TS playground, showing real type errors is the difference between a useful tool and one that gives false confidence. The size is similar (~6MB vs ~8MB) and both are loaded lazily in a Worker.
 
 ---
 
-## 3. Arquitectura de Persistencia (Dos Capas)
+## 3. Persistence Architecture (Two Layers)
 
-La persistencia está dividida en dos capas con responsabilidades claras y no intercambiables.
+Persistence is split into two layers with clear, non-interchangeable responsibilities.
 
-### Capa 1: localStorage — Preferencias y estado de UI
+### Layer 1: localStorage — Preferences and UI state
 
-Gestionado exclusivamente via `src/utils/storage.ts`. Solo para datos pequeños, globales y de acceso síncrono frecuente que NO pertenecen a ninguna tool concreta.
+Managed exclusively via `src/utils/storage.ts`. Only for small, global, frequently synchronously accessed data that does NOT belong to any specific tool.
 
-**Qué va en localStorage:**
+**What goes in localStorage:**
 
-- Tema activo (`app:theme`)
-- Idioma preferido (`app:lang`)
-- Estado de visibilidad de paneles del shell (sidebar, topbar)
-- Cualquier preferencia global de la app
+- Active theme (`app:theme`)
+- Preferred language (`app:lang`)
+- Shell panel visibility state (sidebar, topbar)
+- Any global app preference
 
-**Qué NO va en localStorage:** nada relacionado con el contenido o estado de una tool. Sin excepciones.
+**What does NOT go in localStorage:** anything related to a tool's content or state. No exceptions.
 
-### Capa 2: Dexie.js (IndexedDB) — Datos de herramientas
+### Layer 2: Dexie.js (IndexedDB) — Tool data
 
-Todo lo que pertenece a una tool, sin importar el tamaño, va en IndexedDB via Dexie. Esto incluye datos pequeños como la última URL de `responsive-preview` o datos grandes como notas, JSONs guardados o historial del playground.
+Everything that belongs to a tool, regardless of size, goes into IndexedDB via Dexie. This includes small data like the last URL of `responsive-preview` or large data like notes, saved JSON, or playground history.
 
-**Ventajas sobre localStorage para datos de tools:**
+**Advantages over localStorage for tool data:**
 
-- Capacidad ~1GB vs ~10MB
-- Soporte nativo de datos binarios (imágenes procesadas, Blobs)
-- API asíncrona no bloqueante
-- Transacciones reales
-- Consultas indexadas
+- ~1GB capacity vs ~10MB
+- Native binary data support (processed images, Blobs)
+- Non-blocking async API
+- Real transactions
+- Indexed queries
 
-### Definición de la base de datos (`src/db/index.ts`)
+### Database definition (`src/db/index.ts`)
 
 ```typescript
 import Dexie, { type EntityTable } from "dexie";
 
-// Tabla principal: estado persistente de cada tool
+// Main table: persistent state for each tool
 interface ToolState {
-  id: string; // 'tool:[tool-id]:[key]' — Primary Key
-  content: unknown; // datos de la tool, tipados en cada tool
-  updatedAt: number; // timestamp para ordenar y expirar
+  id: string;       // 'tool:[tool-id]:[key]' — Primary Key
+  content: unknown; // tool data, typed within each tool
+  updatedAt: number; // timestamp for sorting and expiry
 }
 
-// Tabla de historial/sesiones (opcional por tool)
+// History/session table (optional per tool)
 interface ToolHistory {
-  id?: number; // autoincrement
+  id?: number;    // autoincrement
   toolId: string; // 'json-viewer', 'code-playground', etc.
   timestamp: number;
   data: unknown;
 }
 
-// Tabla de snippets del playground
+// Playground snippets table
 interface Snippet {
-  id: string; // uuid
-  toolId: string; // 'code-playground'
+  id: string;      // uuid
+  toolId: string;  // 'code-playground'
   name: string;
   description: string;
   lang: "html" | "css" | "js" | "ts";
@@ -137,7 +137,7 @@ interface Snippet {
   createdAt: number;
 }
 
-// Tabla de notas
+// Notes table
 interface Note {
   id: string; // uuid
   title: string;
@@ -167,12 +167,12 @@ class PocketoolDB extends Dexie {
 export const db = new PocketoolDB();
 ```
 
-### Convención de IDs en Dexie
+### Dexie ID convention
 
 ```
 tool:[tool-id]:[key]
 
-Ejemplos:
+Examples:
   tool:json-viewer:last-input
   tool:responsive-preview:last-url
   tool:responsive-preview:viewports
@@ -183,12 +183,12 @@ Ejemplos:
   tool:markdown-editor:content
 ```
 
-### Hooks de acceso a Dexie
+### Dexie access hooks
 
-Cada tool accede a Dexie mediante `useLiveQuery` de `dexie-react-hooks` para reactividad automática, y `db.toolStates.put()` / `db.toolStates.get()` para escritura y lectura directa.
+Each tool accesses Dexie via `useLiveQuery` from `dexie-react-hooks` for automatic reactivity, and `db.toolStates.put()` / `db.toolStates.get()` for direct writes and reads.
 
 ```typescript
-// Patrón de lectura reactiva en una tool
+// Reactive read pattern in a tool
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/db";
 
@@ -197,7 +197,7 @@ const state = useLiveQuery(
   [],
 );
 
-// Patrón de escritura
+// Write pattern
 await db.toolStates.put({
   id: "tool:json-viewer:last-input",
   content: value,
@@ -205,9 +205,9 @@ await db.toolStates.put({
 });
 ```
 
-### Wrapper de localStorage (`src/utils/storage.ts`)
+### localStorage wrapper (`src/utils/storage.ts`)
 
-Para la capa de preferencias globales. Nunca para datos de tools.
+For the global preferences layer. Never for tool data.
 
 ```typescript
 type StorageResult<T> =
@@ -221,32 +221,32 @@ function storageExport(): Record<string, unknown>;
 function storageImport(backup: Record<string, unknown>): void;
 ```
 
-Casos cubiertos:
+Covered cases:
 
-| Caso                  | Comportamiento                                 |
-| --------------------- | ---------------------------------------------- |
-| Cuota excedida        | Toast con opción de limpiar datos              |
-| Modo incógnito Safari | App funciona en memoria, banner no intrusivo   |
-| JSON corrupto         | Borra la key, avisa al usuario                 |
-| Schema desactualizado | Función `migrate()` en config de la tool       |
-| Backup manual         | Exportar/importar todo como JSON desde Ajustes |
+| Case                   | Behavior                                          |
+| ---------------------- | ------------------------------------------------- |
+| Quota exceeded         | Toast with option to clear data                   |
+| Safari private mode    | App works in-memory, non-intrusive banner         |
+| Corrupted JSON         | Deletes the key, notifies the user                |
+| Outdated schema        | `migrate()` function in the tool's config         |
+| Manual backup          | Export/import everything as JSON from Settings    |
 
 ---
 
 ## 4. PWA — Progressive Web App
 
-### Objetivo
+### Goal
 
-Pocketool funciona completamente offline una vez instalada. El Service Worker cachea todos los assets estáticos, incluyendo los archivos WASM pesados (`wasm-vips`, el compilador de TypeScript).
+Pocketool works completely offline once installed. The Service Worker caches all static assets, including heavy WASM files (`wasm-vips`, the TypeScript compiler).
 
-### Integración con Astro 6 + Cloudflare Pages
+### Integration with Astro 6 + Cloudflare Pages
 
 ```javascript
 // astro.config.mjs
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from "vite-plugin-pwa"; // @vite-pwa/astro usa VitePWA internamente
+import { VitePWA } from "vite-plugin-pwa"; // @vite-pwa/astro uses VitePWA internally
 
 export default defineConfig({
   output: "static",
@@ -258,10 +258,10 @@ export default defineConfig({
         registerType: "autoUpdate",
         injectRegister: "auto",
         workbox: {
-          // Crítico: wasm-vips y typescript superan el límite por defecto de 2MB
+          // Critical: wasm-vips and typescript exceed the default 2MB limit
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
           globPatterns: ["**/*.{js,css,html,ico,png,svg,wasm}"],
-          // Estrategia de caché para WASM: cache-first, válido 1 año
+          // Cache strategy for WASM: cache-first, valid for 1 year
           runtimeCaching: [
             {
               urlPattern: /\.wasm$/,
@@ -297,11 +297,11 @@ export default defineConfig({
 });
 ```
 
-### Conflicto COOP/COEP con Service Worker
+### COOP/COEP conflict with Service Worker
 
-El Service Worker de la PWA y `SharedArrayBuffer` (necesario para wasm-vips y el compilador TS en Worker) requieren los headers COOP/COEP. Sin embargo, aplicarlos globalmente rompe recursos externos (iframes en `responsive-preview`).
+The PWA Service Worker and `SharedArrayBuffer` (required for wasm-vips and the TS compiler in a Worker) both require COOP/COEP headers. However, applying them globally breaks external resources (iframes in `responsive-preview`).
 
-**Solución:** aplicar los headers COOP/COEP solo en las rutas que los necesitan, via `public/_headers`. El Service Worker funciona correctamente con esta configuración selectiva porque el scope del SW cubre toda la app pero los headers restrictivos solo afectan a las rutas que los definen.
+**Solution:** apply COOP/COEP headers only on the routes that need them, via `public/_headers`. The Service Worker works correctly with this selective configuration because the SW scope covers the entire app but the restrictive headers only affect the routes that define them.
 
 ```
 # public/_headers
@@ -319,31 +319,31 @@ El Service Worker de la PWA y `SharedArrayBuffer` (necesario para wasm-vips y el
   Cache-Control: public, max-age=31536000, immutable
 ```
 
-> **Nota:** `credentialless` (en lugar de `require-corp`) es menos restrictivo y permite cargar recursos externos sin necesitar el header `CORP` en cada uno. Es la opción correcta para una app que embebe iframes de terceros.
+> **Note:** `credentialless` (instead of `require-corp`) is less restrictive and allows loading external resources without needing the `CORP` header on each one. It is the right choice for an app that embeds third-party iframes.
 
-### Comportamiento offline
+### Offline behavior
 
-- Primera visita: el SW se instala y cachea todos los assets.
-- Visitas siguientes: se sirve desde caché, sin red.
-- Actualización: `registerType: 'autoUpdate'` actualiza el SW en segundo plano y recarga la app al terminar.
-- IndexedDB (Dexie) persiste entre sesiones independientemente del estado de la red.
+- First visit: the SW installs and caches all assets.
+- Subsequent visits: served from cache, no network required.
+- Updates: `registerType: 'autoUpdate'` updates the SW in the background and reloads the app when done.
+- IndexedDB (Dexie) persists between sessions regardless of network state.
 
 ---
 
-## 5. Estructura de Carpetas
+## 5. Folder Structure
 
 ```
 pocketool/
 ├── public/
-│   ├── _headers                        # Headers HTTP por ruta (Cloudflare Pages)
+│   ├── _headers                        # HTTP headers per route (Cloudflare Pages)
 │   ├── _redirects
-│   └── icons/                          # Iconos PWA (192, 512)
+│   └── icons/                          # PWA icons (192, 512)
 ├── src/
 │   ├── components/
-│   │   ├── ui/                         # Primitivos (Button, Badge, Tooltip, etc.)
+│   │   ├── ui/                         # Primitives (Button, Badge, Tooltip, etc.)
 │   │   └── layout/                     # Shell, Sidebar, TopBar, CommandPalette
 │   ├── db/
-│   │   └── index.ts                    # Dexie: definición de la BD y tablas
+│   │   └── index.ts                    # Dexie: database and table definitions
 │   ├── i18n/
 │   │   ├── es/
 │   │   │   ├── ui.json
@@ -352,17 +352,17 @@ pocketool/
 │   │       ├── ui.json
 │   │       └── tools.json
 │   ├── layouts/
-│   │   └── ToolLayout.astro            # Layout base inyectado a cada tool
+│   │   └── ToolLayout.astro            # Base layout injected into each tool
 │   ├── pages/
 │   │   ├── index.astro
 │   │   └── [lang]/
 │   │       └── tool/
 │   │           └── [slug].astro
 │   ├── stores/
-│   │   ├── theme.ts                    # Nanostore: tema activo (localStorage)
-│   │   └── preferences.ts             # Nanostore: preferencias globales (localStorage)
+│   │   ├── theme.ts                    # Nanostore: active theme (localStorage)
+│   │   └── preferences.ts             # Nanostore: global preferences (localStorage)
 │   ├── tools/
-│   │   ├── registry.ts                 # import.meta.glob — NO tocar manualmente
+│   │   ├── registry.ts                 # import.meta.glob — do NOT edit manually
 │   │   ├── json-viewer/
 │   │   │   ├── index.tsx
 │   │   │   └── config.ts
@@ -390,7 +390,7 @@ pocketool/
 │   │   └── code-playground/
 │   │       ├── index.tsx
 │   │       ├── config.ts
-│   │       ├── worker.ts               # Web Worker compilador TypeScript oficial
+│   │       ├── worker.ts               # Web Worker official TypeScript compiler
 │   │       ├── components/
 │   │       │   ├── Toolbar.tsx
 │   │       │   ├── EditorPanel.tsx
@@ -403,7 +403,7 @@ pocketool/
 │   │           ├── useTsCompiler.ts
 │   │           └── useSnippets.ts
 │   └── utils/
-│       ├── storage.ts                  # Wrapper localStorage (solo preferencias globales)
+│       ├── storage.ts                  # localStorage wrapper (global preferences only)
 │       ├── i18n.ts
 │       └── detect-lang.ts
 ├── tests/
@@ -417,9 +417,9 @@ pocketool/
 
 ---
 
-## 6. Sistema de Auto-Registry de Herramientas
+## 6. Tool Auto-Registry System
 
-### Contrato obligatorio de cada herramienta
+### Required contract for each tool
 
 **`config.ts`**
 
@@ -429,13 +429,13 @@ import type { ToolConfig } from "@/tools/registry";
 export const config: ToolConfig = {
   id: "json-viewer",
   title: "JSON Viewer",
-  description: "Explora y formatea JSON de cualquier tamaño",
+  description: "Explore and format JSON of any size",
   category: "data", // 'data' | 'text' | 'media' | 'productivity' | 'preview'
   tags: ["json", "format", "tree", "search"],
-  icon: "Braces", // nombre del icono de Lucide
-  author: "tu-usuario",
+  icon: "Braces", // Lucide icon name
+  author: "your-username",
   version: "1.0.0",
-  dbKeys: ["tool:json-viewer:last-input"], // keys que esta tool usa en Dexie
+  dbKeys: ["tool:json-viewer:last-input"], // keys this tool uses in Dexie
 };
 ```
 
@@ -445,7 +445,7 @@ export const config: ToolConfig = {
 export default function JsonViewer() { ... }
 ```
 
-### `registry.ts` (no modificar manualmente)
+### `registry.ts` (do not edit manually)
 
 ```typescript
 const toolModules = import.meta.glob('./*/index.tsx');
@@ -457,12 +457,12 @@ export async function loadTool(id: string) { ... }
 
 ---
 
-## 7. Internacionalización (i18n)
+## 7. Internationalization (i18n)
 
-- **Idioma por defecto:** Español (`es`)
-- **Detección:** `navigator.language` en el primer acceso. Preferencia persistida en localStorage (`app:lang`) via Nanostores.
-- **Rutas:** `/tool/json-viewer` (es), `/en/tool/json-viewer` (en). Sin prefijo para el idioma por defecto.
-- **Strings:** nunca hardcodeados en componentes. Siempre desde `src/i18n/[lang]/`.
+- **Default language:** Spanish (`es`)
+- **Detection:** `navigator.language` on first access. Preference persisted in localStorage (`app:lang`) via Nanostores.
+- **Routes:** `/tool/json-viewer` (es), `/en/tool/json-viewer` (en). No prefix for the default language.
+- **Strings:** never hardcoded in components. Always from `src/i18n/[lang]/`.
 
 ```typescript
 // astro.config.mjs
@@ -475,9 +475,9 @@ i18n: {
 
 ---
 
-## 8. Navegación y Headers de Seguridad
+## 8. Navigation and Security Headers
 
-El proyecto usa `output: 'static'`. Sin servidor, sin SSR, sin Cloudflare Workers. La navegación es SPA con `<ViewTransitions />` de Astro. Los headers se gestionan exclusivamente via `public/_headers`.
+The project uses `output: 'static'`. No server, no SSR, no Cloudflare Workers. Navigation is SPA with Astro's `<ViewTransitions />`. Headers are managed exclusively via `public/_headers`.
 
 ```
 # public/_headers
@@ -497,9 +497,9 @@ El proyecto usa `output: 'static'`. Sin servidor, sin SSR, sin Cloudflare Worker
 
 ---
 
-## 9. Lazy Loading de Dependencias Pesadas
+## 9. Lazy Loading of Heavy Dependencies
 
-Toda dependencia que supere ~500KB debe cargarse con dynamic import dentro de un Web Worker, nunca en el bundle principal.
+Any dependency exceeding ~500KB must be loaded via dynamic import inside a Web Worker, never in the main bundle.
 
 ### Image Optimizer (wasm-vips)
 
@@ -519,7 +519,7 @@ useEffect(() => {
 ### Code Playground (TypeScript compiler)
 
 ```typescript
-// code-playground/worker.ts — se carga solo cuando el usuario activa modo TS
+// code-playground/worker.ts — loaded only when the user activates TS mode
 import * as ts from "typescript";
 
 self.onmessage = ({ data: { code, id } }) => {
@@ -531,7 +531,7 @@ self.onmessage = ({ data: { code, id } }) => {
     },
   });
 
-  // Recoger diagnósticos de tipo
+  // Collect type diagnostics
   const diagnostics =
     ts.transpileModule(code, {
       compilerOptions: { strict: true },
@@ -542,50 +542,50 @@ self.onmessage = ({ data: { code, id } }) => {
 };
 ```
 
-El Worker se destruye al desmontar el componente para liberar los ~6MB del compilador de memoria.
+The Worker is destroyed on component unmount to free the ~6MB compiler from memory.
 
 ---
 
-## 10. Sistema de Temas
+## 10. Theme System
 
-4 variantes mediante `data-theme` en `<html>`:
+4 variants via `data-theme` on `<html>`:
 
-| Valor      | Descripción                                   |
-| ---------- | --------------------------------------------- |
-| `dark`     | Modo oscuro, contraste estándar (por defecto) |
-| `dark-hc`  | Modo oscuro, alto contraste                   |
-| `light`    | Modo claro, contraste estándar                |
-| `light-hc` | Modo claro, alto contraste                    |
+| Value      | Description                               |
+| ---------- | ----------------------------------------- |
+| `dark`     | Dark mode, standard contrast (default)    |
+| `dark-hc`  | Dark mode, high contrast                  |
+| `light`    | Light mode, standard contrast             |
+| `light-hc` | Light mode, high contrast                 |
 
-Detectado de `prefers-color-scheme` + `prefers-contrast` en el primer acceso. Persistido en localStorage (`app:theme`) via Nanostores. Nunca usar colores hardcoded — siempre `var(--color-*)`.
-
----
-
-## 11. Sistema de Diseño — Átomos
-
-Todos los componentes base en `src/components/ui/`. Las tools nunca importan de librerías externas directamente.
-
-Componentes prioritarios para el MVP: `Button`, `Tooltip`, `Badge`, `Dialog`, `DropdownMenu`, `Tabs`, `ScrollArea`, `Toast`, `CommandPalette`.
+Detected from `prefers-color-scheme` + `prefers-contrast` on first access. Persisted in localStorage (`app:theme`) via Nanostores. Never use hardcoded colors — always `var(--color-*)`.
 
 ---
 
-## 12. Responsividad
+## 11. Design System — Atoms
 
-| Breakpoint | Layout                                                                |
-| ---------- | --------------------------------------------------------------------- |
-| `< 768px`  | Una columna. Paneles separados por Radix Tabs.                        |
-| `≥ 768px`  | Dual Panel: Input izquierda, Output derecha, resize handle draggable. |
+All base components in `src/components/ui/`. Tools never import directly from external libraries.
 
-El cambio de layout es responsabilidad de `ToolLayout.astro`, no de cada tool.
+Priority components for MVP: `Button`, `Tooltip`, `Badge`, `Dialog`, `DropdownMenu`, `Tabs`, `ScrollArea`, `Toast`, `CommandPalette`.
+
+---
+
+## 12. Responsiveness
+
+| Breakpoint | Layout                                                               |
+| ---------- | -------------------------------------------------------------------- |
+| `< 768px`  | Single column. Panels separated by Radix Tabs.                       |
+| `≥ 768px`  | Dual Panel: Input left, Output right, draggable resize handle.       |
+
+Layout switching is the responsibility of `ToolLayout.astro`, not of each individual tool.
 
 ---
 
 ## 13. Testing
 
-### Filosofía
+### Philosophy
 
-- Testear comportamiento, no implementación.
-- Tests son parte del Definition of Done. Una tool sin tests no está completa.
+- Test behavior, not implementation.
+- Tests are part of the Definition of Done. A tool without tests is not complete.
 
 ### Vitest
 
@@ -601,26 +601,26 @@ export default defineConfig({
 });
 ```
 
-Qué testear: lógica de cada tool, wrapper de storage.ts, sistema i18n, auto-registry, operaciones Dexie (con fake-indexeddb).
+What to test: logic of each tool, storage.ts wrapper, i18n system, auto-registry, Dexie operations (with fake-indexeddb).
 
 ### Playwright (e2e)
 
-| Tool               | Flujo crítico                                                  |
-| ------------------ | -------------------------------------------------------------- |
-| JSON Viewer        | Pegar JSON → árbol renderiza → buscar key → resultado correcto |
-| JSON Viewer        | JSON inválido → error claro                                    |
-| Markdown Editor    | Escribir MD → preview actualizado → descargar `.md`            |
-| Markdown Editor    | Bloque Mermaid → diagrama renderizado                          |
-| Image Optimizer    | Subir imagen → optimizar → descargar                           |
-| Notes              | Crear nota → persiste tras recargar → eliminar                 |
-| Responsive Preview | URL válida → iframes renderizan con anchos correctos           |
-| Responsive Preview | URL bloqueada → error visible                                  |
-| Code Playground    | HTML+CSS → preview actualizado                                 |
-| Code Playground    | JS → console.log → aparece en consola                          |
-| Code Playground    | TS con error de tipo → error en consola                        |
-| Global             | Command Palette → navegar a tool                               |
-| Global             | Cambiar tema → persiste tras recargar                          |
-| Global             | Instalar PWA → funciona offline                                |
+| Tool               | Critical flow                                                    |
+| ------------------ | ---------------------------------------------------------------- |
+| JSON Viewer        | Paste JSON → tree renders → search key → correct result          |
+| JSON Viewer        | Invalid JSON → clear error shown                                 |
+| Markdown Editor    | Write MD → preview updates → download `.md`                      |
+| Markdown Editor    | Mermaid block → diagram rendered                                 |
+| Image Optimizer    | Upload image → optimize → download                               |
+| Notes              | Create note → persists after reload → delete                     |
+| Responsive Preview | Valid URL → iframes render with correct widths                   |
+| Responsive Preview | Blocked URL → error visible                                      |
+| Code Playground    | HTML+CSS → preview updates                                       |
+| Code Playground    | JS → console.log → appears in console                            |
+| Code Playground    | TS with type error → error in console                            |
+| Global             | Command Palette → navigate to tool                               |
+| Global             | Change theme → persists after reload                             |
+| Global             | Install PWA → works offline                                      |
 
 ---
 
@@ -633,86 +633,86 @@ GitHub → push/PR → GitHub Actions
   ├── pnpm lint
   ├── pnpm test (Vitest)
   ├── pnpm build
-  └── Cloudflare Pages (deploy automático en merge a main)
+  └── Cloudflare Pages (auto-deploy on merge to main)
 
-PRs → Playwright e2e en Cloudflare Pages preview URL
+PRs → Playwright e2e on Cloudflare Pages preview URL
 ```
 
 ---
 
-## 15. Convenciones de Código
+## 15. Code Conventions
 
-| Elemento          | Convención          | Ejemplo              |
+| Element           | Convention          | Example              |
 | ----------------- | ------------------- | -------------------- |
-| Componentes React | PascalCase          | `JsonTree.tsx`       |
-| Hooks             | camelCase con `use` | `useLocalStorage.ts` |
-| Stores Nanostores | camelCase con `$`   | `$theme`             |
-| Utilidades        | camelCase           | `formatBytes.ts`     |
-| Constantes        | SCREAMING_SNAKE     | `MAX_FILE_SIZE`      |
-| IDs de tools      | kebab-case          | `json-viewer`        |
-| Keys Dexie        | `tool:id:key`       | `tool:notes:list`    |
-| Keys localStorage | `app:key`           | `app:theme`          |
+| React components  | PascalCase          | `JsonTree.tsx`       |
+| Hooks             | camelCase with `use`| `useLocalStorage.ts` |
+| Nanostores stores | camelCase with `$`  | `$theme`             |
+| Utilities         | camelCase           | `formatBytes.ts`     |
+| Constants         | SCREAMING_SNAKE     | `MAX_FILE_SIZE`      |
+| Tool IDs          | kebab-case          | `json-viewer`        |
+| Dexie keys        | `tool:id:key`       | `tool:notes:list`    |
+| localStorage keys | `app:key`           | `app:theme`          |
 
-- TypeScript `strict: true` siempre. No `any` sin comentario.
-- Path aliases: `@/*`, `@ui/*`, `@tools/*`. Sin imports relativos cross-domain.
+- TypeScript `strict: true` always. No `any` without a comment.
+- Path aliases: `@/*`, `@ui/*`, `@tools/*`. No relative cross-domain imports.
 - Commits: Conventional Commits (`feat`, `fix`, `chore`, `refactor`, `test`, `docs`).
-- `pnpm` exclusivamente.
+- `pnpm` exclusively.
 
 ---
 
-## 16. Añadir una Nueva Herramienta (Checklist)
+## 16. Adding a New Tool (Checklist)
 
 ```
-[ ] Crear carpeta src/tools/[nueva-tool]/
-[ ] Definir config.ts con todos los campos de ToolConfig + dbKeys
-[ ] Crear index.tsx (componente sin props requeridas)
-[ ] Añadir textos en src/i18n/es/tools.json y src/i18n/en/tools.json
-[ ] Usar solo átomos de src/components/ui/ para la UI
-[ ] Usar Dexie (db) para toda persistencia de datos de la tool
-[ ] Nunca usar localStorage directamente desde una tool
-[ ] Escribir tests unitarios en tests/unit/[nueva-tool]/
-[ ] Documentar y cubrir el flujo e2e crítico en tests/e2e/
-[ ] Verificar que funciona en los 4 temas y en móvil/desktop
-[ ] Verificar que funciona offline (PWA)
+[ ] Create folder src/tools/[new-tool]/
+[ ] Define config.ts with all ToolConfig fields + dbKeys
+[ ] Create index.tsx (component with no required props)
+[ ] Add strings to src/i18n/es/tools.json and src/i18n/en/tools.json
+[ ] Use only atoms from src/components/ui/ for UI
+[ ] Use Dexie (db) for all tool data persistence
+[ ] Never use localStorage directly from a tool
+[ ] Write unit tests in tests/unit/[new-tool]/
+[ ] Document and cover the critical e2e flow in tests/e2e/
+[ ] Verify it works across all 4 themes and on mobile/desktop
+[ ] Verify it works offline (PWA)
 ```
 
 ---
 
-## 17. Especificación: `image-optimizer`
+## 17. Spec: `image-optimizer`
 
-### Concepto
+### Concept
 
-Optimizador de imágenes al estilo Squoosh con un canvas de comparación interactivo (zoom, pan, slider reveal), compresión a múltiples formatos y redimensionado. Todas las operaciones se ejecutan en un Web Worker con wasm-vips — sin servidor, sin subidas a terceros.
+Squoosh-style image optimizer with an interactive comparison canvas (zoom, pan, slider reveal), multi-format compression, and resizing. All operations run in a Web Worker with wasm-vips — no server, no third-party uploads.
 
-### Canvas de comparación (UI principal)
+### Comparison canvas (main UI)
 
-El contenedor principal es un canvas interactivo con dos capas superpuestas:
+The main container is an interactive canvas with two overlapping layers:
 
-- **Capa inferior (siempre):** imagen original, nunca modificada.
-- **Capa superior:** imagen procesada (resultado de la última operación aplicada), con `clip-path` dinámico controlado por el slider.
+- **Bottom layer (always):** original image, never modified.
+- **Top layer:** processed image (result of the last applied operation), with a dynamic `clip-path` controlled by the slider.
 
-El slider es una barra vertical arrastrable que divide visualmente el canvas en dos mitades. Arrastrarlo revela más o menos imagen procesada sobre la original. El slider es siempre visible e interactivo independientemente del nivel de zoom.
+The slider is a draggable vertical bar that visually splits the canvas in two. Dragging it reveals more or less of the processed image over the original. The slider is always visible and interactive regardless of zoom level.
 
-**Interacciones del canvas:**
+**Canvas interactions:**
 
-- **Pan:** arrastrar con ratón o touch mueve ambas capas simultáneamente.
-- **Zoom:** rueda del ratón o pinch en móvil. Rango: 0.1x – 10x. Botones de reset zoom y fit-to-screen en la toolbar.
-- **Slider:** arrastrarlo horizontalmente entre 0% y 100% del ancho.
+- **Pan:** drag with mouse or touch moves both layers simultaneously.
+- **Zoom:** mouse wheel or pinch on mobile. Range: 0.1x – 10x. Reset zoom and fit-to-screen buttons in toolbar.
+- **Slider:** drag horizontally between 0% and 100% of the width.
 
-**Panel de información (siempre visible encima del canvas):**
+**Info panel (always visible above canvas):**
 
-- Izquierda: `Original · 691 KB · 1920×1080`
-- Derecha: `Resultado · 140 KB · 1280×720 · WEBP · -79.6%`
+- Left: `Original · 691 KB · 1920×1080`
+- Right: `Result · 140 KB · 1280×720 · WEBP · -79.6%`
 
-El porcentaje de ahorro se colorea en verde si es positivo y en rojo si el resultado pesa más que el original.
+The savings percentage is colored green if positive and red if the result is larger than the original.
 
-### Operaciones independientes
+### Independent operations
 
-Resize y compresión son operaciones independientes con sus propios controles y botón de aplicar. Se pueden usar por separado o en combinación. El resultado de cada operación se convierte en la imagen procesada actual y se muestra en el lado derecho del slider.
+Resize and compression are independent operations with their own controls and apply button. They can be used separately or in combination. The result of each operation becomes the current processed image shown on the right side of the slider.
 
-**Orden de operaciones cuando se usan ambas:** el resize siempre se aplica primero (sobre la original), y la compresión se aplica sobre el resultado del resize. Si el usuario aplica compresión y después resize, el resize se aplica sobre la original y la compresión anterior queda descartada del pipeline (el resultado final es solo resize). Esto evita ambigüedad. La UI debe dejar claro el estado actual del pipeline.
+**Operation order when both are used:** resize is always applied first (on the original), and compression is applied on the resize result. If the user applies compression and then resize, the resize is applied on the original and the previous compression is discarded from the pipeline (the final result is resize only). This avoids ambiguity. The UI must make the current pipeline state clear.
 
-**Pipeline de estado:**
+**Pipeline state:**
 
 ```typescript
 type ProcessedState = {
@@ -725,22 +725,22 @@ type ProcessedState = {
 };
 ```
 
-### Controles de Resize
+### Resize controls
 
-- **Presets de ancho:** Original (sin resize), 1920px, 1280px, 800px, 400px.
-- **Custom:** input numérico de ancho libre (en px).
-- **Mantener ratio:** toggle activo por defecto. Cuando está activo, el alto se calcula automáticamente. Cuando está desactivado, aparece un input de alto editable.
-- **Botón "Aplicar resize":** procesa en el Worker y actualiza la imagen procesada.
+- **Width presets:** Original (no resize), 1920px, 1280px, 800px, 400px.
+- **Custom:** free numeric width input (in px).
+- **Maintain ratio:** toggle active by default. When active, height is calculated automatically. When disabled, an editable height input appears.
+- **"Apply resize" button:** processes in the Worker and updates the processed image.
 
-### Controles de Compresión
+### Compression controls
 
-- **Formato:** WEBP · JPEG · PNG · AVIF. Selector tipo tab/pill.
-- **Calidad:** slider 1–100. Solo visible para formatos con pérdida (WEBP, JPEG, AVIF). PNG es sin pérdida, no muestra slider.
-- **Botón "Aplicar compresión":** procesa en el Worker y actualiza la imagen procesada.
+- **Format:** WEBP · JPEG · PNG · AVIF. Tab/pill selector.
+- **Quality:** slider 1–100. Only visible for lossy formats (WEBP, JPEG, AVIF). PNG is lossless, no slider shown.
+- **"Apply compression" button:** processes in the Worker and updates the processed image.
 
-### Descarga
+### Download
 
-Un único botón "Descargar" siempre visible descarga el estado actual de la imagen procesada (o la original si no se ha aplicado ninguna operación). El nombre del archivo sigue el patrón: `[nombre-original]-pocketool.[formato]`.
+A single always-visible "Download" button downloads the current state of the processed image (or the original if no operation has been applied). The filename follows the pattern: `[original-name]-pocketool.[format]`.
 
 ### Worker (wasm-vips + Comlink)
 
@@ -757,9 +757,9 @@ const api = {
 expose(api);
 ```
 
-Cargado via dynamic import en `index.tsx`. Destruido con `worker.terminate()` al desmontar el componente.
+Loaded via dynamic import in `index.tsx`. Destroyed with `worker.terminate()` on component unmount.
 
-### Persistencia (Dexie)
+### Persistence (Dexie)
 
 ```typescript
 // tool:image-optimizer:last-format  → OutputFormat
@@ -767,18 +767,18 @@ Cargado via dynamic import en `index.tsx`. Destruido con `worker.terminate()` al
 // tool:image-optimizer:last-resize  → { preset: string, width: number, height: number | null, keepRatio: boolean }
 ```
 
-La imagen en sí **no se persiste** en Dexie — es un Blob binario que el usuario vuelve a subir en cada sesión. Solo se recuerdan las preferencias de formato, calidad y resize.
+The image itself is **not persisted** in Dexie — it is a binary Blob that the user re-uploads each session. Only format, quality, and resize preferences are remembered.
 
-### Formatos soportados
+### Supported formats
 
-| Formato | Con pérdida | Sin pérdida | Soporte wasm-vips |
-| ------- | ----------- | ----------- | ----------------- |
-| WEBP    | ✅          | ✅          | ✅                |
-| JPEG    | ✅          | ❌          | ✅                |
-| PNG     | ❌          | ✅          | ✅                |
-| AVIF    | ✅          | ✅          | ✅                |
+| Format | Lossy | Lossless | wasm-vips support |
+| ------ | ----- | -------- | ----------------- |
+| WEBP   | ✅    | ✅       | ✅                |
+| JPEG   | ✅    | ❌       | ✅                |
+| PNG    | ❌    | ✅       | ✅                |
+| AVIF   | ✅    | ✅       | ✅                |
 
-### Estructura de archivos
+### File structure
 
 ```
 src/tools/image-optimizer/
@@ -786,41 +786,41 @@ src/tools/image-optimizer/
 ├── config.ts
 ├── worker.ts                      # wasm-vips + Comlink
 ├── components/
-│   ├── CompareCanvas.tsx          # Canvas interactivo con pan, zoom y slider
-│   ├── SliderReveal.tsx           # Barra draggable de comparación
+│   ├── CompareCanvas.tsx          # Interactive canvas with pan, zoom, and slider
+│   ├── SliderReveal.tsx           # Draggable comparison bar
 │   ├── ResizeControls.tsx         # Presets, custom input, ratio toggle
-│   ├── CompressControls.tsx       # Formato, calidad slider
-│   └── ImageInfoBar.tsx           # Original vs Resultado con métricas
+│   ├── CompressControls.tsx       # Format, quality slider
+│   └── ImageInfoBar.tsx           # Original vs Result with metrics
 └── hooks/
-    ├── useImageProcessor.ts       # Orquesta Worker, estado del pipeline
-    ├── useCanvasInteraction.ts    # Pan, zoom, eventos de ratón/touch
-    └── useSlider.ts               # Estado y arrastre del slider reveal
+    ├── useImageProcessor.ts       # Orchestrates Worker, pipeline state
+    ├── useCanvasInteraction.ts    # Pan, zoom, mouse/touch events
+    └── useSlider.ts               # Slider reveal state and drag
 ```
 
-### Tests e2e obligatorios
+### Required e2e tests
 
-| Flujo             | Descripción                                                        |
-| ----------------- | ------------------------------------------------------------------ |
-| Subir imagen      | Drag & drop o file picker → imagen aparece en canvas               |
-| Compresión WEBP   | Aplicar → resultado visible en lado derecho → info bar actualizada |
-| Compresión PNG    | Sin slider de calidad visible → resultado correcto                 |
-| Compresión AVIF   | Aplicar → resultado visible                                        |
-| Resize preset     | Seleccionar 800px → Aplicar → dimensiones actualizadas en info bar |
-| Resize custom     | Introducir 600px con ratio → alto calculado automáticamente        |
-| Resize + Compress | Aplicar resize → aplicar compresión → resultado combina ambas      |
-| Slider            | Arrastrar slider → clip-path cambia → ambas imágenes visibles      |
-| Zoom              | Scroll → zoom in/out → pan → slider sigue funcional                |
-| Descarga          | Botón descargar → archivo con nombre correcto y formato correcto   |
+| Flow              | Description                                                         |
+| ----------------- | ------------------------------------------------------------------- |
+| Upload image      | Drag & drop or file picker → image appears in canvas                |
+| WEBP compression  | Apply → result visible on right side → info bar updated             |
+| PNG compression   | No quality slider visible → correct result                          |
+| AVIF compression  | Apply → result visible                                              |
+| Resize preset     | Select 800px → Apply → dimensions updated in info bar               |
+| Custom resize     | Enter 600px with ratio → height calculated automatically            |
+| Resize + Compress | Apply resize → apply compression → result combines both             |
+| Slider            | Drag slider → clip-path changes → both images visible               |
+| Zoom              | Scroll → zoom in/out → pan → slider still functional                |
+| Download          | Download button → file with correct name and format                 |
 
 ---
 
-## 18. Especificación: `responsive-preview`
+## 18. Spec: `responsive-preview`
 
-### Concepto
+### Concept
 
-Vista multi-viewport simultánea para testear **URLs externas** en varios tamaños de pantalla a la vez, con scroll y clicks sincronizados. Solo modo URL — sin editor de código (eso es `code-playground`).
+Simultaneous multi-viewport view for testing **external URLs** across multiple screen sizes at once, with synchronized scroll and clicks. URL-only mode — no code editor (that is `code-playground`).
 
-### Persistencia (Dexie)
+### Persistence (Dexie)
 
 ```typescript
 // tool:responsive-preview:last-url → string
@@ -828,19 +828,19 @@ Vista multi-viewport simultánea para testear **URLs externas** en varios tamañ
 // tool:responsive-preview:sync → boolean
 ```
 
-### Sincronización entre viewports
+### Viewport synchronization
 
-Dado que Same-Origin Policy impide leer el scroll de iframes externos, la sincronización se implementa con un **SyncSnippet**: un modal que muestra un script de ~8 líneas que el usuario copia y pega en el `<head>` del proyecto local que está testeando. Ese script escucha el scroll del `window` local y emite `window.parent.postMessage({ type: 'SYNC_SCROLL', scrollY })`. El componente padre recibe el mensaje y lo propaga al resto de iframes.
+Since Same-Origin Policy prevents reading the scroll of external iframes, synchronization is implemented with a **SyncSnippet**: a modal that shows an ~8-line script the user copies and pastes into the `<head>` of the local project they are testing. That script listens to the local `window` scroll and emits `window.parent.postMessage({ type: 'SYNC_SCROLL', scrollY })`. The parent component receives the message and propagates it to the rest of the iframes.
 
-Este enfoque es honesto con la limitación técnica y da una solución práctica para el caso de uso real (testear un proyecto local).
+This approach is honest about the technical limitation and provides a practical solution for the real use case (testing a local project).
 
-**Click sync:** mismo mecanismo vía `postMessage`, solo funciona si el sitio coopera.
+**Click sync:** same mechanism via `postMessage`, only works if the target site cooperates.
 
-La sincronización se activa/desactiva con un toggle. Siempre se muestra un aviso claro de que requiere el script en el proyecto destino.
+Synchronization is toggled on/off with a switch. A clear notice is always shown that it requires the script in the target project.
 
-### Viewports y presets
+### Viewports and presets
 
-| Nombre   | Ancho  | Orientación |
+| Name     | Width  | Orientation |
 | -------- | ------ | ----------- |
 | Mobile S | 320px  | portrait    |
 | Mobile L | 390px  | portrait    |
@@ -848,19 +848,19 @@ La sincronización se activa/desactiva con un toggle. Siempre se muestra un avis
 | Laptop   | 1280px | landscape   |
 | Desktop  | 1440px | landscape   |
 
-Presets base: no eliminables (`isDefault: true`), solo desactivables. El usuario puede añadir viewports custom. Todo persiste en Dexie.
+Base presets: non-deletable (`isDefault: true`), only deactivatable. Users can add custom viewports. Everything persists in Dexie.
 
 ### Layout
 
-Scroll horizontal. `transform: scale()` para que cada iframe quepa en pantalla manteniendo su ancho real. Click en viewport → modo focus (pantalla completa). Escape → vuelve al grid.
+Horizontal scroll. `transform: scale()` so each iframe fits on screen while maintaining its real width. Click on viewport → focus mode (full screen). Escape → back to grid.
 
-### Limitaciones documentadas
+### Documented limitations
 
-- **X-Frame-Options / CSP:** sitios con `frame-ancestors 'none'` no pueden embeberse. Mensaje claro al usuario.
-- **Sync:** requiere que el sitio destino incluya el SyncSnippet. Sin él, no hay sync.
-- **Sin captura de pantalla:** fuera del MVP.
+- **X-Frame-Options / CSP:** sites with `frame-ancestors 'none'` cannot be embedded. Clear message to user.
+- **Sync:** requires the target site to include the SyncSnippet. Without it, no sync.
+- **No screenshot capture:** out of MVP scope.
 
-### Estructura de archivos
+### File structure
 
 ```
 src/tools/responsive-preview/
@@ -871,64 +871,64 @@ src/tools/responsive-preview/
 │   ├── ViewportFrame.tsx
 │   ├── ViewportGrid.tsx
 │   ├── ViewportManager.tsx
-│   └── SyncSnippet.tsx       # Modal con el script a copiar
+│   └── SyncSnippet.tsx       # Modal with the script to copy
 └── hooks/
     ├── useSyncBridge.ts
     └── useViewports.ts
 ```
 
-### Tests e2e obligatorios
+### Required e2e tests
 
-| Flujo           | Descripción                                                   |
-| --------------- | ------------------------------------------------------------- |
-| URL válida      | Pegar URL → iframes renderizan → label muestra ancho correcto |
-| URL bloqueada   | X-Frame-Options → mensaje de error visible                    |
-| Viewport custom | Añadir 1024px → aparece en grid → persiste tras recargar      |
-| Viewport toggle | Desactivar → desaparece del grid sin eliminarse               |
-| Focus mode      | Click → pantalla completa → Escape vuelve al grid             |
-| SyncSnippet     | Modal abre → código visible y copiable                        |
+| Flow            | Description                                                    |
+| --------------- | -------------------------------------------------------------- |
+| Valid URL       | Paste URL → iframes render → label shows correct width         |
+| Blocked URL     | X-Frame-Options → error message visible                        |
+| Custom viewport | Add 1024px → appears in grid → persists after reload           |
+| Viewport toggle | Deactivate → disappears from grid without being deleted        |
+| Focus mode      | Click → full screen → Escape returns to grid                   |
+| SyncSnippet     | Modal opens → code visible and copyable                        |
 
 ---
 
-## 19. Especificación: `code-playground`
+## 19. Spec: `code-playground`
 
-### Concepto
+### Concept
 
-Playground de código con tres paneles ocultables: Editor (HTML/CSS/Script), Preview (iframe) y Console. Soporta JS y TS con el compilador oficial de TypeScript en un Worker dedicado. Incluye biblioteca de snippets built-in y snippets custom guardados en Dexie.
+Code playground with three hideable panels: Editor (HTML/CSS/Script), Preview (iframe), and Console. Supports JS and TS with the official TypeScript compiler in a dedicated Worker. Includes a built-in snippet library and custom snippets saved in Dexie.
 
-### Paneles
+### Panels
 
-- **Editor:** pestañas HTML / CSS / Script. CodeMirror 6 por pestaña. Toggle JS/TS en la toolbar del panel Script.
-- **Preview:** iframe con `srcdoc`. Actualización auto (debounced 500ms) o manual según run mode.
-- **Console:** intercepta `console.*` + `window.onerror` + `window.onunhandledrejection` dentro del iframe via `postMessage`. Muestra tipo, mensaje y stack trace.
+- **Editor:** HTML / CSS / Script tabs. CodeMirror 6 per tab. JS/TS toggle in the Script panel toolbar.
+- **Preview:** iframe with `srcdoc`. Auto-update (debounced 500ms) or manual based on run mode.
+- **Console:** intercepts `console.*` + `window.onerror` + `window.onunhandledrejection` inside the iframe via `postMessage`. Shows type, message, and stack trace.
 
-### Compilación TypeScript
+### TypeScript compilation
 
-El compilador oficial de TypeScript (`typescript` package) se carga en un Worker dedicado via dynamic import, únicamente cuando el usuario activa el modo TS por primera vez. Muestra indicador de carga mientras descarga (~6MB). El Worker se destruye al desmontar el componente. Proporciona errores de tipo completos con línea y columna, no solo transpilación.
+The official TypeScript compiler (`typescript` package) is loaded in a dedicated Worker via dynamic import, only when the user activates TS mode for the first time. Shows a loading indicator while downloading (~6MB). The Worker is destroyed on component unmount. Provides full type errors with line and column, not just transpilation.
 
-### Sandbox de seguridad
+### Security sandbox
 
 ```html
 <iframe sandbox="allow-scripts" srcdoc="..."></iframe>
 ```
 
-El atributo `sandbox="allow-scripts"` sin `allow-same-origin` aísla completamente el código ejecutado. Un timeout de 5s aborta ejecuciones que no terminan (loops infinitos).
+The `sandbox="allow-scripts"` attribute without `allow-same-origin` completely isolates the executed code. A 5s timeout aborts executions that do not finish (infinite loops).
 
 ### Snippets
 
-**Built-in (solo lectura):** colección curada en Dexie, sembrada en el primer arranque de la tool.
+**Built-in (read-only):** curated collection in Dexie, seeded on the tool's first launch.
 
-| Categoría | Ejemplos                                                 |
-| --------- | -------------------------------------------------------- |
-| JS Utils  | debounce, throttle, deep clone, sleep, fetch wrapper     |
-| Array     | groupBy, chunk, flatten, unique, zip                     |
-| DOM       | querySelector helper, event delegation, drag & drop base |
-| CSS       | reset, flexbox center, grid responsive, custom scrollbar |
-| TS        | tipos utilitarios, generic fetch tipado                  |
+| Category  | Examples                                                  |
+| --------- | --------------------------------------------------------- |
+| JS Utils  | debounce, throttle, deep clone, sleep, fetch wrapper      |
+| Array     | groupBy, chunk, flatten, unique, zip                      |
+| DOM       | querySelector helper, event delegation, drag & drop base  |
+| CSS       | reset, flexbox center, responsive grid, custom scrollbar  |
+| TS        | utility types, generic typed fetch                        |
 
-**Custom:** guardados en la tabla `snippets` de Dexie. Límite: 50. Al insertar sobre contenido existente → confirm dialog.
+**Custom:** saved in the `snippets` Dexie table. Limit: 50. Inserting over existing content → confirm dialog.
 
-### Persistencia (Dexie)
+### Persistence (Dexie)
 
 ```typescript
 // tool:code-playground:editor-html    → string
@@ -938,14 +938,14 @@ El atributo `sandbox="allow-scripts"` sin `allow-same-origin` aísla completamen
 // tool:code-playground:active-tab     → 'html' | 'css' | 'script'
 // tool:code-playground:panels         → { editor: boolean, preview: boolean, console: boolean }
 // tool:code-playground:run-mode       → 'auto' | 'manual'
-// Snippets custom → tabla snippets de Dexie (toolId: 'code-playground')
+// Custom snippets → snippets Dexie table (toolId: 'code-playground')
 ```
 
-### Botón Clean
+### Clean button
 
-Limpia solo el contenido del editor (HTML, CSS, Script). Nunca toca snippets, preferencias de paneles ni run mode. Confirm dialog obligatorio.
+Clears only the editor content (HTML, CSS, Script). Never touches snippets, panel preferences, or run mode. Confirm dialog required.
 
-### Estructura de archivos
+### File structure
 
 ```
 src/tools/code-playground/
@@ -965,38 +965,38 @@ src/tools/code-playground/
     └── useSnippets.ts
 ```
 
-### Tests e2e obligatorios
+### Required e2e tests
 
-| Flujo            | Descripción                                        |
-| ---------------- | -------------------------------------------------- |
-| HTML/CSS         | Escribir → preview actualiza → estilos aplicados   |
-| JS               | `console.log('ok')` → aparece en consola           |
-| TS               | Código con tipos → compila → ejecuta               |
-| TS error         | Tipo incorrecto → error de compilación en consola  |
-| Loop infinito    | `while(true){}` → timeout → mensaje en consola     |
-| Snippet built-in | Insertar → contenido en pestaña correcta           |
-| Snippet custom   | Crear → persiste tras recargar → se puede eliminar |
-| Clean            | Confirm → editor vacío → snippets intactos         |
-| Paneles          | Ocultar preview → estado persiste tras recargar    |
+| Flow             | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| HTML/CSS         | Write → preview updates → styles applied             |
+| JS               | `console.log('ok')` → appears in console             |
+| TS               | Typed code → compiles → executes                     |
+| TS error         | Wrong type → compilation error in console            |
+| Infinite loop    | `while(true){}` → timeout → message in console       |
+| Built-in snippet | Insert → content in correct tab                      |
+| Custom snippet   | Create → persists after reload → can be deleted      |
+| Clean            | Confirm → editor empty → snippets intact             |
+| Panels           | Hide preview → state persists after reload           |
 
 ---
 
-## 20. Decisiones Descartadas y su Razón
+## 20. Discarded Decisions and Reasons
 
-| Decisión                                        | Descartada por                                                                                                      |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Shadcn/ui                                       | Fricción con Astro/RSC. Reemplazada por Radix UI directo.                                                           |
-| Hard links entre tools                          | Penaliza UX. Headers via `public/_headers`, sin recarga completa.                                                   |
-| Astro Middleware / SSR                          | Requiere Workers y coste. Site 100% estático.                                                                       |
-| Monaco Editor                                   | Bundle pesado, mal rendimiento en móviles. CodeMirror 6.                                                            |
-| Base de datos externa                           | Fuera de filosofía local-first.                                                                                     |
-| Autenticación                                   | Fuera del scope del MVP.                                                                                            |
-| npm / yarn                                      | Reemplazados por pnpm.                                                                                              |
-| localStorage para datos de tools                | Límite de ~10MB, síncrono, sin soporte binario. Dexie cubre todos los casos de tools con más capacidad y mejor API. |
-| esbuild-wasm como compilador TS                 | Solo transpila, no verifica tipos. TypeScript oficial da errores completos y pesa menos.                            |
-| Modo código en responsive-preview               | Responsabilidad de `code-playground`. `responsive-preview` solo URLs externas.                                      |
-| Pestañas JS/TS separadas en playground          | Un único panel Script con toggle explícito es más limpio.                                                           |
-| Ejecución remota de código (Piston API)         | Rompe filosofía local-first. TS/JS en local cubre el caso de uso principal.                                         |
-| Dexie para preferencias globales (tema, idioma) | Datos pequeños y de acceso síncrono frecuente. localStorage via Nanostores es más adecuado.                         |
+| Decision                                        | Discarded because                                                                                                      |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Shadcn/ui                                       | Friction with Astro/RSC. Replaced by direct Radix UI.                                                                  |
+| Hard links between tools                        | Penalizes UX. Headers via `public/_headers`, no full reload.                                                           |
+| Astro Middleware / SSR                          | Requires Workers and cost. 100% static site.                                                                           |
+| Monaco Editor                                   | Heavy bundle, poor mobile performance. CodeMirror 6 chosen.                                                            |
+| External database                               | Outside local-first philosophy.                                                                                        |
+| Authentication                                  | Out of MVP scope.                                                                                                      |
+| npm / yarn                                      | Replaced by pnpm.                                                                                                      |
+| localStorage for tool data                      | ~10MB limit, synchronous, no binary support. Dexie covers all tool cases with more capacity and a better API.          |
+| esbuild-wasm as TS compiler                     | Only transpiles, does not verify types. Official TypeScript gives complete errors and is similar in size.              |
+| Code mode in responsive-preview                 | Responsibility of `code-playground`. `responsive-preview` handles external URLs only.                                  |
+| Separate JS/TS tabs in playground               | A single Script panel with an explicit toggle is cleaner.                                                              |
+| Remote code execution (Piston API)              | Breaks local-first philosophy. TS/JS locally covers the main use case.                                                 |
+| Dexie for global preferences (theme, language)  | Small data with frequent synchronous access. localStorage via Nanostores is more appropriate.                          |
 
 ---
