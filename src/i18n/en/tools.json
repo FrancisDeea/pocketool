@@ -34,6 +34,20 @@
     "downloading": "Processing...",
     "savings": "Savings"
   },
+  "jwt-decoder": {
+    "title": "JWT Decoder",
+    "description": "Decode and inspect JSON Web Tokens",
+    "input": "Paste your JWT here...",
+    "invalidToken": "Invalid token",
+    "header": "Header",
+    "payload": "Payload",
+    "signature": "Signature",
+    "claims": "Claims",
+    "statusValid": "Valid",
+    "statusExpired": "Expired",
+    "statusNotYet": "Not yet valid",
+    "statusNoExpiry": "No expiry"
+  },
   "regex-tester": {
     "title": "Regex Tester",
     "description": "Test and debug regular expressions with live match highlighting",

@@ -34,6 +34,20 @@
     "downloading": "Procesando...",
     "savings": "Ahorro"
   },
+  "jwt-decoder": {
+    "title": "JWT Decoder",
+    "description": "Decodifica y visualiza JSON Web Tokens",
+    "input": "Pega tu JWT aquí...",
+    "invalidToken": "Token inválido",
+    "header": "Header",
+    "payload": "Payload",
+    "signature": "Firma",
+    "claims": "Claims",
+    "statusValid": "Válido",
+    "statusExpired": "Expirado",
+    "statusNotYet": "No válido aún",
+    "statusNoExpiry": "Sin expiración"
+  },
   "regex-tester": {
     "title": "Regex Tester",
     "description": "Prueba y depura expresiones regulares con resaltado en tiempo real",
