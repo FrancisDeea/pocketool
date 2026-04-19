@@ -1,8 +1,16 @@
 {
   "name": "pocketool",
+  "description": "A 100% static, local-first suite of developer tools. Works offline, no tracking, no backend.",
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "author": "FrancisDeea",
+  "license": "MIT",
+  "homepage": "https://github.com/FrancisDeea/pocketool",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FrancisDeea/pocketool.git"
+  },
   "engines": {
     "node": ">=22.12.0"
   },
@@ -72,6 +80,10 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "sharp"
-    ]
+    ],
+    "overrides": {
+      "yaml@>=2.0.0 <2.8.3": ">=2.8.3",
+      "dompurify@<=3.3.3": ">=3.4.0"
+    }
   }
 }

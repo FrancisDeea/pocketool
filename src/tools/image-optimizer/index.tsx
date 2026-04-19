@@ -39,12 +39,14 @@ export default function ImageOptimizer() {
   const prefsRecord = useLiveQuery(() =>
     db.toolStates.get("tool:image-optimizer:preferences"),
   );
-  const prefs: ImagePreferences = prefsRecord?.value || DEFAULT_PREFS;
+  const prefs: ImagePreferences =
+    (prefsRecord?.content as ImagePreferences) ?? DEFAULT_PREFS;
 
   const updatePrefs = (newPrefs: Partial<ImagePreferences>) => {
     db.toolStates.put({
-      key: "tool:image-optimizer:preferences",
-      value: { ...prefs, ...newPrefs },
+      id: "tool:image-optimizer:preferences",
+      content: { ...prefs, ...newPrefs },
+      updatedAt: Date.now(),
     });
   };
 
