@@ -197,7 +197,8 @@ export default function Shell({
 
       <div
         className={[
-          "h-dvh transition-all duration-[var(--transition-base)] flex flex-col overflow-hidden",
+          currentToolId === "canvas" ? "h-dvh overflow-hidden" : "min-h-dvh",
+          "transition-all duration-[var(--transition-base)] flex flex-col",
           "max-md:ml-0",
           zenMode
             ? "ml-0"
@@ -217,7 +218,10 @@ export default function Shell({
           className={
             zenMode
               ? "p-3 h-full overflow-hidden flex flex-col items-stretch justify-center"
-              : "flex-1 p-4 md:p-6 min-h-0 overflow-hidden"
+              : [
+                  "flex-1 p-4 md:p-6 min-h-0",
+                  currentToolId === "canvas" ? "overflow-hidden" : "overflow-visible",
+                ].join(" ")
           }
         >
           {children}
