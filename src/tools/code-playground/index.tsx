@@ -7,7 +7,8 @@ import {
   Trash2,
   FileCode2,
   Paintbrush,
-  Braces
+  Braces,
+  Eye
 } from 'lucide-react';
 import Button from '@ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@ui/Tabs';
@@ -178,6 +179,7 @@ export default function CodePlayground() {
   const [script, setScript] = useState(DEFAULT_JS);
   
   const [activeTab, setActiveTab] = useState<ViewMode>('html');
+  const [mainTab, setMainTab] = useState<'editor' | 'preview' | 'console'>('editor');
   const [logs, setLogs] = useState<ConsoleLog[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   
@@ -382,11 +384,34 @@ export default function CodePlayground() {
         </div>
       </div>
 
+      {/* Mobile Main Tabs (Visible only on mobile/tablet) */}
+      <div className="lg:hidden">
+        <Tabs value={mainTab} onValueChange={(val) => setMainTab(val as any)}>
+          <TabsList className="w-full justify-around p-1 h-12 bg-surface border-border">
+            <TabsTrigger value="editor" className="flex items-center gap-2 py-2">
+              <FileCode2 size={16} />
+              <span>Editor</span>
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="flex items-center gap-2 py-2">
+              <Eye size={16} />
+              <span>Preview</span>
+            </TabsTrigger>
+            <TabsTrigger value="console" className="flex items-center gap-2 py-2">
+              <Terminal size={16} />
+              <span>Console</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {/* Main Content: Split Editor & Preview */}
       <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
         
         {/* Left: Editor */}
-        <div className="flex-[1.2] flex flex-col min-h-[300px] bg-surface border border-border rounded-xl overflow-hidden" data-theme="dark">
+        <div className={[
+          "flex-[1.2] flex flex-col min-h-[300px] bg-surface border border-border rounded-xl overflow-hidden",
+          mainTab !== 'editor' ? 'max-lg:hidden' : ''
+        ].join(' ')} data-theme="dark">
           <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as ViewMode)} className="flex flex-col h-full bg-[#282c34]">
              {/* Note: The tabs background mimics one-dark theme for a seamless look */}
             <TabsList className="!rounded-none !border-b !border-[#181a1f] !bg-[#21252b] !justify-start !p-0 !h-10">
@@ -428,10 +453,16 @@ export default function CodePlayground() {
         </div>
 
         {/* Right: Preview & Console */}
-        <div className="flex-1 flex flex-col gap-4 min-h-0 min-w-0">
+        <div className={[
+          "flex-1 flex flex-col gap-4 min-h-0 min-w-0",
+          mainTab === 'editor' ? 'max-lg:hidden' : ''
+        ].join(' ')}>
           
           {/* Iframe Preview */}
-          <div className="flex-[2] bg-white rounded-xl overflow-hidden border border-border relative min-h-[250px]">
+          <div className={[
+            "flex-[2] bg-white rounded-xl overflow-hidden border border-border relative min-h-[250px]",
+            mainTab === 'console' ? 'max-lg:hidden' : ''
+          ].join(' ')}>
              {/* Small header for iframe window to make it look nicer */}
             <div className="h-6 bg-surface border-b border-border w-full flex items-center px-3 gap-1.5 absolute top-0 z-10 opacity-60 pointer-events-none">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
@@ -447,7 +478,10 @@ export default function CodePlayground() {
           </div>
 
           {/* Embedded Console */}
-          <div className="flex-1 bg-surface-hover rounded-xl border border-border flex flex-col overflow-hidden min-h-[150px]">
+          <div className={[
+            "flex-1 bg-surface-hover rounded-xl border border-border flex flex-col overflow-hidden min-h-[150px]",
+            mainTab === 'preview' ? 'max-lg:hidden' : ''
+          ].join(' ')}>
             <div className="flex items-center justify-between px-3 py-1.5 border-b border-border bg-surface/50">
               <span className="text-xs font-semibold text-text-secondary flex items-center gap-1.5 uppercase tracking-wide">
                 <Terminal size={12} /> Console
