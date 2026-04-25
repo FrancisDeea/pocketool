@@ -34,8 +34,11 @@ import {
   Trash2,
   Settings2,
   ChevronDown,
+  Share2,
+  Camera,
 } from "lucide-react";
 import type { ShapeType } from "../types";
+import { t } from "@/utils/i18n";
 
 interface ToolbarProps {
   activeTool: ShapeType;
@@ -82,6 +85,12 @@ export function Toolbar({
   onImportJson,
   onClear,
 }: ToolbarProps) {
+  // Helper to handle translations with fallbacks while i18n initializes
+  const translate = (key: string, fallback: string) => {
+    const val = t(key);
+    return val === key ? fallback : val;
+  };
+
   const selectionTools = [
     { id: "select", icon: MousePointer2, label: "Select", shortcut: "V" },
     { id: "pan", icon: Hand, label: "Pan", shortcut: "H" },
@@ -127,8 +136,8 @@ export function Toolbar({
   );
 
   return (
-    <div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1 rounded-xl border bg-surface/80 p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface">
-      <div className="flex items-center gap-1">
+    <div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-0.5 sm:gap-1 rounded-xl border bg-surface/80 p-1 sm:p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface max-w-[calc(100vw-1rem)] sm:max-w-max overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 shrink-0">
         {/* Selection Tools */}
         {selectionTools.map(renderToolButton)}
 
@@ -227,10 +236,10 @@ export function Toolbar({
         {otherTools.map(renderToolButton)}
       </div>
 
-      <div className="mx-1 h-6 w-px bg-border" />
+      <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-1">
-        <Tooltip content="Undo (Ctrl+Z)" side="bottom">
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+        <Tooltip content={`${translate("tools.canvas.undo", "Deshacer")} (Ctrl+Z)`} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -242,7 +251,7 @@ export function Toolbar({
           </Button>
         </Tooltip>
 
-        <Tooltip content="Redo (Ctrl+Shift+Z)" side="bottom">
+        <Tooltip content={`${translate("tools.canvas.redo", "Rehacer")} (Ctrl+Shift+Z)`} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -255,9 +264,9 @@ export function Toolbar({
         </Tooltip>
       </div>
 
-      <div className="mx-1 h-6 w-px bg-border" />
+      <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
         <DropdownMenu>
           <Tooltip content="Canvas Settings" side="bottom">
             <DropdownMenuTrigger asChild>
@@ -280,7 +289,7 @@ export function Toolbar({
             <DropdownMenuCheckboxItem checked={snap} onCheckedChange={setSnap}>
               <div className="flex items-center gap-2">
                 <Magnet size={16} />
-                <span>Snap to Grid</span>
+                <span>{translate("tools.canvas.snapToGrid", "Snap to Grid")}</span>
               </div>
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
@@ -316,7 +325,7 @@ export function Toolbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex items-center gap-1 px-1">
+        <div className="hidden sm:flex items-center gap-1 px-1 shrink-0">
           <Button
             variant="ghost"
             className="h-7 px-1.5 text-[10px] font-bold min-w-[3rem] text-text-primary"
@@ -327,10 +336,10 @@ export function Toolbar({
         </div>
       </div>
 
-      <div className="mx-1 h-6 w-px bg-border" />
+      <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-1">
-        <Tooltip content="Save Version (Ctrl+S)" side="bottom">
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+        <Tooltip content={`${translate("tools.canvas.saveVersion", "Guardar Versión")} (Ctrl+S)`} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -341,7 +350,7 @@ export function Toolbar({
           </Button>
         </Tooltip>
 
-        <Tooltip content="Versions History" side="bottom">
+        <Tooltip content={translate("tools.canvas.versions", "Versiones")} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -353,47 +362,40 @@ export function Toolbar({
         </Tooltip>
       </div>
 
-      <div className="mx-1 h-6 w-px bg-border" />
+      <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-1">
-        <Tooltip content="Export PNG" side="bottom">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-text-secondary"
-            onClick={onExportPng}
-          >
-            <Download size={18} />
-          </Button>
-        </Tooltip>
+      <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+        <DropdownMenu>
+          <Tooltip content={translate("tools.canvas.importExport", "Importar/Exportar")} side="bottom">
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-text-secondary gap-1 px-1.5">
+                <Share2 size={18} />
+                <ChevronDown size={12} className="opacity-50 shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+          </Tooltip>
+          <DropdownMenuContent side="bottom" align="end" className="min-w-[160px]">
+            <DropdownMenuItem onClick={onExportPng} className="gap-3">
+              <Camera size={16} className="text-text-tertiary" />
+              <span>{translate("tools.canvas.exportPng", "Exportar PNG")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onExportJson} className="gap-3">
+              <FileJson size={16} className="text-text-tertiary" />
+              <span>{translate("tools.canvas.exportJson", "Exportar JSON")}</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onImportJson} className="gap-3">
+              <Upload size={16} className="text-text-tertiary" />
+              <span>{translate("tools.canvas.importJson", "Importar JSON")}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        <Tooltip content="Export JSON" side="bottom">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-text-secondary"
-            onClick={onExportJson}
-          >
-            <FileJson size={18} />
-          </Button>
-        </Tooltip>
-
-        <Tooltip content="Import JSON" side="bottom">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-text-secondary"
-            onClick={onImportJson}
-          >
-            <Upload size={18} />
-          </Button>
-        </Tooltip>
-
-        <Tooltip content="Clear Canvas" side="bottom">
+        <Tooltip content={translate("tools.canvas.clear", "Limpiar")} side="bottom">
           <Button
             variant="danger"
             size="sm"
-            className="h-9 w-9 p-0"
+            className="h-8 w-8 sm:h-9 sm:w-9 p-0 ml-0.5"
             onClick={onClear}
           >
             <Trash2 size={18} />

@@ -83,6 +83,7 @@
     "exportPng": "Export PNG",
     "exportJson": "Export JSON",
     "importJson": "Import JSON",
+    "importExport": "Import/Export",
     "snapToGrid": "Snap to Grid",
     "versions": "Versions",
     "saveVersion": "Save Version",
