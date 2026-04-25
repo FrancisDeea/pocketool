@@ -38,14 +38,16 @@ export function useTools(
   const snapToGrid = (val: number) => {
     if (!snap) return val;
     const step = 10;
-    // Magnetic feel: only snap if within 5 units
     const tolerance = 5;
     const nearest = Math.round(val / step) * step;
     return Math.abs(val - nearest) < tolerance ? nearest : val;
   };
 
-  const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (activeTool === 'select' || activeTool === 'pan') return;
+    
+    // Ignore multi-touch for drawing
+    if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) return;
 
     const stage = e.target.getStage();
     if (!stage) return;
@@ -102,8 +104,11 @@ export function useTools(
     }
   }, [activeTool, viewport, snap, state]);
 
-  const handleMouseMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleMouseMove = useCallback((e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (!newShape) return;
+    
+    // Ignore multi-touch for drawing
+    if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) return;
 
     const stage = e.target.getStage();
     if (!stage) return;
@@ -142,7 +147,6 @@ export function useTools(
   const handleMouseUp = useCallback(() => {
     if (!newShape) return;
 
-    // Filter out zero-size shapes
     const isVisible = (s: Shape): boolean => {
       switch (s.type) {
         case 'rect':

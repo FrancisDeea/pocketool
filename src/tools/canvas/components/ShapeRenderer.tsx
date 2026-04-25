@@ -21,6 +21,7 @@ export function ShapeRenderer({ shape, snap, scale = 1, viewport, onSelect, onDb
     fill: shape.fill,
     stroke: shape.stroke,
     strokeWidth: shape.strokeWidth,
+    hitStrokeWidth: Math.max(shape.strokeWidth || 0, 20 / scale), // Larger hit area for touch
     opacity: shape.opacity,
     rotation: shape.rotation,
     scaleX: shape.scaleX,

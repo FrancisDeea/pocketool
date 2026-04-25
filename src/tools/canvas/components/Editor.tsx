@@ -32,6 +32,11 @@ export default function Editor() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ 
+    width: typeof window !== 'undefined' ? window.innerWidth : 0, 
+    height: typeof window !== 'undefined' ? window.innerHeight : 0 
+  });
 
   const { versions, saveVersion, deleteVersion, renameVersion } = useVersions();
   const { selectionRect, startSelection, updateSelection, endSelection } =
@@ -54,9 +59,8 @@ export default function Editor() {
     };
   });
 
-  const { viewport, setViewport, handleZoom } = useCanvas(
-    initialData?.viewport,
-  );
+  const { viewport, setViewport, handleZoom, handleTouch, handleTouchEnd } =
+    useCanvas(initialData?.viewport);
   const { state, pushState, undo, redo, canUndo, canRedo } = useHistory(
     initialData?.state || { shapes: [], connectors: [] },
   );
@@ -95,16 +99,20 @@ export default function Editor() {
 
   // Prevent browser scroll
   useEffect(() => {
-    const preventDefault = (e: WheelEvent) => {
+    const preventDefault = (e: WheelEvent | TouchEvent) => {
       if (
         e.target instanceof HTMLCanvasElement ||
         (e.target as HTMLElement)?.closest(".konvajs-content")
       ) {
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
       }
     };
     window.addEventListener("wheel", preventDefault, { passive: false });
-    return () => window.removeEventListener("wheel", preventDefault);
+    window.addEventListener("touchmove", preventDefault, { passive: false });
+    return () => {
+      window.removeEventListener("wheel", preventDefault);
+      window.removeEventListener("touchmove", preventDefault);
+    };
   }, []);
 
   const updateShape = useCallback(
@@ -152,7 +160,7 @@ export default function Editor() {
     };
   };
 
-  const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (isSpacePressed) return;
 
     const clickedOnEmpty = e.target === e.target.getStage();
@@ -169,8 +177,15 @@ export default function Editor() {
     }
   };
 
-  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
+  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (isSpacePressed) return;
+    
+    // Handle multi-touch zoom/pan
+    if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) {
+      handleTouch(e as Konva.KonvaEventObject<TouchEvent>);
+      return;
+    }
+
     if (selectionRect) {
       const pos = getPointerPos();
       updateSelection(pos.x, pos.y);
@@ -179,8 +194,13 @@ export default function Editor() {
     }
   };
 
-  const handleStageMouseUp = () => {
+  const handleStageMouseUp = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (isSpacePressed) return;
+
+    if (e.evt instanceof TouchEvent) {
+      handleTouchEnd();
+    }
+
     if (selectionRect) {
       const x1 = Math.min(selectionRect.x1, selectionRect.x2);
       const y1 = Math.min(selectionRect.y1, selectionRect.y2);
@@ -312,16 +332,36 @@ export default function Editor() {
     link.click();
   }, [state]);
 
-  const [windowSize, setWindowSize] = useState({
-    width: 0,
-    height: 0,
-  });
   useEffect(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    const handleResize = () =>
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const updateSize = () => {
+      if (containerRef.current) {
+        setSize({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight,
+        });
+      }
+    };
+
+    updateSize();
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
+      }
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    
+    window.addEventListener('resize', updateSize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
   }, []);
 
   const selectedShapes = state.shapes.filter((s) => selectedIds.includes(s.id));
@@ -339,7 +379,8 @@ export default function Editor() {
 
   return (
     <div
-      className={`relative h-full w-full overflow-hidden bg-background ${isSpacePressed ? "cursor-grab active:cursor-grabbing" : ""}`}
+      ref={containerRef}
+      className={`relative h-full w-full overflow-hidden bg-background touch-none ${isSpacePressed ? "cursor-grab active:cursor-grabbing" : ""}`}
     >
       <Toolbar
         activeTool={activeTool}
@@ -454,8 +495,8 @@ export default function Editor() {
 
       <Stage
         ref={stageRef}
-        width={windowSize.width}
-        height={windowSize.height}
+        width={size.width}
+        height={size.height}
         x={viewport.x}
         y={viewport.y}
         scaleX={viewport.scale}
@@ -464,6 +505,9 @@ export default function Editor() {
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
+        onTouchStart={handleStageMouseDown}
+        onTouchMove={handleStageMouseMove}
+        onTouchEnd={handleStageMouseUp}
         onWheel={(e) => {
           handleZoom(e.evt, stageRef.current);
         }}
@@ -479,8 +523,8 @@ export default function Editor() {
       >
         <GridLayer
           viewport={viewport}
-          width={windowSize.width}
-          height={windowSize.height}
+          width={size.width}
+          height={size.height}
           isVisible={showGrid}
         />
         <Layer>
