@@ -16,9 +16,10 @@ import { ConnectorRenderer } from "./ConnectorRenderer";
 import { VersionsDrawer } from "./VersionsDrawer";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { TextEditor } from "./TextEditor";
+import { PointHandles } from "./PointHandles";
 import { Dialog, DialogContent } from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
-import type { ShapeType, Shape, CanvasState, ViewportState, TextShape } from "../types";
+import type { ShapeType, Shape, CanvasState, ViewportState, TextShape, LineShape, ArrowShape } from "../types";
 
 export default function Editor() {
   const [activeTool, setActiveTool] = useState<ShapeType>("select");
@@ -373,6 +374,8 @@ export default function Editor() {
   }, []);
 
   const selectedShapes = state.shapes.filter((s) => selectedIds.includes(s.id));
+  const isSingleLineOrArrow = selectedIds.length === 1 && 
+    (selectedShapes[0]?.type === 'line' || selectedShapes[0]?.type === 'arrow');
 
   // Update transformer
   useEffect(() => {
@@ -584,7 +587,7 @@ export default function Editor() {
             <Transformer
               ref={transformerRef}
               rotateEnabled={true}
-              enabledAnchors={[
+              enabledAnchors={isSingleLineOrArrow ? [] : [
                 "top-left",
                 "top-right",
                 "bottom-left",
@@ -600,6 +603,14 @@ export default function Editor() {
                 }
                 return newBox;
               }}
+            />
+          )}
+          {isSingleLineOrArrow && !editingId && (
+            <PointHandles
+              shape={selectedShapes[0] as LineShape | ArrowShape}
+              viewport={viewport}
+              snap={snap}
+              onChange={updateShape}
             />
           )}
         </Layer>
