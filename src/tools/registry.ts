@@ -1,5 +1,5 @@
-import type { ToolConfig } from '@/types/tool';
-import type { ComponentType } from 'react';
+import type { ToolConfig } from "@/types/tool";
+import type { ComponentType } from "react";
 
 /**
  * Auto-registry of tools using Vite's import.meta.glob.
@@ -14,13 +14,13 @@ import type { ComponentType } from 'react';
 
 // Eagerly load all tool configs
 const configModules = import.meta.glob<{ config: ToolConfig }>(
-  './*/config.ts',
+  "./*/config.ts",
   { eager: true },
 );
 
 // Lazily load tool components
 const toolModules = import.meta.glob<{ default: ComponentType }>(
-  './*/index.tsx',
+  "./*/index.tsx",
 );
 
 /**
@@ -40,9 +40,7 @@ export function getToolConfig(id: string): ToolConfig | undefined {
 /**
  * Dynamically load a tool component by ID.
  */
-export async function loadTool(
-  id: string,
-): Promise<ComponentType | null> {
+export async function loadTool(id: string): Promise<ComponentType | null> {
   const entry = Object.entries(toolModules).find(([path]) =>
     path.includes(`/${id}/`),
   );

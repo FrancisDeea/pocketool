@@ -1,7 +1,7 @@
 ---
-import ToolLayout from '@/layouts/ToolLayout.astro';
-import ToolWrapper from '@/components/layout/ToolWrapper';
-import { getAllTools } from '@/tools/registry';
+import ToolLayout from "@/layouts/ToolLayout.astro";
+import ToolWrapper from "@/components/layout/ToolWrapper";
+import { getAllTools } from "@/tools/registry";
 
 export function getStaticPaths() {
   const tools = getAllTools();
@@ -15,7 +15,7 @@ const tools = getAllTools();
 const toolConfig = tools.find((t) => t.id === slug);
 
 if (!toolConfig) {
-  return Astro.redirect('/');
+  return Astro.redirect("/");
 }
 ---
 
