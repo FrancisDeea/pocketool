@@ -13,7 +13,8 @@ import {
   Wrench,
   X,
   KeyRound,
-  Regex
+  Regex,
+  Brush,
 } from 'lucide-react';
 import type { ToolConfig } from '@/types/tool';
 import { $sidebarCollapsed, toggleSidebar } from '@/stores/preferences';
@@ -40,6 +41,7 @@ const iconMap: Record<string, typeof Braces> = {
   Code,
   KeyRound,
   Regex,
+  Brush,
 };
 
 function getToolHref(toolId: string, locale: string): string {

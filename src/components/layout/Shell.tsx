@@ -18,6 +18,10 @@ import {
   Monitor,
   Code,
   Wrench,
+  Brush,
+  KeyRound,
+  Regex,
+  MonitorSmartphone,
 } from 'lucide-react';
 
 type ShellProps = {
@@ -35,6 +39,10 @@ const iconMap: Record<string, typeof Braces> = {
   StickyNote,
   Monitor,
   Code,
+  Brush,
+  KeyRound,
+  Regex,
+  MonitorSmartphone,
 };
 
 export default function Shell({

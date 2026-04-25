@@ -75,7 +75,28 @@
     "tags": "Tags",
     "addTag": "Add tag",
     "deleteConfirm": "Delete this note?",
-    "lastEdited": "Last edited",
-    "emptyState": "No notes yet. Create one!"
+    "lastEdited": "Last edited"
+  },
+  "canvas": {
+    "title": "Canvas",
+    "description": "Vector canvas tool with infinite workspace and auto-save",
+    "exportPng": "Export PNG",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "snapToGrid": "Snap to Grid",
+    "versions": "Versions",
+    "saveVersion": "Save Version",
+    "undo": "Undo",
+    "redo": "Redo",
+    "clear": "Clear",
+    "clearConfirm": "Are you sure you want to clear the canvas?",
+    "untitledVersion": "Untitled Version",
+    "versionName": "Version name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "load": "Load",
+    "delete": "Delete",
+    "rename": "Rename",
+    "noVersions": "No saved versions"
   }
 }
