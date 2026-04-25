@@ -66,10 +66,12 @@ const HISTORY_LIMIT = 10;
 
 /**
  * Add a history entry for a tool, keeping only the last N entries.
+ * If limit is 0, no pruning is performed.
  */
 export async function addToolHistory(
   toolId: string,
   data: unknown,
+  limit: number = HISTORY_LIMIT,
 ): Promise<void> {
   await db.toolHistory.add({
     toolId,
@@ -77,14 +79,16 @@ export async function addToolHistory(
     data,
   });
 
+  if (limit <= 0) return;
+
   // Prune old entries beyond limit
   const count = await db.toolHistory.where('toolId').equals(toolId).count();
-  if (count > HISTORY_LIMIT) {
+  if (count > limit) {
     const toDelete = await db.toolHistory
       .where('toolId')
       .equals(toolId)
       .sortBy('timestamp');
-    const deleteCount = count - HISTORY_LIMIT;
+    const deleteCount = count - limit;
     const idsToDelete = toDelete
       .slice(0, deleteCount)
       .map((entry) => entry.id)
