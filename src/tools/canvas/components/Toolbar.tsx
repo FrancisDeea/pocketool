@@ -136,7 +136,7 @@ export function Toolbar({
   );
 
   return (
-    <div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-0.5 sm:gap-1 rounded-xl border bg-surface/80 p-1 sm:p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface max-w-[calc(100vw-1rem)] sm:max-w-max overflow-x-auto no-scrollbar">
+    <div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-0.5 sm:gap-1 rounded-xl border bg-surface/80 p-1 sm:p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface max-w-[calc(100vw-2.5rem)] sm:max-w-max overflow-x-auto no-scrollbar">
       <div className="flex items-center gap-1 shrink-0">
         {/* Selection Tools */}
         {selectionTools.map(renderToolButton)}
