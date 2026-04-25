@@ -197,7 +197,7 @@ export default function Shell({
 
       <div
         className={[
-          "min-h-dvh transition-all duration-[var(--transition-base)]",
+          "h-dvh transition-all duration-[var(--transition-base)] flex flex-col overflow-hidden",
           "max-md:ml-0",
           zenMode
             ? "ml-0"
@@ -216,8 +216,8 @@ export default function Shell({
         <main
           className={
             zenMode
-              ? "p-3 h-dvh overflow-hidden flex flex-col items-stretch justify-center"
-              : "p-4 md:p-6"
+              ? "p-3 h-full overflow-hidden flex flex-col items-stretch justify-center"
+              : "flex-1 p-4 md:p-6 min-h-0 overflow-hidden"
           }
         >
           {children}
