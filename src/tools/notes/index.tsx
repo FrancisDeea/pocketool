@@ -254,40 +254,40 @@ export default function Notes() {
       </div>
 
       {/* Right: Editor */}
-      <div className="flex-1 flex flex-col min-h-0 max-md:hidden">
+      <div className="flex-1 flex flex-col min-h-0 max-md:hidden bg-surface-hover/30 rounded-2xl border border-border/50 p-4 lg:p-8 shadow-inner">
         {selectedNote ? (
-          <>
+          <div className="flex-1 flex flex-col animate-fade-in">
             <input
               value={selectedNote.title}
               onChange={(e) => handleUpdate('title', e.target.value)}
               placeholder="Título de la nota..."
-              className="text-xl font-semibold bg-transparent outline-none text-text-primary placeholder:text-text-tertiary mb-3"
+              className="text-2xl font-bold bg-transparent outline-none text-text-primary placeholder:text-text-tertiary mb-4 px-2"
             />
 
             {/* Tags */}
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <div className="flex items-center gap-2 mb-6 flex-wrap px-2">
               <Tag size={14} className="text-text-tertiary shrink-0" />
               {selectedNote.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs text-accent bg-accent-muted rounded-full"
+                  className="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-accent bg-accent-muted rounded-full border border-accent/10"
                 >
                   {tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="hover:text-danger cursor-pointer"
+                    className="hover:text-danger cursor-pointer transition-colors"
                   >
                     <X size={10} />
                   </button>
                 </span>
               ))}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 ml-1">
                 <input
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                  placeholder="+ etiqueta"
-                  className="w-20 text-xs bg-transparent outline-none text-text-tertiary placeholder:text-text-tertiary"
+                  placeholder="+ añadir etiqueta"
+                  className="w-24 text-xs bg-transparent outline-none text-text-tertiary placeholder:text-text-tertiary hover:text-text-secondary transition-colors"
                 />
               </div>
             </div>
@@ -295,25 +295,30 @@ export default function Notes() {
             <textarea
               value={selectedNote.content}
               onChange={(e) => handleUpdate('content', e.target.value)}
-              placeholder="Escribe tu nota..."
+              placeholder="Empieza a escribir tu nota aquí..."
               className={[
-                'flex-1 p-4 rounded-xl resize-none',
-                'bg-surface border border-border',
-                'text-sm text-text-primary leading-relaxed',
+                'flex-1 p-6 rounded-xl resize-none',
+                'bg-surface border border-border shadow-sm',
+                'text-base text-text-primary leading-relaxed',
                 'placeholder:text-text-tertiary',
-                'focus:outline-none focus:border-accent',
+                'focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all',
               ].join(' ')}
             />
-          </>
+          </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center animate-fade-in">
             <div className="text-center">
-              <StickyNote
-                size={48}
-                className="mx-auto text-text-tertiary mb-4"
-              />
-              <p className="text-text-tertiary">
-                Selecciona o crea una nota
+              <div className="w-20 h-20 bg-surface rounded-3xl border border-border flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <StickyNote
+                  size={40}
+                  className="text-text-tertiary opacity-40"
+                />
+              </div>
+              <p className="text-text-secondary font-medium">
+                Selecciona una nota para editar
+              </p>
+              <p className="text-xs text-text-tertiary mt-2">
+                O crea una nueva para empezar
               </p>
             </div>
           </div>
