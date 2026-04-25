@@ -230,6 +230,10 @@
   animation: slideInLeft var(--transition-base) ease-out;
 }
 
+@utility animate-zen-alert {
+  animation: zenAlert 2s ease-in-out;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -248,4 +252,40 @@
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
+}
+
+@keyframes zenAlert {
+  0% { transform: scale(0.8); opacity: 0; }
+  25%, 55%, 85% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 20px var(--theme-accent); }
+  40%, 70% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 0.4; }
+}
+
+/* ===================================================================
+   Zen Mode Overrides
+   =================================================================== */
+
+[data-zen-mode="true"] {
+  --topbar-height: 0px;
+}
+
+[data-zen-mode="true"] main {
+  padding: 0.75rem !important; /* Fixed 12px margin on all sides */
+}
+
+/* Force tools to fill the padded area exactly */
+[data-zen-mode="true"] main > div,
+[data-zen-mode="true"] main > section {
+  max-width: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+}
+
+/* Aggressively override any internal height calculations to fill the Zen container */
+[data-zen-mode="true"] div[class*="h-[calc"] {
+  height: 100% !important;
+  max-height: none !important;
 }

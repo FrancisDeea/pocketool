@@ -14,7 +14,9 @@
     "search": "Search tools...",
     "searchShortcut": "⌘K",
     "theme": "Theme",
-    "language": "Language"
+    "language": "Language",
+    "zenMode": "Zen Mode",
+    "fullscreen": "Full Screen"
   },
   "themes": {
     "light": "Light",
@@ -44,7 +46,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "settings": "Settings",
-    "dragDrop": "Drag and drop here"
+    "dragDrop": "Drag and drop here",
+    "exitZenMode": "Exit Zen Mode"
   },
   "storage": {
     "quotaExceeded": "Storage full. Free up space by clearing tool data.",

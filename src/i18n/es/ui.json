@@ -14,7 +14,9 @@
     "search": "Buscar herramientas...",
     "searchShortcut": "⌘K",
     "theme": "Tema",
-    "language": "Idioma"
+    "language": "Idioma",
+    "zenMode": "Modo Zen",
+    "fullscreen": "Pantalla completa"
   },
   "themes": {
     "light": "Claro",
@@ -44,7 +46,8 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     "settings": "Ajustes",
-    "dragDrop": "Arrastra y suelta aquí"
+    "dragDrop": "Arrastra y suelta aquí",
+    "exitZenMode": "Salir del Modo Zen"
   },
   "storage": {
     "quotaExceeded": "Almacenamiento lleno. Libera espacio eliminando datos de herramientas.",
