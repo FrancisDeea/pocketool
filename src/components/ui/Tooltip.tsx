@@ -1,5 +1,5 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 
 type TooltipProps = {
   content: string;
@@ -14,10 +14,12 @@ export default function Tooltip({
   side = 'top',
   delayDuration = 300,
 }: TooltipProps) {
+  const [open, setOpen] = useState(false);
+
   return (
     <TooltipPrimitive.Provider delayDuration={delayDuration}>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>
+      <TooltipPrimitive.Root open={open} onOpenChange={setOpen}>
+        <TooltipPrimitive.Trigger asChild onClick={() => setOpen(false)}>
           {children}
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
