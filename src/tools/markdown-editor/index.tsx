@@ -6,6 +6,8 @@ import DOMPurify from 'dompurify';
 import Button from '@ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@ui/Tabs';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useStore } from '@nanostores/react';
+import { $theme } from '@/stores/theme';
 import { db, addToolHistory, type ToolHistory } from '@/db';
 
 const DEFAULT_MARKDOWN = `# Bienvenido a Markdown Editor
@@ -53,6 +55,9 @@ sequenceDiagram
 `;
 
 export default function MarkdownEditor() {
+  const theme = useStore($theme);
+  const isDark = theme.includes('dark');
+
   // Load persisted content from Dexie
   const savedContent = useLiveQuery(
     () => db.toolStates.get('tool:markdown-editor:content'),
@@ -327,7 +332,10 @@ ${html}
             <TabsContent value="preview" className="flex-1 min-h-0">
               <div
                 ref={previewRef}
-                className="h-full overflow-auto p-4 rounded-xl bg-surface border border-border prose prose-sm prose-invert max-w-none"
+                className={[
+                  'h-full overflow-auto p-4 rounded-xl bg-surface border border-border prose prose-sm max-w-none',
+                  isDark ? 'prose-invert' : ''
+                ].join(' ')}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </TabsContent>
@@ -350,7 +358,10 @@ ${html}
           />
           <div
             ref={previewRef}
-            className="flex-1 overflow-auto p-6 rounded-xl bg-surface border border-border prose prose-sm prose-invert max-w-none"
+            className={[
+              'flex-1 overflow-auto p-6 rounded-xl bg-surface border border-border prose prose-sm max-w-none',
+              isDark ? 'prose-invert' : ''
+            ].join(' ')}
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </div>
