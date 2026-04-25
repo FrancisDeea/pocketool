@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   Sun,
@@ -116,6 +117,11 @@ export default function TopBar({
 }: TopBarProps) {
   const theme = useStore($theme);
   const locale = useStore($locale);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleThemeChange = (newTheme: ThemeMode) => {
     $theme.set(newTheme);
@@ -246,7 +252,9 @@ export default function TopBar({
           <Tooltip content="Tema">
             <DropdownMenuTrigger asChild>
               <Button variant="icon" size="sm">
-                {theme.startsWith('dark') ? (
+                {!isMounted ? (
+                  <Moon size={18} />
+                ) : theme.startsWith('dark') ? (
                   <Moon size={18} />
                 ) : (
                   <Sun size={18} />
