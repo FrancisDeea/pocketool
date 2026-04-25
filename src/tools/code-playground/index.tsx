@@ -386,27 +386,27 @@ export default function CodePlayground() {
       <div className="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
         
         {/* Left: Editor */}
-        <div className="flex-[1.2] flex flex-col min-h-[300px] bg-surface border border-border rounded-xl overflow-hidden">
+        <div className="flex-[1.2] flex flex-col min-h-[300px] bg-surface border border-border rounded-xl overflow-hidden" data-theme="dark">
           <Tabs value={activeTab} onValueChange={(val: string) => setActiveTab(val as ViewMode)} className="flex flex-col h-full bg-[#282c34]">
              {/* Note: The tabs background mimics one-dark theme for a seamless look */}
-            <TabsList className="rounded-none border-b border-[#181a1f] bg-[#21252b] justify-start p-0 h-10">
+            <TabsList className="!rounded-none !border-b !border-[#181a1f] !bg-[#21252b] !justify-start !p-0 !h-10">
               <TabsTrigger 
                 value="html" 
-                className="text-xs px-4 h-full flex items-center gap-2 text-white/60 hover:text-white data-[state=active]:bg-[#282c34] data-[state=active]:text-white transition-all border-r border-[#181a1f]"
+                className="!text-xs !px-4 !h-full flex items-center gap-2 !text-white/60 hover:!text-white data-[state=active]:!bg-[#282c34] data-[state=active]:!text-white transition-all !border-r !border-[#181a1f] !shadow-none !rounded-none"
               >
                 <FileCode2 size={14} className="text-[#e34f26]" /> 
                 <span className="font-medium">HTML</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="css" 
-                className="text-xs px-4 h-full flex items-center gap-2 text-white/60 hover:text-white data-[state=active]:bg-[#282c34] data-[state=active]:text-white transition-all border-r border-[#181a1f]"
+                className="!text-xs !px-4 !h-full flex items-center gap-2 !text-white/60 hover:!text-white data-[state=active]:!bg-[#282c34] data-[state=active]:!text-white transition-all !border-r !border-[#181a1f] !shadow-none !rounded-none"
               >
                 <Paintbrush size={14} className="text-[#264de4]" /> 
                 <span className="font-medium">CSS</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="js" 
-                className="text-xs px-4 h-full flex items-center gap-2 text-white/60 hover:text-white data-[state=active]:bg-[#282c34] data-[state=active]:text-white transition-all border-r border-[#181a1f]"
+                className="!text-xs !px-4 !h-full flex items-center gap-2 !text-white/60 hover:!text-white data-[state=active]:!bg-[#282c34] data-[state=active]:!text-white transition-all !border-r !border-[#181a1f] !shadow-none !rounded-none"
               >
                 <Braces size={14} className="text-[#f7df1e]" /> 
                 <span className="font-medium">JS</span>
