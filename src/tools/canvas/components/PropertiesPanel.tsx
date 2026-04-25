@@ -29,8 +29,8 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
   };
 
   return (
-    <div className="absolute top-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-xl border bg-surface/95 p-3 shadow-2xl backdrop-blur-md">
-      <div className="flex items-center gap-3">
+    <div className="absolute top-24 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 sm:gap-4 rounded-xl border bg-surface/95 p-2 sm:p-3 shadow-2xl backdrop-blur-md max-w-[calc(100vw-2.5rem)] sm:max-w-max overflow-x-auto no-scrollbar transition-all">
+      <div className="flex items-center gap-3 shrink-0">
         <label className="text-[11px] font-bold uppercase tracking-wider text-text-tertiary">Fill</label>
         <input 
           type="color" 
@@ -40,9 +40,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
         />
       </div>
 
-      <div className="h-8 w-px bg-border" />
+      <div className="h-8 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         <label className="text-[11px] font-bold uppercase tracking-wider text-text-tertiary">Stroke</label>
         <input 
           type="color" 
@@ -52,9 +52,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
         />
       </div>
 
-      <div className="h-8 w-px bg-border" />
+      <div className="h-8 w-px bg-border shrink-0" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <label className="mr-2 text-[11px] font-bold uppercase tracking-wider text-text-tertiary">Width</label>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onUpdate({ strokeWidth: Math.max(0, common.strokeWidth - 1) })}>
           <Minus size={20} />
@@ -67,8 +67,8 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
 
       {isSingle && first.type === 'arrow' && (
         <>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex items-center gap-2">
+          <div className="h-8 w-px bg-border shrink-0" />
+          <div className="flex items-center gap-2 shrink-0">
             <label className="mr-1 text-[11px] font-bold uppercase tracking-wider text-text-tertiary">Head</label>
             {(['small', 'medium', 'large'] as const).map(size => (
               <Button
@@ -87,8 +87,8 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
 
       {isSingle && first.type === 'text' && (
         <>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex items-center gap-2">
+          <div className="h-8 w-px bg-border shrink-0" />
+          <div className="flex items-center gap-2 shrink-0">
             <Button 
               variant={first.fontStyle.includes('bold') ? 'primary' : 'ghost'} 
               size="sm" 
@@ -106,8 +106,8 @@ export function PropertiesPanel({ selectedShapes, onUpdate }: PropertiesPanelPro
               <Italic size={20} />
             </Button>
           </div>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex items-center gap-2">
+          <div className="h-8 w-px bg-border shrink-0" />
+          <div className="flex items-center gap-2 shrink-0">
             <Button variant={first.align === 'left' ? 'primary' : 'ghost'} size="sm" className="h-9 w-9 p-0" onClick={() => onUpdate({ align: 'left' })}>
               <AlignLeft size={20} />
             </Button>
