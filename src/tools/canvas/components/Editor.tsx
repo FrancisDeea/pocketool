@@ -163,6 +163,14 @@ export default function Editor() {
   const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (isSpacePressed) return;
 
+    // Handle multi-touch: cancel any current tool operation
+    if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) {
+      if (activeTool !== "select" && activeTool !== "pan") {
+        handleMouseUp(); // Cancel drawing
+      }
+      return;
+    }
+
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedIds([]);

@@ -106,6 +106,10 @@ export function useCanvas(initialViewport?: ViewportState) {
 
       lastDist.current = dist;
       lastCenter.current = center;
+    } else {
+      // Reset if not two fingers
+      lastDist.current = 0;
+      lastCenter.current = null;
     }
   }, [viewport]);
 
