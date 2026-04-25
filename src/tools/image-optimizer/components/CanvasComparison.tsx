@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Upload, ImageIcon } from 'lucide-react';
+import { useStore } from '@nanostores/react';
+import { $theme } from '@/stores/theme';
 
 interface Props {
   originalUrl: string | null;
@@ -14,6 +16,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [sliderPos, setSliderPos] = useState(0.5); // 0 to 1
+  const theme = useStore($theme);
 
   // Interaction State
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
@@ -73,9 +76,12 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
     ctx.clearRect(0, 0, w, h);
 
     // Draw checkered background
-    ctx.fillStyle = '#141416';
+    // We use semi-transparent overlays so it works in both light and dark modes
+    const isDark = document.documentElement.dataset.theme?.includes('dark') ?? true;
+    ctx.fillStyle = isDark ? '#141416' : '#f4f4f5';
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#1c1c1f';
+    
+    ctx.fillStyle = isDark ? '#1c1c1f' : '#e4e4e7';
     const gridSize = 20;
     for (let x = 0; x < w; x += gridSize) {
       for (let y = 0; y < h; y += gridSize) {
@@ -132,7 +138,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
       ctx.fillStyle = '#818cf8';
       ctx.fill();
     }
-  }, [offset, scale, sliderPos]);
+  }, [offset, scale, sliderPos, theme]);
 
   useEffect(() => {
     render();
@@ -217,7 +223,6 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
           <div className="w-20 h-20 rounded-3xl bg-surface shadow-xl border border-border flex items-center justify-center relative group-hover:scale-110 transition-transform duration-300">
             <div className="absolute inset-0 rounded-3xl bg-accent/10 animate-pulse" />
             <Upload size={32} className="text-accent relative z-10" />
-            <ImageIcon size={16} className="text-accent/40 absolute -bottom-1 -right-1" />
           </div>
           <div className="max-w-xs space-y-2">
             <h3 className="text-lg font-semibold text-text-primary">Optimiza tus imágenes</h3>
