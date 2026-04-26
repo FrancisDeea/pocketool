@@ -8,6 +8,11 @@ export default defineConfig({
 
   integrations: [react()],
 
+  server: {
+    host: true,
+    port: 4321,
+  },
+
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
