@@ -45,6 +45,7 @@ export default function Editor() {
   const [activeTool, setActiveToolRaw] = useState<ShapeType>("select");
   const [snap, setSnap] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
+  const [showOrigin, setShowOrigin] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isVersionsOpen, setIsVersionsOpen] = useState(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
@@ -74,10 +75,11 @@ export default function Editor() {
     let cancelled = false;
 
     async function load() {
-      const [autosave, snapState, gridState] = await Promise.all([
+      const [autosave, snapState, gridState, showOriginState] = await Promise.all([
         db.toolStates.get("tool:canvas:autosave"),
         db.toolStates.get("tool:canvas:snap"),
         db.toolStates.get("tool:canvas:show-grid"),
+        db.toolStates.get("tool:canvas:show-origin"),
       ]);
       if (cancelled) return;
 
@@ -88,6 +90,7 @@ export default function Editor() {
       }
       if (snapState !== undefined && snapState !== null) setSnap(snapState.content as boolean);
       if (gridState !== undefined && gridState !== null) setShowGrid(gridState.content as boolean);
+      if (showOriginState !== undefined && showOriginState !== null) setShowOrigin(showOriginState.content as boolean);
 
       setInitialLoaded(true);
     }
@@ -129,8 +132,8 @@ export default function Editor() {
     getAnchorPosition,
   } = useConnectors(state, pushState, viewport);
 
-  // ── Auto-save — only shapes+snap+grid (no viewport) ───────────────
-  useAutoSave(state, snap, showGrid);
+  // ── Auto-save — only shapes+snap+grid+origin (no viewport) ────────
+  useAutoSave(state, snap, showGrid, showOrigin);
 
   // ── Tool switch: clear selection, cancel connector, reset pending props ─
   const setActiveTool = useCallback((tool: ShapeType) => {
@@ -163,6 +166,20 @@ export default function Editor() {
       window.removeEventListener("resize", updateSize);
     };
   }, []);
+
+  // ── Initial viewport centering ────────────────────────────────────
+  const hasCentered = useRef(false);
+  useEffect(() => {
+    if (initialLoaded && size.width > 0 && size.height > 0 && !hasCentered.current) {
+      // Center the origin (0,0) in the middle of the viewport
+      setViewport({
+        x: size.width / 2,
+        y: size.height / 2,
+        scale: 1,
+      });
+      hasCentered.current = true;
+    }
+  }, [initialLoaded, size.width, size.height, setViewport]);
 
   // ── Prevent browser scroll on canvas ──────────────────────────────
   useEffect(() => {
@@ -525,10 +542,12 @@ export default function Editor() {
         setSnap={setSnap}
         showGrid={showGrid}
         setShowGrid={setShowGrid}
+        showOrigin={showOrigin}
+        setShowOrigin={setShowOrigin}
         zoom={viewport.scale}
         onZoomIn={() => setViewport((v) => ({ ...v, scale: Math.min(10, v.scale * 1.1) }))}
         onZoomOut={() => setViewport((v) => ({ ...v, scale: Math.max(0.1, v.scale / 1.1) }))}
-        onZoomReset={() => setViewport({ x: 0, y: 0, scale: 1 })}
+        onZoomReset={() => setViewport({ x: size.width / 2, y: size.height / 2, scale: 1 })}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={undo}
@@ -655,6 +674,7 @@ export default function Editor() {
           width={size.width}
           height={size.height}
           isVisible={showGrid}
+          showOrigin={showOrigin}
         />
 
         <Layer>
@@ -754,6 +774,7 @@ export default function Editor() {
           {activeTool === "select" && selectedIds.length > 0 && !editingId && (
             <Transformer
               ref={transformerRef}
+              ignoreStroke={true}
               rotateEnabled={true}
               flipEnabled={false}
               keepRatio={shiftHeld}

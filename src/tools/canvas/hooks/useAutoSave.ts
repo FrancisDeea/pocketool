@@ -7,7 +7,7 @@ import type { CanvasState } from '../types';
  * snap, and showGrid. Viewport (zoom + pan) is intentionally NOT
  * persisted so it always resets on page load.
  */
-export function useAutoSave(state: CanvasState, snap: boolean, showGrid: boolean) {
+export function useAutoSave(state: CanvasState, snap: boolean, showGrid: boolean, showOrigin: boolean) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track if this is the first render to avoid saving the initial hydrated state
   const isFirstRender = useRef(true);
@@ -40,11 +40,16 @@ export function useAutoSave(state: CanvasState, snap: boolean, showGrid: boolean
           content: showGrid,
           updatedAt: now,
         }),
+        db.toolStates.put({
+          id: 'tool:canvas:show-origin',
+          content: showOrigin,
+          updatedAt: now,
+        }),
       ]);
     }, 1500);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [state, snap, showGrid]);
+  }, [state, snap, showGrid, showOrigin]);
 }

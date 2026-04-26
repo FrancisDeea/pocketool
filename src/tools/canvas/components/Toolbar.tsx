@@ -47,6 +47,8 @@ interface ToolbarProps {
   setSnap: (snap: boolean) => void;
   showGrid: boolean;
   setShowGrid: (show: boolean) => void;
+  showOrigin: boolean;
+  setShowOrigin: (show: boolean) => void;
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
@@ -70,6 +72,8 @@ export function Toolbar({
   setSnap,
   showGrid,
   setShowGrid,
+  showOrigin,
+  setShowOrigin,
   zoom,
   onZoomIn,
   onZoomOut,
@@ -284,6 +288,15 @@ export function Toolbar({
               <div className="flex items-center gap-2">
                 <Grid size={16} />
                 <span>Show Grid</span>
+              </div>
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={showOrigin}
+              onCheckedChange={setShowOrigin}
+            >
+              <div className="flex items-center gap-2">
+                <Plus size={16} />
+                <span>Show Origin</span>
               </div>
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem checked={snap} onCheckedChange={setSnap}>

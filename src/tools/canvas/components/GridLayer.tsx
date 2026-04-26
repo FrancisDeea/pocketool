@@ -8,6 +8,7 @@ interface GridLayerProps {
   width: number;
   height: number;
   isVisible?: boolean;
+  showOrigin?: boolean;
 }
 
 /**
@@ -16,7 +17,7 @@ interface GridLayerProps {
  * ensuring pixel-perfect sharpness at any zoom level.
  * Also renders a crosshair at world origin (0,0) as a permanent reference.
  */
-export function GridLayer({ viewport, width, height, isVisible = true }: GridLayerProps) {
+export function GridLayer({ viewport, width, height, isVisible = true, showOrigin = true }: GridLayerProps) {
   const theme = useStore($theme);
   const isDark = theme.includes("dark");
   const isHC = theme.includes("-hc");
@@ -88,34 +89,34 @@ export function GridLayer({ viewport, width, height, isVisible = true }: GridLay
           }
 
           // ── Origin crosshair ──────────────────────────────
-          // Always visible — drawn in world coordinates at (0, 0)
-          // Size is inversely scaled so it remains ~24px on screen
-          const crossSize = 16 * invScale;
-          const crossLineWidth = 1.5 * invScale;
-          const crossColor = isDark
-            ? 'rgba(99, 102, 241, 0.8)'
-            : 'rgba(99, 102, 241, 0.9)';
+          if (showOrigin) {
+            // Infinite light green cross at world (0, 0)
+            const crossColor = isDark
+              ? "rgba(74, 222, 128, 0.45)" // Light green (green-400 equivalent)
+              : "rgba(34, 197, 94, 0.45)"; // Slightly darker green for light mode
 
-          context.beginPath();
-          context.strokeStyle = crossColor;
-          context.lineWidth = crossLineWidth;
-          context.lineCap = 'round';
+            context.beginPath();
+            context.strokeStyle = crossColor;
+            context.lineWidth = 1.5 * invScale;
 
-          // Horizontal arm
-          context.moveTo(-crossSize, 0);
-          context.lineTo(crossSize, 0);
-          // Vertical arm
-          context.moveTo(0, -crossSize);
-          context.lineTo(0, crossSize);
-          context.stroke();
+            // Horizontal infinite line at world y=0
+            context.moveTo(viewX, 0);
+            context.lineTo(viewX + viewW, 0);
 
-          // Center dot
-          context.beginPath();
-          context.fillStyle = crossColor;
-          context.arc(0, 0, 2.5 * invScale, 0, Math.PI * 2);
-          context.fill();
+            // Vertical infinite line at world x=0
+            context.moveTo(0, viewY);
+            context.lineTo(0, viewY + viewH);
+            context.stroke();
+
+            // Origin point marker
+            context.beginPath();
+            context.fillStyle = crossColor;
+            context.arc(0, 0, 4 * invScale, 0, Math.PI * 2);
+            context.fill();
+          }
         }}
       />
     </Layer>
   );
 }
+
