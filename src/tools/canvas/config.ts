@@ -13,7 +13,7 @@ export const config: ToolConfig = {
   version: '1.0.0',
   dbKeys: [
     'tool:canvas:autosave',
-    'tool:canvas:viewport',
     'tool:canvas:snap',
+    'tool:canvas:show-grid',
   ],
 };
