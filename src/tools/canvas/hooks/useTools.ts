@@ -21,6 +21,18 @@ export interface PendingToolProperties {
   opacity?: number;
 }
 
+// Fallback for crypto.randomUUID in non-secure contexts (e.g. testing on local IP)
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export function useTools(
   activeTool: ShapeType,
   state: CanvasState,
@@ -41,13 +53,11 @@ export function useTools(
   const newShapeRef = useRef(newShape);
   const originRef = useRef(origin);
 
-  // Keep refs in sync
+  // Keep refs in sync for values that come from props
   useEffect(() => { viewportRef.current = viewport; }, [viewport]);
   useEffect(() => { snapRef.current = snap; }, [snap]);
   useEffect(() => { stateRef.current = state; }, [state]);
   useEffect(() => { pendingPropsRef.current = pendingProperties; }, [pendingProperties]);
-  useEffect(() => { newShapeRef.current = newShape; }, [newShape]);
-  useEffect(() => { originRef.current = origin; }, [origin]);
 
   const DEFAULT_COLORS: Record<ShapeType, { fill: string; stroke: string }> = {
     select: { fill: 'transparent', stroke: 'transparent' },
@@ -91,11 +101,13 @@ export function useTools(
 
       const startX = snapVal(pos.x);
       const startY = snapVal(pos.y);
-      const id = crypto.randomUUID();
+      const id = generateId();
       const colors = DEFAULT_COLORS[activeTool] || { fill: '#3b82f6', stroke: '#2563eb' };
       const pending = pendingPropsRef.current;
 
-      setOrigin({ x: startX, y: startY });
+      const newOrigin = { x: startX, y: startY };
+      originRef.current = newOrigin;
+      setOrigin(newOrigin);
 
       const baseShape = {
         id,
@@ -145,6 +157,7 @@ export function useTools(
       }
 
       if (shape) {
+        newShapeRef.current = shape;
         setNewShape(shape);
       }
     },
@@ -157,7 +170,7 @@ export function useTools(
       if (!newShapeRef.current) return;
 
       // Ignore multi-touch for drawing
-      if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) return;
+      if ('touches' in e.evt && (e.evt as any).touches.length > 1) return;
 
       const stage = e.target.getStage();
       if (!stage) return;
@@ -168,53 +181,51 @@ export function useTools(
       const currentX = snapVal(pos.x);
       const currentY = snapVal(pos.y);
 
-      setNewShape(prev => {
-        if (!prev) return null;
-        const updated = { ...prev } as Shape;
+      const updated = { ...newShapeRef.current } as Shape;
 
-        switch (updated.type) {
-          case 'rect':
-          case 'triangle': {
-            // Support dragging in any direction
-            const x = Math.min(org.x, currentX);
-            const y = Math.min(org.y, currentY);
-            const w = Math.abs(currentX - org.x);
-            const h = Math.abs(currentY - org.y);
-            (updated as RectShape | TriangleShape).x = x;
-            (updated as RectShape | TriangleShape).y = y;
-            (updated as RectShape | TriangleShape).width = w;
-            (updated as RectShape | TriangleShape).height = h;
-            break;
-          }
-          case 'ellipse': {
-            // Center between origin and current pointer
-            const cx = (org.x + currentX) / 2;
-            const cy = (org.y + currentY) / 2;
-            const rx = Math.abs(currentX - org.x) / 2;
-            const ry = Math.abs(currentY - org.y) / 2;
-            (updated as EllipseShape).x = cx;
-            (updated as EllipseShape).y = cy;
-            (updated as EllipseShape).radiusX = rx;
-            (updated as EllipseShape).radiusY = ry;
-            break;
-          }
-          case 'line':
-          case 'arrow': {
-            const dx = currentX - org.x;
-            const dy = currentY - org.y;
-            (updated as LineShape | ArrowShape).points = [0, 0, dx, dy];
-            break;
-          }
-          case 'pen': {
-            const dx = pos.x - org.x;
-            const dy = pos.y - org.y;
-            (updated as PenShape).points = [...(prev as PenShape).points, dx, dy];
-            break;
-          }
+      switch (updated.type) {
+        case 'rect':
+        case 'triangle': {
+          // Support dragging in any direction
+          const x = Math.min(org.x, currentX);
+          const y = Math.min(org.y, currentY);
+          const w = Math.abs(currentX - org.x);
+          const h = Math.abs(currentY - org.y);
+          (updated as RectShape | TriangleShape).x = x;
+          (updated as RectShape | TriangleShape).y = y;
+          (updated as RectShape | TriangleShape).width = w;
+          (updated as RectShape | TriangleShape).height = h;
+          break;
         }
+        case 'ellipse': {
+          // Center between origin and current pointer
+          const cx = (org.x + currentX) / 2;
+          const cy = (org.y + currentY) / 2;
+          const rx = Math.abs(currentX - org.x) / 2;
+          const ry = Math.abs(currentY - org.y) / 2;
+          (updated as EllipseShape).x = cx;
+          (updated as EllipseShape).y = cy;
+          (updated as EllipseShape).radiusX = rx;
+          (updated as EllipseShape).radiusY = ry;
+          break;
+        }
+        case 'line':
+        case 'arrow': {
+          const dx = currentX - org.x;
+          const dy = currentY - org.y;
+          (updated as LineShape | ArrowShape).points = [0, 0, dx, dy];
+          break;
+        }
+        case 'pen': {
+          const dx = pos.x - org.x;
+          const dy = pos.y - org.y;
+          (updated as PenShape).points = [...(newShapeRef.current as PenShape).points, dx, dy];
+          break;
+        }
+      }
 
-        return updated;
-      });
+      newShapeRef.current = updated;
+      setNewShape(updated);
     },
     // Only depends on activeTool; all other state via refs/closures
     [activeTool],
@@ -251,6 +262,7 @@ export function useTools(
         onTextCreate?.(shape);
       }
     }
+    newShapeRef.current = null;
     setNewShape(null);
   }, [pushState, onTextCreate]);
 

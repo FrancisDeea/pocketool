@@ -12,12 +12,25 @@ export interface ConnectorDraft {
   toY: number;
 }
 
+// Fallback for crypto.randomUUID in non-secure contexts (e.g. testing on local IP)
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export function useConnectors(
   state: CanvasState,
   pushState: (s: CanvasState) => void,
   viewport: { x: number; y: number; scale: number },
 ) {
   const [draft, setDraft] = useState<ConnectorDraft | null>(null);
+  const draftRef = useRef<ConnectorDraft | null>(null);
   const [hoveredAnchor, setHoveredAnchor] = useState<{
     shapeId: string;
     anchor: AnchorSide;
@@ -55,12 +68,14 @@ export function useConnectors(
     (worldX: number, worldY: number) => {
       const closest = findClosestAnchor(worldX, worldY);
       if (closest) {
-        setDraft({
+        const newDraft = {
           fromShapeId: closest.shapeId,
           fromAnchor: closest.anchor,
           toX: worldX,
           toY: worldY,
-        });
+        };
+        draftRef.current = newDraft;
+        setDraft(newDraft);
       }
     },
     [findClosestAnchor],
@@ -69,7 +84,12 @@ export function useConnectors(
   /** Called on pointer-move to update the draft endpoint and detect target anchor */
   const handleConnectorMove = useCallback(
     (worldX: number, worldY: number) => {
-      setDraft((prev) => (prev ? { ...prev, toX: worldX, toY: worldY } : null));
+      setDraft((prev) => {
+        if (!prev) return null;
+        const newDraft = { ...prev, toX: worldX, toY: worldY };
+        draftRef.current = newDraft;
+        return newDraft;
+      });
 
       const closest = findClosestAnchor(worldX, worldY);
       setHoveredAnchor(closest ? { shapeId: closest.shapeId, anchor: closest.anchor } : null);
@@ -80,14 +100,15 @@ export function useConnectors(
   /** Called on pointer-up to finalise or cancel the connector */
   const handleConnectorUp = useCallback(
     (worldX: number, worldY: number) => {
-      if (!draft) return;
+      const currentDraft = draftRef.current;
+      if (!currentDraft) return;
 
-      const closest = findClosestAnchor(worldX, worldY, draft.fromShapeId);
-      if (closest && closest.shapeId !== draft.fromShapeId) {
+      const closest = findClosestAnchor(worldX, worldY, currentDraft.fromShapeId);
+      if (closest && closest.shapeId !== currentDraft.fromShapeId) {
         const connector: Connector = {
-          id: crypto.randomUUID(),
-          fromShapeId: draft.fromShapeId,
-          fromAnchor: draft.fromAnchor,
+          id: generateId(),
+          fromShapeId: currentDraft.fromShapeId,
+          fromAnchor: currentDraft.fromAnchor,
           toShapeId: closest.shapeId,
           toAnchor: closest.anchor,
           type: 'straight',
@@ -101,13 +122,15 @@ export function useConnectors(
         });
       }
 
+      draftRef.current = null;
       setDraft(null);
       setHoveredAnchor(null);
     },
-    [draft, findClosestAnchor, state, pushState],
+    [findClosestAnchor, state, pushState],
   );
 
   const cancelConnector = useCallback(() => {
+    draftRef.current = null;
     setDraft(null);
     setHoveredAnchor(null);
   }, []);
