@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Stage, Layer, Transformer, Rect as KonvaRect } from "react-konva";
 import type Konva from "konva";
-import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/db";
 import { useCanvas } from "../hooks/useCanvas";
 import { useTools } from "../hooks/useTools";
@@ -9,96 +8,163 @@ import { useHistory } from "../hooks/useHistory";
 import { useAutoSave } from "../hooks/useAutoSave";
 import { useVersions } from "../hooks/useVersions";
 import { useSelection } from "../hooks/useSelection";
+import { useConnectors } from "../hooks/useConnectors";
 import { Toolbar } from "./Toolbar";
 import { GridLayer } from "./GridLayer";
 import { ShapeRenderer } from "./ShapeRenderer";
-import { ConnectorRenderer } from "./ConnectorRenderer";
+import { ConnectorRenderer, AnchorDots, DraftConnector } from "./ConnectorRenderer";
 import { VersionsDrawer } from "./VersionsDrawer";
 import { PropertiesPanel } from "./PropertiesPanel";
+import { PenPropertiesPanel } from "./PenPropertiesPanel";
 import { TextEditor } from "./TextEditor";
 import { PointHandles } from "./PointHandles";
 import { Dialog, DialogContent } from "@/components/ui/Dialog";
 import Button from "@/components/ui/Button";
-import type { ShapeType, Shape, CanvasState, ViewportState, TextShape, LineShape, ArrowShape } from "../types";
+import type {
+  ShapeType,
+  Shape,
+  CanvasState,
+  TextShape,
+  LineShape,
+  ArrowShape,
+} from "../types";
+import { getShapeBoundingBox } from "../types";
+import type { PendingToolProperties } from "../hooks/useTools";
+
+const DEFAULT_PENDING_PROPS: PendingToolProperties = {
+  strokeWidth: 1,
+  opacity: 1,
+};
+
+// Drawing tools that benefit from the pre-draw properties panel
+const DRAW_TOOLS: ShapeType[] = ["pen", "line", "arrow", "rect", "ellipse", "triangle"];
+
+const GRID_SIZE = 10;
 
 export default function Editor() {
-  const [activeTool, setActiveTool] = useState<ShapeType>("select");
+  const [activeTool, setActiveToolRaw] = useState<ShapeType>("select");
   const [snap, setSnap] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isVersionsOpen, setIsVersionsOpen] = useState(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
+  const [shiftHeld, setShiftHeld] = useState(false);
   const [versionName, setVersionName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingProps, setPendingProps] = useState<PendingToolProperties>(DEFAULT_PENDING_PROPS);
+  const [selectedConnectorIds, setSelectedConnectorIds] = useState<string[]>([]);
+  // Whether initial data has been loaded from DB (one-shot)
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ 
-    width: typeof window !== 'undefined' ? window.innerWidth : 0, 
-    height: typeof window !== 'undefined' ? window.innerHeight : 0 
+  const [size, setSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 800,
+    height: typeof window !== "undefined" ? window.innerHeight : 600,
   });
 
   const { versions, saveVersion, deleteVersion, renameVersion } = useVersions();
-  const { selectionRect, startSelection, updateSelection, endSelection } =
-    useSelection();
+  const { selectionRect, startSelection, updateSelection, endSelection } = useSelection();
 
-  // Load initial data from Dexie
-  const initialData = useLiveQuery(async () => {
-    const autosave = await db.toolStates.get("tool:canvas:autosave");
-    const viewport = await db.toolStates.get("tool:canvas:viewport");
-    const snapState = await db.toolStates.get("tool:canvas:snap");
-    const gridState = await db.toolStates.get("tool:canvas:show-grid");
+  // ── Initial load — one-shot read from Dexie (no reactive subscription) ──
+  useEffect(() => {
+    if (initialLoaded) return;
+    let cancelled = false;
 
-    return {
-      state: autosave
-        ? (JSON.parse(autosave.content as string) as CanvasState)
-        : { shapes: [], connectors: [] },
-      viewport: viewport ? (viewport.content as ViewportState) : { x: 0, y: 0, scale: 1 },
-      snap: snapState ? (snapState.content as boolean) : true,
-      showGrid: gridState ? (gridState.content as boolean) : true,
-    };
+    async function load() {
+      const [autosave, snapState, gridState] = await Promise.all([
+        db.toolStates.get("tool:canvas:autosave"),
+        db.toolStates.get("tool:canvas:snap"),
+        db.toolStates.get("tool:canvas:show-grid"),
+      ]);
+      if (cancelled) return;
+
+      if (autosave) {
+        const parsed = JSON.parse(autosave.content as string) as CanvasState;
+        // Replace the initial history state
+        pushState(parsed);
+      }
+      if (snapState !== undefined && snapState !== null) setSnap(snapState.content as boolean);
+      if (gridState !== undefined && gridState !== null) setShowGrid(gridState.content as boolean);
+
+      setInitialLoaded(true);
+    }
+
+    load();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { viewport, setViewport, handleZoom, handleTouch, handleTouchEnd } = useCanvas();
+
+  const { state, pushState, undo, redo, canUndo, canRedo } = useHistory({
+    shapes: [],
+    connectors: [],
   });
 
-  const { viewport, setViewport, handleZoom, handleTouch, handleTouchEnd } =
-    useCanvas(initialData?.viewport);
-  const { state, pushState, undo, redo, canUndo, canRedo } = useHistory(
-    initialData?.state || { shapes: [], connectors: [] },
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const { newShape, handleMouseDown, handleMouseMove, handleMouseUp } = useTools(
+    activeTool,
+    state,
+    pushState,
+    viewport,
+    snap,
+    (shape) => {
+      if (shape.type === "text") setEditingId(shape.id);
+    },
+    pendingProps,
   );
-  const { newShape, handleMouseDown, handleMouseMove, handleMouseUp } =
-    useTools(activeTool, state, pushState, viewport, snap, (shape) => {
-      if (shape.type === "text") {
-        setEditingId(shape.id);
-      }
-    });
 
-  const editingShape = state.shapes.find((s) => s.id === editingId);
+  const {
+    draft: connectorDraft,
+    hoveredAnchor,
+    handleConnectorDown,
+    handleConnectorMove,
+    handleConnectorUp,
+    cancelConnector,
+    getAnchorPosition,
+  } = useConnectors(state, pushState, viewport);
 
-  const getEditingRect = () => {
-    if (!editingId || !stageRef.current) return null;
-    const node = stageRef.current.findOne("#" + editingId);
-    if (!node) return null;
-    const absPos = node.getAbsolutePosition();
-    return {
-      x: absPos.x,
-      y: absPos.y,
-      width: node.width() * node.scaleX(),
-      height: node.height() * node.scaleY(),
-      rotation: node.rotation(),
-    };
-  };
+  // ── Auto-save — only shapes+snap+grid (no viewport) ───────────────
+  useAutoSave(state, snap, showGrid);
 
-  const editingRect = getEditingRect();
+  // ── Tool switch: clear selection, cancel connector, reset pending props ─
+  const setActiveTool = useCallback((tool: ShapeType) => {
+    setActiveToolRaw(tool);
+    setSelectedIds([]);
+    setSelectedConnectorIds([]);
+    setEditingId(null);
+    cancelConnector();
+    // Issue 6: Reset pending properties to defaults so new shapes always
+    // start with tool-specific default colors and standard stroke
+    setPendingProps(DEFAULT_PENDING_PROPS);
+  }, [cancelConnector]);
 
-  useAutoSave(state, viewport, snap, showGrid);
-
+  // ── Container resize observer ──────────────────────────────────────
   useEffect(() => {
-    if (initialData?.snap !== undefined) setSnap(initialData.snap);
-    if (initialData?.showGrid !== undefined) setShowGrid(initialData.showGrid);
-    if (initialData?.viewport) setViewport(initialData.viewport);
-  }, [initialData, setViewport]);
+    const updateSize = () => {
+      if (containerRef.current) {
+        setSize({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight,
+        });
+      }
+    };
+    updateSize();
+    const observer = new ResizeObserver(() => updateSize());
+    if (containerRef.current) observer.observe(containerRef.current);
+    window.addEventListener("resize", updateSize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateSize);
+    };
+  }, []);
 
-  // Prevent browser scroll
+  // ── Prevent browser scroll on canvas ──────────────────────────────
   useEffect(() => {
     const preventDefault = (e: WheelEvent | TouchEvent) => {
       if (
@@ -116,41 +182,50 @@ export default function Editor() {
     };
   }, []);
 
-  const updateShape = useCallback(
-    (updatedShape: Shape) => {
-      const newShapes = state.shapes.map((s) =>
-        s.id === updatedShape.id ? updatedShape : s,
+  // ── Shape helpers ──────────────────────────────────────────────────
+  const updateShape = useCallback((updatedShape: Shape) => {
+    pushState({
+      ...stateRef.current,
+      shapes: stateRef.current.shapes.map((s) =>
+        s.id === updatedShape.id ? updatedShape : s
+      ),
+    });
+  }, [pushState]);
+
+  const updateSelectedShapes = useCallback((updates: Partial<Shape>) => {
+    pushState({
+      ...stateRef.current,
+      shapes: stateRef.current.shapes.map((s) =>
+        selectedIds.includes(s.id) ? ({ ...s, ...updates } as Shape) : s
+      ),
+    });
+  }, [pushState, selectedIds]);
+
+  const onSelect = useCallback((id: string, isShift: boolean) => {
+    if (activeTool !== "select" || isSpacePressed) return;
+    setSelectedConnectorIds([]);
+    if (isShift) {
+      setSelectedIds((prev) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
       );
-      pushState({ ...state, shapes: newShapes });
-    },
-    [state, pushState],
-  );
+    } else {
+      setSelectedIds([id]);
+    }
+  }, [activeTool, isSpacePressed]);
 
-  const updateSelectedShapes = useCallback(
-    (updates: Partial<Shape>) => {
-      const newShapes = state.shapes.map((s) =>
-        selectedIds.includes(s.id) ? { ...s, ...updates } : s,
-      ) as Shape[];
-      pushState({ ...state, shapes: newShapes });
-    },
-    [state, selectedIds, pushState],
-  );
+  const onSelectConnector = useCallback((connectorId: string) => {
+    if (activeTool !== "select" || isSpacePressed) return;
+    setSelectedIds([]);
+    setSelectedConnectorIds([connectorId]);
+  }, [activeTool, isSpacePressed]);
 
-  const onSelect = useCallback(
-    (id: string, isShift: boolean) => {
-      if (activeTool !== "select" || isSpacePressed) return;
-      if (isShift) {
-        setSelectedIds((prev) =>
-          prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-        );
-      } else {
-        setSelectedIds([id]);
-      }
-    },
-    [activeTool, isSpacePressed],
-  );
+  // Force re-render of connectors during shape drag (real-time movement)
+  const [dragTick, setDragTick] = useState(0);
+  const handleShapeDragMove = useCallback(() => {
+    setDragTick((t) => t + 1);
+  }, []);
 
-  const getPointerPos = () => {
+  const getWorldPointerPos = useCallback(() => {
     const stage = stageRef.current;
     if (!stage) return { x: 0, y: 0 };
     const pos = stage.getPointerPosition();
@@ -159,24 +234,34 @@ export default function Editor() {
       x: (pos.x - viewport.x) / viewport.scale,
       y: (pos.y - viewport.y) / viewport.scale,
     };
-  };
+  }, [viewport]);
 
-  const handleStageMouseDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+  // ── Stage event handlers ───────────────────────────────────────────
+  const handleStageMouseDown = useCallback((
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     if (isSpacePressed) return;
 
-    // Handle multi-touch: cancel any current tool operation
+    // Multi-touch: cancel drawing, let touch handler take over
     if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) {
-      if (activeTool !== "select" && activeTool !== "pan") {
-        handleMouseUp(); // Cancel drawing
-      }
+      handleMouseUp();
+      cancelConnector();
       return;
     }
 
     const clickedOnEmpty = e.target === e.target.getStage();
+
+    if (activeTool === "connector") {
+      const pos = getWorldPointerPos();
+      handleConnectorDown(pos.x, pos.y);
+      return;
+    }
+
     if (clickedOnEmpty) {
       setSelectedIds([]);
+      setSelectedConnectorIds([]);
       if (activeTool === "select") {
-        const pos = getPointerPos();
+        const pos = getWorldPointerPos();
         startSelection(pos.x, pos.y);
       }
     }
@@ -184,30 +269,64 @@ export default function Editor() {
     if (activeTool !== "select" && activeTool !== "pan") {
       handleMouseDown(e);
     }
-  };
+  }, [
+    isSpacePressed,
+    activeTool,
+    getWorldPointerPos,
+    handleMouseUp,
+    cancelConnector,
+    handleConnectorDown,
+    startSelection,
+    handleMouseDown,
+  ]);
 
-  const handleStageMouseMove = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+  const handleStageMouseMove = useCallback((
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     if (isSpacePressed) return;
-    
-    // Handle multi-touch zoom/pan
+
+    // Multi-touch: always handle pinch/pan
     if (e.evt instanceof TouchEvent && e.evt.touches.length > 1) {
       handleTouch(e as Konva.KonvaEventObject<TouchEvent>);
       return;
     }
 
+    if (activeTool === "connector") {
+      const pos = getWorldPointerPos();
+      handleConnectorMove(pos.x, pos.y);
+      return;
+    }
+
     if (selectionRect) {
-      const pos = getPointerPos();
+      const pos = getWorldPointerPos();
       updateSelection(pos.x, pos.y);
     } else {
       handleMouseMove(e);
     }
-  };
+  }, [
+    isSpacePressed,
+    activeTool,
+    getWorldPointerPos,
+    handleTouch,
+    handleConnectorMove,
+    selectionRect,
+    updateSelection,
+    handleMouseMove,
+  ]);
 
-  const handleStageMouseUp = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+  const handleStageMouseUp = useCallback((
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     if (isSpacePressed) return;
 
     if (e.evt instanceof TouchEvent) {
       handleTouchEnd();
+    }
+
+    if (activeTool === "connector") {
+      const pos = getWorldPointerPos();
+      handleConnectorUp(pos.x, pos.y);
+      return;
     }
 
     if (selectionRect) {
@@ -216,9 +335,16 @@ export default function Editor() {
       const x2 = Math.max(selectionRect.x1, selectionRect.x2);
       const y2 = Math.max(selectionRect.y1, selectionRect.y2);
 
-      const inside = state.shapes
+      // Bounding-box intersection test — selects shapes that overlap selection rect
+      const inside = stateRef.current.shapes
         .filter((s) => {
-          return s.x >= x1 && s.x <= x2 && s.y >= y1 && s.y <= y2;
+          const bb = getShapeBoundingBox(s);
+          return (
+            bb.x < x2 &&
+            bb.x + bb.width > x1 &&
+            bb.y < y2 &&
+            bb.y + bb.height > y1
+          );
         })
         .map((s) => s.id);
 
@@ -227,9 +353,28 @@ export default function Editor() {
     } else {
       handleMouseUp();
     }
-  };
+  }, [
+    isSpacePressed,
+    activeTool,
+    getWorldPointerPos,
+    handleTouchEnd,
+    handleConnectorUp,
+    selectionRect,
+    endSelection,
+    handleMouseUp,
+  ]);
 
-  // Keyboard shortcuts
+  // ── Update transformer on selection change ─────────────────────────
+  useEffect(() => {
+    if (!transformerRef.current || !stageRef.current) return;
+    const nodes = selectedIds
+      .map((id) => stageRef.current?.findOne("#" + id))
+      .filter((n): n is Konva.Node => !!n);
+    transformerRef.current.nodes(nodes);
+    transformerRef.current.getLayer()?.batchDraw();
+  }, [selectedIds, state.shapes]);
+
+  // ── Keyboard shortcuts ─────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -244,66 +389,64 @@ export default function Editor() {
         return;
       }
 
+      // Track Shift for constrained resize
+      if (e.key === "Shift") {
+        setShiftHeld(true);
+      }
+
       const ctrl = e.ctrlKey || e.metaKey;
-      const shift = e.shiftKey;
 
       if (ctrl && e.key === "z") {
-        if (shift) redo();
+        if (e.shiftKey) redo();
         else undo();
       } else if (ctrl && e.key === "s") {
         e.preventDefault();
         setIsSaveDialogOpen(true);
       } else if (e.key === "Delete" || e.key === "Backspace") {
-        if (selectedIds.length > 0) {
-          const newShapes = state.shapes.filter(
-            (s) => !selectedIds.includes(s.id),
-          );
-          pushState({ ...state, shapes: newShapes });
+        if (selectedConnectorIds.length > 0) {
+          // Delete selected connectors
+          pushState({
+            ...stateRef.current,
+            connectors: stateRef.current.connectors.filter(
+              (c) => !selectedConnectorIds.includes(c.id)
+            ),
+          });
+          setSelectedConnectorIds([]);
+        } else if (selectedIds.length > 0) {
+          // Delete selected shapes + orphaned connectors
+          const deletedIds = new Set(selectedIds);
+          pushState({
+            ...stateRef.current,
+            shapes: stateRef.current.shapes.filter((s) => !deletedIds.has(s.id)),
+            connectors: stateRef.current.connectors.filter(
+              (c) => !deletedIds.has(c.fromShapeId) && !deletedIds.has(c.toShapeId)
+            ),
+          });
           setSelectedIds([]);
         }
-      } else {
+      } else if (!ctrl) {
         switch (e.key.toLowerCase()) {
-          case "s":
-            setActiveTool("select");
-            break;
-          case "r":
-            setActiveTool("rect");
-            break;
-          case "e":
-            setActiveTool("ellipse");
-            break;
-          case "t":
-            setActiveTool("triangle");
-            break;
-          case "l":
-            setActiveTool("line");
-            break;
-          case "a":
-            setActiveTool("arrow");
-            break;
-          case "c":
-            setActiveTool("connector");
-            break;
-          case "p":
-            setActiveTool("pen");
-            break;
-          case "x":
-            setActiveTool("text");
-            break;
-          case "h":
-            setActiveTool("pan");
-            break;
+          case "s": setActiveTool("select"); break;
+          case "r": setActiveTool("rect"); break;
+          case "e": setActiveTool("ellipse"); break;
+          case "t": setActiveTool("triangle"); break;
+          case "l": setActiveTool("line"); break;
+          case "a": setActiveTool("arrow"); break;
+          case "c": setActiveTool("connector"); break;
+          case "p": setActiveTool("pen"); break;
+          case "x": setActiveTool("text"); break;
+          case "h": setActiveTool("pan"); break;
           case "escape":
-            setActiveTool("select");
+            if (activeTool !== "select") setActiveTool("select");
+            else { setSelectedIds([]); setSelectedConnectorIds([]); setEditingId(null); }
             break;
         }
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        setIsSpacePressed(false);
-      }
+      if (e.code === "Space") setIsSpacePressed(false);
+      if (e.key === "Shift") setShiftHeld(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -312,14 +455,13 @@ export default function Editor() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [state, selectedIds, pushState, undo, redo, activeTool]);
+  }, [selectedIds, selectedConnectorIds, pushState, undo, redo, activeTool, setActiveTool]);
 
+  // ── Export ─────────────────────────────────────────────────────────
   const handleExportPng = useCallback(() => {
     if (!stageRef.current) return;
-
     const transformer = transformerRef.current;
     if (transformer) transformer.visible(false);
-
     const dataURL = stageRef.current.toDataURL({ pixelRatio: 2 });
     const link = document.createElement("a");
     link.download = `pocketool-canvas-${Date.now()}.png`;
@@ -327,71 +469,54 @@ export default function Editor() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     if (transformer) transformer.visible(true);
   }, []);
 
   const handleExportJson = useCallback(() => {
-    const data = JSON.stringify(state);
-    const blob = new Blob([data], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.download = `pocketool-canvas-${Date.now()}.json`;
     link.href = url;
     link.click();
+    URL.revokeObjectURL(url);
   }, [state]);
 
-  useEffect(() => {
-    const updateSize = () => {
-      if (containerRef.current) {
-        setSize({
-          width: containerRef.current.offsetWidth,
-          height: containerRef.current.offsetHeight,
-        });
-      }
-    };
-
-    updateSize();
-
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        });
-      }
-    });
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    
-    window.addEventListener('resize', updateSize);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', updateSize);
-    };
-  }, []);
-
+  // ── Derived ────────────────────────────────────────────────────────
   const selectedShapes = state.shapes.filter((s) => selectedIds.includes(s.id));
-  const isSingleLineOrArrow = selectedIds.length === 1 && 
-    (selectedShapes[0]?.type === 'line' || selectedShapes[0]?.type === 'arrow');
+  const isSingleLineOrArrow =
+    selectedIds.length === 1 &&
+    (selectedShapes[0]?.type === "line" || selectedShapes[0]?.type === "arrow");
 
-  // Update transformer
-  useEffect(() => {
-    if (transformerRef.current && stageRef.current) {
-      const nodes = selectedIds
-          .map((id) => stageRef.current?.findOne("#" + id))
-          .filter((node): node is Konva.Node => !!node);
-      transformerRef.current.nodes(nodes);
-      transformerRef.current.getLayer()?.batchDraw();
-    }
-  }, [selectedIds, state.shapes]);
+  const editingShape = state.shapes.find((s) => s.id === editingId);
+
+  const getEditingRect = () => {
+    if (!editingId || !stageRef.current) return null;
+    const node = stageRef.current.findOne("#" + editingId);
+    if (!node) return null;
+    const absPos = node.getAbsolutePosition();
+    return {
+      x: absPos.x,
+      y: absPos.y,
+      width: node.width() * node.scaleX(),
+      height: node.height() * node.scaleY(),
+      rotation: node.rotation(),
+    };
+  };
+  const editingRect = getEditingRect();
+
+  // Show pre-draw panel when a drawing tool is selected, nothing selected, and not drawing
+  const showPenPanel =
+    DRAW_TOOLS.includes(activeTool) &&
+    selectedIds.length === 0 &&
+    !newShape;
 
   return (
     <div
       ref={containerRef}
-      className={`relative h-full w-full overflow-hidden bg-background touch-none ${isSpacePressed ? "cursor-grab active:cursor-grabbing" : ""}`}
+      className={`relative h-full w-full overflow-hidden bg-background touch-none ${
+        isSpacePressed ? "cursor-grab active:cursor-grabbing" : ""
+      }`}
     >
       <Toolbar
         activeTool={activeTool}
@@ -401,13 +526,9 @@ export default function Editor() {
         showGrid={showGrid}
         setShowGrid={setShowGrid}
         zoom={viewport.scale}
-        onZoomIn={() =>
-          setViewport((v) => ({ ...v, scale: Math.min(10, v.scale * 1.1) }))
-        }
-        onZoomOut={() =>
-          setViewport((v) => ({ ...v, scale: Math.max(0.1, v.scale / 1.1) }))
-        }
-        onZoomReset={() => setViewport((v) => ({ ...v, scale: 1 }))}
+        onZoomIn={() => setViewport((v) => ({ ...v, scale: Math.min(10, v.scale * 1.1) }))}
+        onZoomOut={() => setViewport((v) => ({ ...v, scale: Math.max(0.1, v.scale / 1.1) }))}
+        onZoomReset={() => setViewport({ x: 0, y: 0, scale: 1 })}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={undo}
@@ -421,15 +542,14 @@ export default function Editor() {
           input.type = "file";
           input.accept = ".json";
           input.onchange = (e: Event) => {
-            const target = e.target as HTMLInputElement;
-            const file = target.files?.[0];
+            const file = (e.target as HTMLInputElement).files?.[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = (ev) => {
               try {
-                const data = JSON.parse(e.target?.result as string);
+                const data = JSON.parse(ev.target?.result as string);
                 pushState(data);
-              } catch (err) {
+              } catch {
                 console.error("Invalid JSON file");
               }
             };
@@ -440,14 +560,28 @@ export default function Editor() {
         onClear={() => {
           if (confirm("Are you sure you want to clear the canvas?")) {
             pushState({ shapes: [], connectors: [] });
+            setSelectedIds([]);
           }
         }}
       />
 
-      <PropertiesPanel
-        selectedShapes={selectedShapes}
-        onUpdate={updateSelectedShapes}
-      />
+      {/* Properties panel — shows when shapes are selected */}
+      {selectedIds.length > 0 && !editingId && (
+        <PropertiesPanel
+          selectedShapes={selectedShapes}
+          onUpdate={updateSelectedShapes}
+          onClose={() => setSelectedIds([])}
+        />
+      )}
+
+      {/* Pre-draw properties panel */}
+      {showPenPanel && (
+        <PenPropertiesPanel
+          activeTool={activeTool}
+          properties={pendingProps}
+          onUpdate={(updates) => setPendingProps((prev) => ({ ...prev, ...updates }))}
+        />
+      )}
 
       <VersionsDrawer
         isOpen={isVersionsOpen}
@@ -469,10 +603,7 @@ export default function Editor() {
               onChange={(e) => setVersionName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  saveVersion(
-                    versionName || `Version ${new Date().toLocaleString()}`,
-                    state,
-                  );
+                  saveVersion(versionName || `Version ${new Date().toLocaleString()}`, state);
                   setIsSaveDialogOpen(false);
                   setVersionName("");
                 }
@@ -481,19 +612,12 @@ export default function Editor() {
             />
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="ghost"
-              className="border border-border"
-              onClick={() => setIsSaveDialogOpen(false)}
-            >
+            <Button variant="ghost" className="border border-border" onClick={() => setIsSaveDialogOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={() => {
-                saveVersion(
-                  versionName || `Version ${new Date().toLocaleString()}`,
-                  state,
-                );
+                saveVersion(versionName || `Version ${new Date().toLocaleString()}`, state);
                 setIsSaveDialogOpen(false);
                 setVersionName("");
               }}
@@ -519,16 +643,10 @@ export default function Editor() {
         onTouchStart={handleStageMouseDown}
         onTouchMove={handleStageMouseMove}
         onTouchEnd={handleStageMouseUp}
-        onWheel={(e) => {
-          handleZoom(e.evt, stageRef.current);
-        }}
+        onWheel={(e) => handleZoom(e.evt, stageRef.current)}
         onDragMove={(e) => {
           if (activeTool === "pan" || isSpacePressed) {
-            setViewport({
-              ...viewport,
-              x: e.target.x(),
-              y: e.target.y(),
-            });
+            setViewport((v) => ({ ...v, x: e.target.x(), y: e.target.y() }));
           }
         }}
       >
@@ -538,7 +656,9 @@ export default function Editor() {
           height={size.height}
           isVisible={showGrid}
         />
+
         <Layer>
+          {/* Connectors — use stageRef to get live node positions during drag */}
           {state.connectors.map((c) => {
             const from = state.shapes.find((s) => s.id === c.fromShapeId);
             const to = state.shapes.find((s) => s.id === c.toShapeId);
@@ -549,9 +669,15 @@ export default function Editor() {
                 connector={c}
                 fromShape={from}
                 toShape={to}
+                stageRef={stageRef}
+                dragTick={dragTick}
+                isSelected={selectedConnectorIds.includes(c.id)}
+                onSelect={() => onSelectConnector(c.id)}
               />
             );
           })}
+
+          {/* Shapes */}
           {state.shapes.map((shape) => (
             <ShapeRenderer
               key={shape.id}
@@ -567,44 +693,99 @@ export default function Editor() {
                 if (shape.type === "text") setEditingId(id);
               }}
               onChange={updateShape}
+              onDragMove={handleShapeDragMove}
               isDraggable={activeTool === "select" && !isSpacePressed}
             />
           ))}
 
-          {newShape && <ShapeRenderer shape={newShape} snap={snap} scale={viewport.scale} viewport={viewport} />}
+          {/* Anchor dots — shown on all shapes when connector tool is active */}
+          {activeTool === "connector" &&
+            state.shapes.map((shape) => (
+              <AnchorDots
+                key={`anchors-${shape.id}`}
+                shape={shape}
+                hoveredAnchorId={
+                  hoveredAnchor ? `${hoveredAnchor.shapeId}:${hoveredAnchor.anchor}` : null
+                }
+                scale={viewport.scale}
+              />
+            ))}
+
+          {/* Draft connector line */}
+          {connectorDraft && (() => {
+            const fromShape = state.shapes.find(s => s.id === connectorDraft.fromShapeId);
+            if (!fromShape) return null;
+            const fromPos = getAnchorPosition(fromShape, connectorDraft.fromAnchor);
+            return (
+              <DraftConnector
+                fromX={fromPos.x}
+                fromY={fromPos.y}
+                toX={connectorDraft.toX}
+                toY={connectorDraft.toY}
+              />
+            );
+          })()}
+
+          {/* In-progress shape while drawing */}
+          {newShape && (
+            <ShapeRenderer
+              shape={newShape}
+              snap={snap}
+              scale={viewport.scale}
+              viewport={viewport}
+            />
+          )}
+
+          {/* Selection rectangle */}
           {selectionRect && (
             <KonvaRect
               x={Math.min(selectionRect.x1, selectionRect.x2)}
               y={Math.min(selectionRect.y1, selectionRect.y2)}
               width={Math.abs(selectionRect.x1 - selectionRect.x2)}
               height={Math.abs(selectionRect.y1 - selectionRect.y2)}
-              fill="rgba(59, 130, 246, 0.1)"
-              stroke="#3b82f6"
-              strokeWidth={1}
+              fill="rgba(99, 102, 241, 0.08)"
+              stroke="#6366f1"
+              strokeWidth={1 / viewport.scale}
+              listening={false}
             />
           )}
+
+          {/* Transformer */}
           {activeTool === "select" && selectedIds.length > 0 && !editingId && (
             <Transformer
               ref={transformerRef}
               rotateEnabled={true}
-              enabledAnchors={isSingleLineOrArrow ? [] : [
-                "top-left",
-                "top-right",
-                "bottom-left",
-                "bottom-right",
-                "top-center",
-                "bottom-center",
-                "middle-left",
-                "middle-right",
-              ]}
+              flipEnabled={false}
+              keepRatio={shiftHeld}
+              enabledAnchors={
+                isSingleLineOrArrow
+                  ? []
+                  : [
+                      "top-left", "top-center", "top-right",
+                      "middle-left", "middle-right",
+                      "bottom-left", "bottom-center", "bottom-right",
+                    ]
+              }
               boundBoxFunc={(oldBox, newBox) => {
-                if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-                  return oldBox;
-                }
+                if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) return oldBox;
                 return newBox;
+              }}
+              anchorDragBoundFunc={(oldPos, newPos) => {
+                if (!snap) return newPos;
+                // Convert screen position to world coordinates, snap, convert back
+                const worldX = (newPos.x - viewport.x) / viewport.scale;
+                const worldY = (newPos.y - viewport.y) / viewport.scale;
+                const snappedX = Math.round(worldX / GRID_SIZE) * GRID_SIZE;
+                const snappedY = Math.round(worldY / GRID_SIZE) * GRID_SIZE;
+                return {
+                  x: snappedX * viewport.scale + viewport.x,
+                  y: snappedY * viewport.scale + viewport.y,
+                };
               }}
             />
           )}
+
+          {/* Point handles for line/arrow */}
           {isSingleLineOrArrow && !editingId && (
             <PointHandles
               shape={selectedShapes[0] as LineShape | ArrowShape}
@@ -616,29 +797,26 @@ export default function Editor() {
         </Layer>
       </Stage>
 
-      {editingId &&
-        editingShape &&
-        editingShape.type === "text" &&
-        editingRect && (
-          <TextEditor
-            value={(editingShape as TextShape).text || ""}
-            x={editingRect.x}
-            y={editingRect.y}
-            width={editingRect.width}
-            height={editingRect.height}
-            rotation={editingRect.rotation}
-            fontSize={(editingShape as TextShape).fontSize || 20}
-            fontStyle={(editingShape as TextShape).fontStyle || "normal"}
-            align={(editingShape as TextShape).align || "left"}
-            scale={viewport.scale}
-            onSave={(text) => {
-              updateShape({ ...editingShape, text } as TextShape);
-              setEditingId(null);
-            }}
-            onCancel={() => setEditingId(null)}
-          />
-        )}
+      {/* Text editor overlay */}
+      {editingId && editingShape?.type === "text" && editingRect && (
+        <TextEditor
+          value={(editingShape as TextShape).text || ""}
+          x={editingRect.x}
+          y={editingRect.y}
+          width={editingRect.width}
+          height={editingRect.height}
+          rotation={editingRect.rotation}
+          fontSize={(editingShape as TextShape).fontSize || 20}
+          fontStyle={(editingShape as TextShape).fontStyle || "normal"}
+          align={(editingShape as TextShape).align || "left"}
+          scale={viewport.scale}
+          onSave={(text) => {
+            updateShape({ ...editingShape, text } as TextShape);
+            setEditingId(null);
+          }}
+          onCancel={() => setEditingId(null)}
+        />
+      )}
     </div>
   );
 }
-
