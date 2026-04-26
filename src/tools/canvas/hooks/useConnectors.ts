@@ -1,35 +1,125 @@
-import { useState, useCallback } from 'react';
-import type { Connector, Shape } from '../types';
+import { useState, useCallback, useRef } from 'react';
+import type { Connector, AnchorSide, CanvasState } from '../types';
+import { getAnchorPosition } from '../types';
 
-export function useConnectors() {
-  const [activeAnchor, setActiveAnchor] = useState<{ shapeId: string, anchor: 'N' | 'S' | 'E' | 'O' } | null>(null);
 
-  const getAnchorPos = (shape: Shape, anchor: 'N' | 'S' | 'E' | 'O') => {
-    const { x, y } = shape;
-    let width = 0;
-    let height = 0;
+const ANCHOR_DETECT_RADIUS = 24; // px in screen space
 
-    if (shape.type === 'rect' || shape.type === 'triangle') {
-      width = shape.width;
-      height = shape.height;
-    } else if (shape.type === 'ellipse') {
-      width = shape.radiusX * 2;
-      height = shape.radiusY * 2;
-      // Adjust x,y for ellipse which is center based in Konva but we might store as top-left?
-      // Konva Ellipse uses x,y as center.
-    }
+export interface ConnectorDraft {
+  fromShapeId: string;
+  fromAnchor: AnchorSide;
+  toX: number; // current cursor position (world coords)
+  toY: number;
+}
 
-    switch (anchor) {
-      case 'N': return { x: x + width / 2, y };
-      case 'S': return { x: x + width / 2, y: y + height };
-      case 'E': return { x: x + width, y: y + height / 2 };
-      case 'O': return { x, y: y + height / 2 };
-    }
-  };
+export function useConnectors(
+  state: CanvasState,
+  pushState: (s: CanvasState) => void,
+  viewport: { x: number; y: number; scale: number },
+) {
+  const [draft, setDraft] = useState<ConnectorDraft | null>(null);
+  const [hoveredAnchor, setHoveredAnchor] = useState<{
+    shapeId: string;
+    anchor: AnchorSide;
+  } | null>(null);
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
+
+  /** Find the closest anchor point to a world-coordinate pointer. Returns null if none is close enough. */
+  const findClosestAnchor = useCallback(
+    (worldX: number, worldY: number, excludeShapeId?: string) => {
+      const anchors: AnchorSide[] = ['N', 'S', 'E', 'W'];
+      let closest: { shapeId: string; anchor: AnchorSide; dist: number } | null = null;
+
+      const v = viewportRef.current;
+      const screenRadius = ANCHOR_DETECT_RADIUS / v.scale; // convert screen px → world px
+
+      for (const shape of state.shapes) {
+        if (shape.id === excludeShapeId) continue;
+        for (const anchor of anchors) {
+          const pos = getAnchorPosition(shape, anchor);
+          const dist = Math.sqrt(Math.pow(pos.x - worldX, 2) + Math.pow(pos.y - worldY, 2));
+          if (dist < screenRadius && (!closest || dist < closest.dist)) {
+            closest = { shapeId: shape.id, anchor, dist };
+          }
+        }
+      }
+
+      return closest;
+    },
+    [state.shapes],
+  );
+
+  /** Called when a pointer-down happens in connector mode */
+  const handleConnectorDown = useCallback(
+    (worldX: number, worldY: number) => {
+      const closest = findClosestAnchor(worldX, worldY);
+      if (closest) {
+        setDraft({
+          fromShapeId: closest.shapeId,
+          fromAnchor: closest.anchor,
+          toX: worldX,
+          toY: worldY,
+        });
+      }
+    },
+    [findClosestAnchor],
+  );
+
+  /** Called on pointer-move to update the draft endpoint and detect target anchor */
+  const handleConnectorMove = useCallback(
+    (worldX: number, worldY: number) => {
+      setDraft((prev) => (prev ? { ...prev, toX: worldX, toY: worldY } : null));
+
+      const closest = findClosestAnchor(worldX, worldY);
+      setHoveredAnchor(closest ? { shapeId: closest.shapeId, anchor: closest.anchor } : null);
+    },
+    [findClosestAnchor],
+  );
+
+  /** Called on pointer-up to finalise or cancel the connector */
+  const handleConnectorUp = useCallback(
+    (worldX: number, worldY: number) => {
+      if (!draft) return;
+
+      const closest = findClosestAnchor(worldX, worldY, draft.fromShapeId);
+      if (closest && closest.shapeId !== draft.fromShapeId) {
+        const connector: Connector = {
+          id: crypto.randomUUID(),
+          fromShapeId: draft.fromShapeId,
+          fromAnchor: draft.fromAnchor,
+          toShapeId: closest.shapeId,
+          toAnchor: closest.anchor,
+          type: 'straight',
+          style: 'solid',
+          stroke: '#6b7280',
+          strokeWidth: 2,
+        };
+        pushState({
+          ...state,
+          connectors: [...state.connectors, connector],
+        });
+      }
+
+      setDraft(null);
+      setHoveredAnchor(null);
+    },
+    [draft, findClosestAnchor, state, pushState],
+  );
+
+  const cancelConnector = useCallback(() => {
+    setDraft(null);
+    setHoveredAnchor(null);
+  }, []);
 
   return {
-    activeAnchor,
-    setActiveAnchor,
-    getAnchorPos
+    draft,
+    hoveredAnchor,
+    handleConnectorDown,
+    handleConnectorMove,
+    handleConnectorUp,
+    cancelConnector,
+    findClosestAnchor,
+    getAnchorPosition,
   };
 }
