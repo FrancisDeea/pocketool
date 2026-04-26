@@ -76,7 +76,9 @@ function ShapeRendererInner({
     strokeWidth: shape.strokeWidth,
     // Keep stroke constant regardless of node scale (zoom + resize)
     strokeScaleEnabled: false,
-    hitStrokeWidth: Math.max(shape.strokeWidth || 0, 20 / scale),
+    hitStrokeWidth: (shape.type === 'line' || shape.type === 'arrow' || shape.type === 'pen')
+      ? Math.max(shape.strokeWidth || 0, 20 / scale)
+      : (shape.strokeWidth || 0),
     opacity: shape.opacity,
     rotation: shape.rotation,
     scaleX: shape.scaleX,
