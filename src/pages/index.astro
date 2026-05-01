@@ -20,9 +20,9 @@ const row2 = [...tools, ...tools].reverse();
         <div class="h-[500px] w-[700px] rounded-full bg-accent/5 blur-[120px]"></div>
       </div>
 
-      <div class="max-w-3xl mx-auto text-center py-14 md:py-24 px-4">
+      <div class="max-w-3xl mx-auto text-center py-12 md:py-8 px-4">
         <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 text-xs font-semibold text-accent bg-accent/10 rounded-full border border-accent/20 backdrop-blur-sm">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-semibold text-accent bg-accent/10 rounded-full border border-accent/20 backdrop-blur-sm">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
@@ -41,13 +41,13 @@ const row2 = [...tools, ...tools].reverse();
           </span>
         </h1>
 
-        <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-12 leading-relaxed">
+        <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-8 leading-relaxed">
           Una suite de herramientas rápidas y privadas. Sin servidores, sin
           cuentas. Todo el procesamiento ocurre directamente en tu navegador.
         </p>
 
         <!-- Features row -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left max-w-3xl mx-auto mb-16">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left max-w-3xl mx-auto mb-8">
           <div class="group flex flex-col gap-3 p-5 rounded-2xl bg-surface border border-border hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5">
             <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
               <Lock size={18} />
@@ -86,7 +86,7 @@ const row2 = [...tools, ...tools].reverse();
     </div>
 
     <!-- Tools Carousel -->
-    <div class="pb-20 overflow-hidden">
+    <div class="pb-10 overflow-hidden">
       <div class="mb-6 text-center">
         <h2 class="text-sm font-semibold uppercase tracking-widest text-text-tertiary">
           Herramientas disponibles
@@ -95,7 +95,7 @@ const row2 = [...tools, ...tools].reverse();
 
       <!-- Row 1 — scrolls left -->
       <div class="carousel-mask relative mb-4">
-        <div class="carousel-track carousel-left flex gap-4 w-max">
+        <div class="carousel-track carousel-left flex gap-4 w-max py-4 px-2">
           {row1.map((tool) => (
             <a
               href={`/tool/${tool.id}`}
@@ -127,8 +127,8 @@ const row2 = [...tools, ...tools].reverse();
       </div>
 
       <!-- Row 2 — scrolls right -->
-      <div class="carousel-mask relative">
-        <div class="carousel-track carousel-right flex gap-4 w-max">
+      <div class="carousel-mask relative md:hidden">
+        <div class="carousel-track carousel-right flex gap-4 w-max py-4 px-2">
           {row2.map((tool) => (
             <a
               href={`/tool/${tool.id}`}
