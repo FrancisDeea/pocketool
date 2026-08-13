@@ -72,7 +72,7 @@ export function TextEditor({
     fontStyle: fontStyle.includes('italic') ? 'italic' : 'normal',
     fontWeight: fontStyle.includes('bold') ? 'bold' : 'normal',
     fontFamily: 'sans-serif',
-    textAlign: align as any,
+    textAlign: align,
     background: 'rgba(59, 130, 246, 0.05)',
     border: '1px solid var(--color-accent)',
     borderRadius: '4px',
@@ -101,5 +101,3 @@ export function TextEditor({
     />
   );
 }
-
-

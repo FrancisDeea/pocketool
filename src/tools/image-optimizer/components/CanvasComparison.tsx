@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Upload, ImageIcon } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useStore } from '@nanostores/react';
 import { $theme } from '@/stores/theme';
 
@@ -23,7 +23,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
 
-  // Images 
+  // Images
   const origImgRef = useRef<HTMLImageElement | null>(null);
   const procImgRef = useRef<HTMLImageElement | null>(null);
 
@@ -37,7 +37,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
     img.onload = () => {
       origImgRef.current = img;
       setOffset({ x: 0, y: 0 });
-      setScale(1); 
+      setScale(1);
       render();
     };
   }, [originalUrl]);
@@ -64,7 +64,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
 
     const rect = canvas.parentElement?.getBoundingClientRect();
     if (!rect) return;
-    
+
     canvas.width = rect.width * window.devicePixelRatio;
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -80,7 +80,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
     const isDark = document.documentElement.dataset.theme?.includes('dark') ?? true;
     ctx.fillStyle = isDark ? '#141416' : '#f4f4f5';
     ctx.fillRect(0, 0, w, h);
-    
+
     ctx.fillStyle = isDark ? '#1c1c1f' : '#e4e4e7';
     const gridSize = 20;
     for (let x = 0; x < w; x += gridSize) {
@@ -102,8 +102,10 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
       }
 
       // Force processed image to match original coordinates for perfect overlap/comparison
-      const targetW = isProcessed && origImgRef.current ? origImgRef.current.naturalWidth : img.naturalWidth;
-      const targetH = isProcessed && origImgRef.current ? origImgRef.current.naturalHeight : img.naturalHeight;
+      const targetW =
+        isProcessed && origImgRef.current ? origImgRef.current.naturalWidth : img.naturalWidth;
+      const targetH =
+        isProcessed && origImgRef.current ? origImgRef.current.naturalHeight : img.naturalHeight;
 
       const imgW = targetW * scale;
       const imgH = targetH * scale;
@@ -153,7 +155,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    
+
     lastMousePos.current = { x: e.clientX, y: e.clientY };
 
     const sliderPixelX = rect.width * sliderPos;
@@ -186,7 +188,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
   };
 
   const handleWheel = useCallback((e: WheelEvent) => {
-    // Only intercept if we are actively wheeling over the canvas 
+    // Only intercept if we are actively wheeling over the canvas
     // preventDefault blocks native scrolling/zooming while interacting with this specific component
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
@@ -207,7 +209,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
   }, [handleWheel]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="w-full h-full relative cursor-crosshair rounded-xl overflow-hidden touch-none"
     >
@@ -227,7 +229,7 @@ export default function CanvasComparison({ originalUrl, processedUrl }: Props) {
           <div className="max-w-xs space-y-2">
             <h3 className="text-lg font-semibold text-text-primary">Optimiza tus imágenes</h3>
             <p className="text-sm text-text-tertiary leading-relaxed">
-              Haz clic aquí o arrastra una imagen para empezar a optimizar localmente <br/> 
+              Haz clic aquí o arrastra una imagen para empezar a optimizar localmente <br />
               <span className="text-xs font-mono mt-2 opacity-60">(WEBP, JPEG, PNG, AVIF)</span>
             </p>
           </div>

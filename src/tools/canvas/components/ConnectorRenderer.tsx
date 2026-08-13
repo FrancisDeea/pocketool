@@ -2,7 +2,7 @@ import { memo, type RefObject } from 'react';
 import { Arrow, Circle, Group, Line as KonvaLine } from 'react-konva';
 import type Konva from 'konva';
 import type { Connector, Shape, AnchorSide } from '../types';
-import { getAnchorPosition, getShapeBoundingBox } from '../types';
+import { getAnchorPosition } from '../types';
 
 interface ConnectorRendererProps {
   connector: Connector;
@@ -24,7 +24,7 @@ const ANCHORS: AnchorSide[] = ['N', 'S', 'E', 'W'];
 function getLiveAnchorPosition(
   shape: Shape,
   anchor: AnchorSide,
-  stageRef?: RefObject<Konva.Stage | null>,
+  stageRef?: RefObject<Konva.Stage | null>
 ): { x: number; y: number } {
   if (stageRef?.current) {
     const node = stageRef.current.findOne('#' + shape.id);

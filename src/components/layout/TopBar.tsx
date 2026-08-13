@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import type { ThemeMode } from '@/types/tool';
 import { $theme, applyTheme } from '@/stores/theme';
-import { $locale, $zenMode, $isFullscreen, toggleZenMode } from '@/stores/preferences';
+import { $locale, $zenMode, toggleZenMode } from '@/stores/preferences';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -25,11 +25,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@ui/DropdownMenu';
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-} from '@ui/Dialog';
+import { Dialog, DialogTrigger, DialogContent } from '@ui/Dialog';
 import Button from '@ui/Button';
 import Tooltip from '@ui/Tooltip';
 import type { ToolConfig } from '@/types/tool';
@@ -78,19 +74,37 @@ function ContributorBadge({ id, role }: { id: string; role: string }) {
       <div className="flex items-center gap-2">
         <User size={14} className="text-text-secondary" />
         <span className="text-sm font-medium text-text-primary">{c.name}</span>
-        <span className="text-xs text-text-tertiary ml-auto bg-surface px-2 py-0.5 rounded-full border border-border">{role}</span>
+        <span className="text-xs text-text-tertiary ml-auto bg-surface px-2 py-0.5 rounded-full border border-border">
+          {role}
+        </span>
       </div>
       <div className="flex items-center gap-3">
-        <a href={`https://github.com/${c.github}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors" title="GitHub">
+        <a
+          href={`https://github.com/${c.github}`}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
+          title="GitHub"
+        >
           <GitHubIcon size={14} /> <span className="hidden sm:inline">{c.github}</span>
         </a>
         {c.linkedin && (
-          <a href={c.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-[#0a66c2] transition-colors" title="LinkedIn">
+          <a
+            href={c.linkedin}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-[#0a66c2] transition-colors"
+            title="LinkedIn"
+          >
             <LinkedinIcon size={14} /> <span className="hidden sm:inline">LinkedIn</span>
           </a>
         )}
         {c.email && (
-          <a href={`mailto:${c.email}`} className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors" title="Email">
+          <a
+            href={`mailto:${c.email}`}
+            className="flex items-center gap-1.5 text-xs text-text-tertiary hover:text-text-primary transition-colors"
+            title="Email"
+          >
             <Mail size={14} /> <span className="hidden sm:inline">Email</span>
           </a>
         )}
@@ -112,11 +126,7 @@ const themeOptions: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
   { value: 'dark-hc', label: 'Oscuro (HC)', icon: MoonStar },
 ];
 
-export default function TopBar({
-  currentTool,
-  onOpenSearch,
-  onMobileMenuToggle,
-}: TopBarProps) {
+export default function TopBar({ currentTool, onOpenSearch, onMobileMenuToggle }: TopBarProps) {
   const theme = useStore($theme);
   const locale = useStore($locale);
   const zenMode = useStore($zenMode);
@@ -181,26 +191,42 @@ export default function TopBar({
                   <Info size={16} />
                 </button>
               </DialogTrigger>
-              <DialogContent title={currentTool.title} description={currentTool.detailedDescription || currentTool.description}>
+              <DialogContent
+                title={currentTool.title}
+                description={currentTool.detailedDescription || currentTool.description}
+              >
                 <div className="py-2 mt-4 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2">
                   {currentTool.technicalDescription && (
                     <div>
-                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Technical Details</span>
-                      <p className="text-sm text-text-primary leading-relaxed">{currentTool.technicalDescription}</p>
+                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+                        Technical Details
+                      </span>
+                      <p className="text-sm text-text-primary leading-relaxed">
+                        {currentTool.technicalDescription}
+                      </p>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Versión</span>
-                      <span className="text-sm text-text-primary font-mono">{currentTool.version || '1.0.0'}</span>
+                      <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+                        Versión
+                      </span>
+                      <span className="text-sm text-text-primary font-mono">
+                        {currentTool.version || '1.0.0'}
+                      </span>
                     </div>
                     {currentTool.tags && currentTool.tags.length > 0 && (
                       <div className="text-right">
-                        <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">Tags</span>
+                        <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+                          Tags
+                        </span>
                         <div className="flex flex-wrap gap-1 justify-end">
-                          {currentTool.tags.map(tag => (
-                            <span key={tag} className="px-2 py-1 bg-surface-hover text-text-secondary text-xs rounded-md border border-border">
+                          {currentTool.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-1 bg-surface-hover text-text-secondary text-xs rounded-md border border-border"
+                            >
                               {tag}
                             </span>
                           ))}
@@ -208,15 +234,24 @@ export default function TopBar({
                       </div>
                     )}
                   </div>
-                  
+
                   <div>
-                    <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-3">Autores & Contribuidores</span>
+                    <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-3">
+                      Autores & Contribuidores
+                    </span>
                     <div className="flex flex-col gap-3">
                       {(currentTool.creator || currentTool.author) && (
-                         <ContributorBadge id={currentTool.creator || currentTool.author || ''} role="Creador" />
+                        <ContributorBadge
+                          id={currentTool.creator || currentTool.author || ''}
+                          role="Creador"
+                        />
                       )}
-                      {currentTool.contributors?.map(contributorId => (
-                         <ContributorBadge key={contributorId} id={contributorId} role="Contribuidor" />
+                      {currentTool.contributors?.map((contributorId) => (
+                        <ContributorBadge
+                          key={contributorId}
+                          id={contributorId}
+                          role="Contribuidor"
+                        />
                       ))}
                     </div>
                   </div>
@@ -234,7 +269,11 @@ export default function TopBar({
                 title={`Creado por @${currentTool.creator || currentTool.author}`}
               >
                 <GitHubIcon size={12} />
-                <span className="opacity-90">{contributors[currentTool.creator || currentTool.author || '']?.name || currentTool.creator || currentTool.author}</span>
+                <span className="opacity-90">
+                  {contributors[currentTool.creator || currentTool.author || '']?.name ||
+                    currentTool.creator ||
+                    currentTool.author}
+                </span>
               </a>
             )}
           </>
@@ -252,9 +291,9 @@ export default function TopBar({
 
         {/* Zen Mode */}
         <Tooltip content={zenMode ? 'Salir Modo Zen' : 'Modo Zen'}>
-          <Button 
-            variant="icon" 
-            size="sm" 
+          <Button
+            variant="icon"
+            size="sm"
             onClick={toggleZenMode}
             className={zenMode ? 'text-accent' : ''}
           >
@@ -283,15 +322,10 @@ export default function TopBar({
             {themeOptions.map((opt) => {
               const Icon = opt.icon;
               return (
-                <DropdownMenuItem
-                  key={opt.value}
-                  onSelect={() => handleThemeChange(opt.value)}
-                >
+                <DropdownMenuItem key={opt.value} onSelect={() => handleThemeChange(opt.value)}>
                   <Icon size={14} />
                   <span>{opt.label}</span>
-                  {theme === opt.value && (
-                    <span className="ml-auto text-accent text-xs">✓</span>
-                  )}
+                  {theme === opt.value && <span className="ml-auto text-accent text-xs">✓</span>}
                 </DropdownMenuItem>
               );
             })}
@@ -312,15 +346,11 @@ export default function TopBar({
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => handleLocaleChange('es')}>
               🇪🇸 Español
-              {locale === 'es' && (
-                <span className="ml-auto text-accent text-xs">✓</span>
-              )}
+              {locale === 'es' && <span className="ml-auto text-accent text-xs">✓</span>}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => handleLocaleChange('en')}>
               🇬🇧 English
-              {locale === 'en' && (
-                <span className="ml-auto text-accent text-xs">✓</span>
-              )}
+              {locale === 'en' && <span className="ml-auto text-accent text-xs">✓</span>}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
