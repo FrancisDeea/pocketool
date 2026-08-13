@@ -9,7 +9,9 @@ export const config: ToolConfig = {
   icon: 'Image',
   creator: 'francisdeea',
   contributors: ['creativoma'],
-  detailedDescription: 'A privacy-first tool to resize, convert, and compress images directly in your browser without uploading to any server. Features an interactive visual before-and-after comparison slider.',
-  technicalDescription: 'Leverages HTML5 Canvas for fast rendering operations and native Web APIs for client-side image compression. No server involved.',
+  detailedDescription:
+    'A privacy-first tool to resize, convert, and compress images directly in your browser without uploading to any server. Features an interactive visual before-and-after comparison slider.',
+  technicalDescription:
+    'Leverages HTML5 Canvas for fast rendering operations and native Web APIs for client-side image compression. No server involved.',
   version: '1.0.0',
 };

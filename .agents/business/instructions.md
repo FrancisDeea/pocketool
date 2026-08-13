@@ -17,37 +17,37 @@
 
 ### MVP Tools
 
-| ID                   | Name               | Description                                                               |
-| -------------------- | ------------------ | ------------------------------------------------------------------------- |
-| `json-viewer`        | JSON Viewer        | Collapsible tree, search, format, copy and download large JSON files      |
-| `markdown-editor`    | Markdown Editor    | Editor with preview, GFM support, Mermaid diagrams, copy and download     |
-| `image-optimizer`    | Image Optimizer    | Squoosh-style optimizer with wasm-vips, before/after comparison           |
-| `notes`              | Quick Notes        | Quick note manager with tags, search, and local persistence               |
-| `responsive-preview` | Responsive Preview | Multi-viewport view of external URLs with synchronized scroll and clicks  |
-| `code-playground`    | Code Playground    | HTML/CSS/Script editor with preview, console, and snippet library         |
+| ID                   | Name               | Description                                                              |
+| -------------------- | ------------------ | ------------------------------------------------------------------------ |
+| `json-viewer`        | JSON Viewer        | Collapsible tree, search, format, copy and download large JSON files     |
+| `markdown-editor`    | Markdown Editor    | Editor with preview, GFM support, Mermaid diagrams, copy and download    |
+| `image-optimizer`    | Image Optimizer    | Squoosh-style optimizer with wasm-vips, before/after comparison          |
+| `notes`              | Quick Notes        | Quick note manager with tags, search, and local persistence              |
+| `responsive-preview` | Responsive Preview | Multi-viewport view of external URLs with synchronized scroll and clicks |
+| `code-playground`    | Code Playground    | HTML/CSS/Script editor with preview, console, and snippet library        |
 
 ---
 
 ## 2. Tech Stack
 
-| Layer                      | Technology                                  | Reason                                                                 |
-| -------------------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
-| Framework                  | Astro **6.x**                               | Island architecture, zero-JS by default, native i18n                  |
-| UI (interactive islands)   | React **19**                                | Concurrent features, ecosystem, Radix compatibility                    |
-| Styling                    | Tailwind CSS **4.x**                        | Utility-first, CSS-based config (not JS), native `@theme`              |
-| Global state (UI/prefs)    | Nanostores **1.2** + @nanostores/persistent | Lightweight, isomorphic, only for preferences and UI state             |
-| Tool persistence           | Dexie.js (latest)                           | Typed IndexedDB, reactive, ~1GB capacity, binary data support          |
-| Primitive components       | Radix UI (latest)                           | Accessibility, headless, no friction with Astro                        |
-| Command Palette            | cmdk (latest)                               | Built on Radix, search semantics, lightweight                          |
-| Text editors               | CodeMirror **6** (latest)                   | Modular, superior mobile performance vs Monaco, accessible             |
-| Icons                      | Lucide React **1.8**                        | Tree-shakeable, consistent, actively maintained                        |
-| Images (WASM)              | wasm-vips + Comlink                         | Real multi-threading in WebWorker, same API as libvips                 |
-| TS compiler (Playground)   | typescript (official, latest)               | Real type-checking, full errors, complete fidelity                     |
-| PWA                        | @vite-pwa/astro (latest)                    | Service Worker, offline, WASM caching, installable                     |
-| Unit testing               | Vitest **4.x** + Testing Library            | Native with Vite, fast, compatible with the Astro ecosystem            |
-| E2E testing                | Playwright **1.59.x**                       | Industry standard, multi-browser, visual regression                    |
-| Deployment                 | Cloudflare Pages                            | Edge CDN, `_headers` integration, first-class WASM support             |
-| Package manager            | pnpm (latest)                               | Workspace support, disk efficiency, faster than npm/yarn               |
+| Layer                    | Technology                                  | Reason                                                        |
+| ------------------------ | ------------------------------------------- | ------------------------------------------------------------- |
+| Framework                | Astro **6.x**                               | Island architecture, zero-JS by default, native i18n          |
+| UI (interactive islands) | React **19**                                | Concurrent features, ecosystem, Radix compatibility           |
+| Styling                  | Tailwind CSS **4.x**                        | Utility-first, CSS-based config (not JS), native `@theme`     |
+| Global state (UI/prefs)  | Nanostores **1.2** + @nanostores/persistent | Lightweight, isomorphic, only for preferences and UI state    |
+| Tool persistence         | Dexie.js (latest)                           | Typed IndexedDB, reactive, ~1GB capacity, binary data support |
+| Primitive components     | Radix UI (latest)                           | Accessibility, headless, no friction with Astro               |
+| Command Palette          | cmdk (latest)                               | Built on Radix, search semantics, lightweight                 |
+| Text editors             | CodeMirror **6** (latest)                   | Modular, superior mobile performance vs Monaco, accessible    |
+| Icons                    | Lucide React **1.8**                        | Tree-shakeable, consistent, actively maintained               |
+| Images (WASM)            | wasm-vips + Comlink                         | Real multi-threading in WebWorker, same API as libvips        |
+| TS compiler (Playground) | typescript (official, latest)               | Real type-checking, full errors, complete fidelity            |
+| PWA                      | @vite-pwa/astro (latest)                    | Service Worker, offline, WASM caching, installable            |
+| Unit testing             | Vitest **4.x** + Testing Library            | Native with Vite, fast, compatible with the Astro ecosystem   |
+| E2E testing              | Playwright **1.59.x**                       | Industry standard, multi-browser, visual regression           |
+| Deployment               | Cloudflare Pages                            | Edge CDN, `_headers` integration, first-class WASM support    |
+| Package manager          | pnpm (latest)                               | Workspace support, disk efficiency, faster than npm/yarn      |
 
 ### Important note: Tailwind CSS 4
 
@@ -55,11 +55,11 @@ Tailwind 4 removes `tailwind.config.mjs`. Configuration now lives in CSS:
 
 ```css
 /* src/styles/global.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-accent: /* to be defined */;
-  --font-mono: "Space Mono", monospace;
+  --font-mono: 'Space Mono', monospace;
   /* rest of the design system tokens */
 }
 ```
@@ -108,18 +108,18 @@ Everything that belongs to a tool, regardless of size, goes into IndexedDB via D
 ### Database definition (`src/db/index.ts`)
 
 ```typescript
-import Dexie, { type EntityTable } from "dexie";
+import Dexie, { type EntityTable } from 'dexie';
 
 // Main table: persistent state for each tool
 interface ToolState {
-  id: string;       // 'tool:[tool-id]:[key]' — Primary Key
+  id: string; // 'tool:[tool-id]:[key]' — Primary Key
   content: unknown; // tool data, typed within each tool
   updatedAt: number; // timestamp for sorting and expiry
 }
 
 // History/session table (optional per tool)
 interface ToolHistory {
-  id?: number;    // autoincrement
+  id?: number; // autoincrement
   toolId: string; // 'json-viewer', 'code-playground', etc.
   timestamp: number;
   data: unknown;
@@ -127,11 +127,11 @@ interface ToolHistory {
 
 // Playground snippets table
 interface Snippet {
-  id: string;      // uuid
-  toolId: string;  // 'code-playground'
+  id: string; // uuid
+  toolId: string; // 'code-playground'
   name: string;
   description: string;
-  lang: "html" | "css" | "js" | "ts";
+  lang: 'html' | 'css' | 'js' | 'ts';
   content: string;
   isBuiltIn: boolean;
   createdAt: number;
@@ -148,18 +148,18 @@ interface Note {
 }
 
 class PocketoolDB extends Dexie {
-  toolStates!: EntityTable<ToolState, "id">;
-  toolHistory!: EntityTable<ToolHistory, "id">;
-  snippets!: EntityTable<Snippet, "id">;
-  notes!: EntityTable<Note, "id">;
+  toolStates!: EntityTable<ToolState, 'id'>;
+  toolHistory!: EntityTable<ToolHistory, 'id'>;
+  snippets!: EntityTable<Snippet, 'id'>;
+  notes!: EntityTable<Note, 'id'>;
 
   constructor() {
-    super("PocketoolDB");
+    super('PocketoolDB');
     this.version(1).stores({
-      toolStates: "id, updatedAt",
-      toolHistory: "++id, toolId, timestamp",
-      snippets: "id, toolId, isBuiltIn, createdAt",
-      notes: "id, updatedAt, *tags",
+      toolStates: 'id, updatedAt',
+      toolHistory: '++id, toolId, timestamp',
+      snippets: 'id, toolId, isBuiltIn, createdAt',
+      notes: 'id, updatedAt, *tags',
     });
   }
 }
@@ -189,17 +189,14 @@ Each tool accesses Dexie via `useLiveQuery` from `dexie-react-hooks` for automat
 
 ```typescript
 // Reactive read pattern in a tool
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/db";
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/db';
 
-const state = useLiveQuery(
-  () => db.toolStates.get("tool:json-viewer:last-input"),
-  [],
-);
+const state = useLiveQuery(() => db.toolStates.get('tool:json-viewer:last-input'), []);
 
 // Write pattern
 await db.toolStates.put({
-  id: "tool:json-viewer:last-input",
+  id: 'tool:json-viewer:last-input',
   content: value,
   updatedAt: Date.now(),
 });
@@ -211,8 +208,7 @@ For the global preferences layer. Never for tool data.
 
 ```typescript
 type StorageResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: "quota_exceeded" | "unavailable" | "parse_error" };
+  { ok: true; data: T } | { ok: false; error: 'quota_exceeded' | 'unavailable' | 'parse_error' };
 
 function storageGet<T>(key: string): StorageResult<T>;
 function storageSet<T>(key: string, value: T): StorageResult<void>;
@@ -223,13 +219,13 @@ function storageImport(backup: Record<string, unknown>): void;
 
 Covered cases:
 
-| Case                   | Behavior                                          |
-| ---------------------- | ------------------------------------------------- |
-| Quota exceeded         | Toast with option to clear data                   |
-| Safari private mode    | App works in-memory, non-intrusive banner         |
-| Corrupted JSON         | Deletes the key, notifies the user                |
-| Outdated schema        | `migrate()` function in the tool's config         |
-| Manual backup          | Export/import everything as JSON from Settings    |
+| Case                | Behavior                                       |
+| ------------------- | ---------------------------------------------- |
+| Quota exceeded      | Toast with option to clear data                |
+| Safari private mode | App works in-memory, non-intrusive banner      |
+| Corrupted JSON      | Deletes the key, notifies the user             |
+| Outdated schema     | `migrate()` function in the tool's config      |
+| Manual backup       | Export/import everything as JSON from Settings |
 
 ---
 
@@ -243,51 +239,51 @@ Pocketool works completely offline once installed. The Service Worker caches all
 
 ```javascript
 // astro.config.mjs
-import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
-import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from "vite-plugin-pwa"; // @vite-pwa/astro uses VitePWA internally
+import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa'; // @vite-pwa/astro uses VitePWA internally
 
 export default defineConfig({
-  output: "static",
+  output: 'static',
   integrations: [react()],
   vite: {
     plugins: [
       tailwindcss(),
       VitePWA({
-        registerType: "autoUpdate",
-        injectRegister: "auto",
+        registerType: 'autoUpdate',
+        injectRegister: 'auto',
         workbox: {
           // Critical: wasm-vips and typescript exceed the default 2MB limit
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-          globPatterns: ["**/*.{js,css,html,ico,png,svg,wasm}"],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
           // Cache strategy for WASM: cache-first, valid for 1 year
           runtimeCaching: [
             {
               urlPattern: /\.wasm$/,
-              handler: "CacheFirst",
+              handler: 'CacheFirst',
               options: {
-                cacheName: "wasm-cache",
+                cacheName: 'wasm-cache',
                 expiration: { maxAgeSeconds: 60 * 60 * 24 * 365 },
               },
             },
           ],
         },
         manifest: {
-          name: "Pocketool",
-          short_name: "Pocketool",
-          description: "Developer tools in your pocket",
-          theme_color: "#0d0d0d",
-          background_color: "#0d0d0d",
-          display: "standalone",
+          name: 'Pocketool',
+          short_name: 'Pocketool',
+          description: 'Developer tools in your pocket',
+          theme_color: '#0d0d0d',
+          background_color: '#0d0d0d',
+          display: 'standalone',
           icons: [
-            { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-            { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+            { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
             {
-              src: "/icons/icon-512.png",
-              sizes: "512x512",
-              type: "image/png",
-              purpose: "maskable",
+              src: '/icons/icon-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
             },
           ],
         },
@@ -424,18 +420,18 @@ pocketool/
 **`config.ts`**
 
 ```typescript
-import type { ToolConfig } from "@/tools/registry";
+import type { ToolConfig } from '@/tools/registry';
 
 export const config: ToolConfig = {
-  id: "json-viewer",
-  title: "JSON Viewer",
-  description: "Explore and format JSON of any size",
-  category: "data", // 'data' | 'text' | 'media' | 'productivity' | 'preview'
-  tags: ["json", "format", "tree", "search"],
-  icon: "Braces", // Lucide icon name
-  author: "your-username",
-  version: "1.0.0",
-  dbKeys: ["tool:json-viewer:last-input"], // keys this tool uses in Dexie
+  id: 'json-viewer',
+  title: 'JSON Viewer',
+  description: 'Explore and format JSON of any size',
+  category: 'data', // 'data' | 'text' | 'media' | 'productivity' | 'preview'
+  tags: ['json', 'format', 'tree', 'search'],
+  icon: 'Braces', // Lucide icon name
+  author: 'your-username',
+  version: '1.0.0',
+  dbKeys: ['tool:json-viewer:last-input'], // keys this tool uses in Dexie
 };
 ```
 
@@ -508,8 +504,8 @@ Any dependency exceeding ~500KB must be loaded via dynamic import inside a Web W
 useEffect(() => {
   let w: Worker;
   (async () => {
-    const { wrap } = await import("comlink");
-    w = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+    const { wrap } = await import('comlink');
+    w = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
     setWorker(wrap<VipsWorker>(w));
   })();
   return () => w?.terminate();
@@ -520,7 +516,7 @@ useEffect(() => {
 
 ```typescript
 // code-playground/worker.ts — loaded only when the user activates TS mode
-import * as ts from "typescript";
+import * as ts from 'typescript';
 
 self.onmessage = ({ data: { code, id } }) => {
   const result = ts.transpileModule(code, {
@@ -550,12 +546,12 @@ The Worker is destroyed on component unmount to free the ~6MB compiler from memo
 
 4 variants via `data-theme` on `<html>`:
 
-| Value      | Description                               |
-| ---------- | ----------------------------------------- |
-| `dark`     | Dark mode, standard contrast (default)    |
-| `dark-hc`  | Dark mode, high contrast                  |
-| `light`    | Light mode, standard contrast             |
-| `light-hc` | Light mode, high contrast                 |
+| Value      | Description                            |
+| ---------- | -------------------------------------- |
+| `dark`     | Dark mode, standard contrast (default) |
+| `dark-hc`  | Dark mode, high contrast               |
+| `light`    | Light mode, standard contrast          |
+| `light-hc` | Light mode, high contrast              |
 
 Detected from `prefers-color-scheme` + `prefers-contrast` on first access. Persisted in localStorage (`app:theme`) via Nanostores. Never use hardcoded colors — always `var(--color-*)`.
 
@@ -571,10 +567,10 @@ Priority components for MVP: `Button`, `Tooltip`, `Badge`, `Dialog`, `DropdownMe
 
 ## 12. Responsiveness
 
-| Breakpoint | Layout                                                               |
-| ---------- | -------------------------------------------------------------------- |
-| `< 768px`  | Single column. Panels separated by Radix Tabs.                       |
-| `≥ 768px`  | Dual Panel: Input left, Output right, draggable resize handle.       |
+| Breakpoint | Layout                                                         |
+| ---------- | -------------------------------------------------------------- |
+| `< 768px`  | Single column. Panels separated by Radix Tabs.                 |
+| `≥ 768px`  | Dual Panel: Input left, Output right, draggable resize handle. |
 
 Layout switching is the responsibility of `ToolLayout.astro`, not of each individual tool.
 
@@ -591,11 +587,11 @@ Layout switching is the responsibility of `ToolLayout.astro`, not of each indivi
 
 ```typescript
 // vitest.config.ts (Vitest 4.x)
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
-    environment: "jsdom",
-    setupFiles: ["./tests/setup.ts"],
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
     globals: true,
   },
 });
@@ -605,22 +601,22 @@ What to test: logic of each tool, storage.ts wrapper, i18n system, auto-registry
 
 ### Playwright (e2e)
 
-| Tool               | Critical flow                                                    |
-| ------------------ | ---------------------------------------------------------------- |
-| JSON Viewer        | Paste JSON → tree renders → search key → correct result          |
-| JSON Viewer        | Invalid JSON → clear error shown                                 |
-| Markdown Editor    | Write MD → preview updates → download `.md`                      |
-| Markdown Editor    | Mermaid block → diagram rendered                                 |
-| Image Optimizer    | Upload image → optimize → download                               |
-| Notes              | Create note → persists after reload → delete                     |
-| Responsive Preview | Valid URL → iframes render with correct widths                   |
-| Responsive Preview | Blocked URL → error visible                                      |
-| Code Playground    | HTML+CSS → preview updates                                       |
-| Code Playground    | JS → console.log → appears in console                            |
-| Code Playground    | TS with type error → error in console                            |
-| Global             | Command Palette → navigate to tool                               |
-| Global             | Change theme → persists after reload                             |
-| Global             | Install PWA → works offline                                      |
+| Tool               | Critical flow                                           |
+| ------------------ | ------------------------------------------------------- |
+| JSON Viewer        | Paste JSON → tree renders → search key → correct result |
+| JSON Viewer        | Invalid JSON → clear error shown                        |
+| Markdown Editor    | Write MD → preview updates → download `.md`             |
+| Markdown Editor    | Mermaid block → diagram rendered                        |
+| Image Optimizer    | Upload image → optimize → download                      |
+| Notes              | Create note → persists after reload → delete            |
+| Responsive Preview | Valid URL → iframes render with correct widths          |
+| Responsive Preview | Blocked URL → error visible                             |
+| Code Playground    | HTML+CSS → preview updates                              |
+| Code Playground    | JS → console.log → appears in console                   |
+| Code Playground    | TS with type error → error in console                   |
+| Global             | Command Palette → navigate to tool                      |
+| Global             | Change theme → persists after reload                    |
+| Global             | Install PWA → works offline                             |
 
 ---
 
@@ -642,16 +638,16 @@ PRs → Playwright e2e on Cloudflare Pages preview URL
 
 ## 15. Code Conventions
 
-| Element           | Convention          | Example              |
-| ----------------- | ------------------- | -------------------- |
-| React components  | PascalCase          | `JsonTree.tsx`       |
-| Hooks             | camelCase with `use`| `useLocalStorage.ts` |
-| Nanostores stores | camelCase with `$`  | `$theme`             |
-| Utilities         | camelCase           | `formatBytes.ts`     |
-| Constants         | SCREAMING_SNAKE     | `MAX_FILE_SIZE`      |
-| Tool IDs          | kebab-case          | `json-viewer`        |
-| Dexie keys        | `tool:id:key`       | `tool:notes:list`    |
-| localStorage keys | `app:key`           | `app:theme`          |
+| Element           | Convention           | Example              |
+| ----------------- | -------------------- | -------------------- |
+| React components  | PascalCase           | `JsonTree.tsx`       |
+| Hooks             | camelCase with `use` | `useLocalStorage.ts` |
+| Nanostores stores | camelCase with `$`   | `$theme`             |
+| Utilities         | camelCase            | `formatBytes.ts`     |
+| Constants         | SCREAMING_SNAKE      | `MAX_FILE_SIZE`      |
+| Tool IDs          | kebab-case           | `json-viewer`        |
+| Dexie keys        | `tool:id:key`        | `tool:notes:list`    |
+| localStorage keys | `app:key`            | `app:theme`          |
 
 - TypeScript `strict: true` always. No `any` without a comment.
 - Path aliases: `@/*`, `@ui/*`, `@tools/*`. No relative cross-domain imports.
@@ -721,7 +717,7 @@ type ProcessedState = {
   height: number;
   format: OutputFormat;
   sizeBytes: number;
-  operations: ("resize" | "compress")[];
+  operations: ('resize' | 'compress')[];
 };
 ```
 
@@ -799,18 +795,18 @@ src/tools/image-optimizer/
 
 ### Required e2e tests
 
-| Flow              | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| Upload image      | Drag & drop or file picker → image appears in canvas                |
-| WEBP compression  | Apply → result visible on right side → info bar updated             |
-| PNG compression   | No quality slider visible → correct result                          |
-| AVIF compression  | Apply → result visible                                              |
-| Resize preset     | Select 800px → Apply → dimensions updated in info bar               |
-| Custom resize     | Enter 600px with ratio → height calculated automatically            |
-| Resize + Compress | Apply resize → apply compression → result combines both             |
-| Slider            | Drag slider → clip-path changes → both images visible               |
-| Zoom              | Scroll → zoom in/out → pan → slider still functional                |
-| Download          | Download button → file with correct name and format                 |
+| Flow              | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| Upload image      | Drag & drop or file picker → image appears in canvas     |
+| WEBP compression  | Apply → result visible on right side → info bar updated  |
+| PNG compression   | No quality slider visible → correct result               |
+| AVIF compression  | Apply → result visible                                   |
+| Resize preset     | Select 800px → Apply → dimensions updated in info bar    |
+| Custom resize     | Enter 600px with ratio → height calculated automatically |
+| Resize + Compress | Apply resize → apply compression → result combines both  |
+| Slider            | Drag slider → clip-path changes → both images visible    |
+| Zoom              | Scroll → zoom in/out → pan → slider still functional     |
+| Download          | Download button → file with correct name and format      |
 
 ---
 
@@ -879,14 +875,14 @@ src/tools/responsive-preview/
 
 ### Required e2e tests
 
-| Flow            | Description                                                    |
-| --------------- | -------------------------------------------------------------- |
-| Valid URL       | Paste URL → iframes render → label shows correct width         |
-| Blocked URL     | X-Frame-Options → error message visible                        |
-| Custom viewport | Add 1024px → appears in grid → persists after reload           |
-| Viewport toggle | Deactivate → disappears from grid without being deleted        |
-| Focus mode      | Click → full screen → Escape returns to grid                   |
-| SyncSnippet     | Modal opens → code visible and copyable                        |
+| Flow            | Description                                             |
+| --------------- | ------------------------------------------------------- |
+| Valid URL       | Paste URL → iframes render → label shows correct width  |
+| Blocked URL     | X-Frame-Options → error message visible                 |
+| Custom viewport | Add 1024px → appears in grid → persists after reload    |
+| Viewport toggle | Deactivate → disappears from grid without being deleted |
+| Focus mode      | Click → full screen → Escape returns to grid            |
+| SyncSnippet     | Modal opens → code visible and copyable                 |
 
 ---
 
@@ -918,13 +914,13 @@ The `sandbox="allow-scripts"` attribute without `allow-same-origin` completely i
 
 **Built-in (read-only):** curated collection in Dexie, seeded on the tool's first launch.
 
-| Category  | Examples                                                  |
-| --------- | --------------------------------------------------------- |
-| JS Utils  | debounce, throttle, deep clone, sleep, fetch wrapper      |
-| Array     | groupBy, chunk, flatten, unique, zip                      |
-| DOM       | querySelector helper, event delegation, drag & drop base  |
-| CSS       | reset, flexbox center, responsive grid, custom scrollbar  |
-| TS        | utility types, generic typed fetch                        |
+| Category | Examples                                                 |
+| -------- | -------------------------------------------------------- |
+| JS Utils | debounce, throttle, deep clone, sleep, fetch wrapper     |
+| Array    | groupBy, chunk, flatten, unique, zip                     |
+| DOM      | querySelector helper, event delegation, drag & drop base |
+| CSS      | reset, flexbox center, responsive grid, custom scrollbar |
+| TS       | utility types, generic typed fetch                       |
 
 **Custom:** saved in the `snippets` Dexie table. Limit: 50. Inserting over existing content → confirm dialog.
 
@@ -967,36 +963,36 @@ src/tools/code-playground/
 
 ### Required e2e tests
 
-| Flow             | Description                                          |
-| ---------------- | ---------------------------------------------------- |
-| HTML/CSS         | Write → preview updates → styles applied             |
-| JS               | `console.log('ok')` → appears in console             |
-| TS               | Typed code → compiles → executes                     |
-| TS error         | Wrong type → compilation error in console            |
-| Infinite loop    | `while(true){}` → timeout → message in console       |
-| Built-in snippet | Insert → content in correct tab                      |
-| Custom snippet   | Create → persists after reload → can be deleted      |
-| Clean            | Confirm → editor empty → snippets intact             |
-| Panels           | Hide preview → state persists after reload           |
+| Flow             | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| HTML/CSS         | Write → preview updates → styles applied        |
+| JS               | `console.log('ok')` → appears in console        |
+| TS               | Typed code → compiles → executes                |
+| TS error         | Wrong type → compilation error in console       |
+| Infinite loop    | `while(true){}` → timeout → message in console  |
+| Built-in snippet | Insert → content in correct tab                 |
+| Custom snippet   | Create → persists after reload → can be deleted |
+| Clean            | Confirm → editor empty → snippets intact        |
+| Panels           | Hide preview → state persists after reload      |
 
 ---
 
 ## 20. Discarded Decisions and Reasons
 
-| Decision                                        | Discarded because                                                                                                      |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Shadcn/ui                                       | Friction with Astro/RSC. Replaced by direct Radix UI.                                                                  |
-| Hard links between tools                        | Penalizes UX. Headers via `public/_headers`, no full reload.                                                           |
-| Astro Middleware / SSR                          | Requires Workers and cost. 100% static site.                                                                           |
-| Monaco Editor                                   | Heavy bundle, poor mobile performance. CodeMirror 6 chosen.                                                            |
-| External database                               | Outside local-first philosophy.                                                                                        |
-| Authentication                                  | Out of MVP scope.                                                                                                      |
-| npm / yarn                                      | Replaced by pnpm.                                                                                                      |
-| localStorage for tool data                      | ~10MB limit, synchronous, no binary support. Dexie covers all tool cases with more capacity and a better API.          |
-| esbuild-wasm as TS compiler                     | Only transpiles, does not verify types. Official TypeScript gives complete errors and is similar in size.              |
-| Code mode in responsive-preview                 | Responsibility of `code-playground`. `responsive-preview` handles external URLs only.                                  |
-| Separate JS/TS tabs in playground               | A single Script panel with an explicit toggle is cleaner.                                                              |
-| Remote code execution (Piston API)              | Breaks local-first philosophy. TS/JS locally covers the main use case.                                                 |
-| Dexie for global preferences (theme, language)  | Small data with frequent synchronous access. localStorage via Nanostores is more appropriate.                          |
+| Decision                                       | Discarded because                                                                                             |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Shadcn/ui                                      | Friction with Astro/RSC. Replaced by direct Radix UI.                                                         |
+| Hard links between tools                       | Penalizes UX. Headers via `public/_headers`, no full reload.                                                  |
+| Astro Middleware / SSR                         | Requires Workers and cost. 100% static site.                                                                  |
+| Monaco Editor                                  | Heavy bundle, poor mobile performance. CodeMirror 6 chosen.                                                   |
+| External database                              | Outside local-first philosophy.                                                                               |
+| Authentication                                 | Out of MVP scope.                                                                                             |
+| npm / yarn                                     | Replaced by pnpm.                                                                                             |
+| localStorage for tool data                     | ~10MB limit, synchronous, no binary support. Dexie covers all tool cases with more capacity and a better API. |
+| esbuild-wasm as TS compiler                    | Only transpiles, does not verify types. Official TypeScript gives complete errors and is similar in size.     |
+| Code mode in responsive-preview                | Responsibility of `code-playground`. `responsive-preview` handles external URLs only.                         |
+| Separate JS/TS tabs in playground              | A single Script panel with an explicit toggle is cleaner.                                                     |
+| Remote code execution (Piston API)             | Breaks local-first philosophy. TS/JS locally covers the main use case.                                        |
+| Dexie for global preferences (theme, language) | Small data with frequent synchronous access. localStorage via Nanostores is more appropriate.                 |
 
 ---

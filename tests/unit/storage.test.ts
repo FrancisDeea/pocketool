@@ -79,9 +79,7 @@ describe('storage.ts - logic patterns', () => {
         'tool:json-viewer:input',
       ];
 
-      const filtered = allKeys.filter(
-        (k) => k.startsWith('tool:') || k.startsWith('app:'),
-      );
+      const filtered = allKeys.filter((k) => k.startsWith('tool:') || k.startsWith('app:'));
 
       expect(filtered).toEqual([
         'tool:notes:list',

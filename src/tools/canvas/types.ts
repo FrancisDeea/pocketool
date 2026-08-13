@@ -1,4 +1,14 @@
-export type ShapeType = 'select' | 'rect' | 'ellipse' | 'triangle' | 'line' | 'arrow' | 'connector' | 'pen' | 'text' | 'pan';
+export type ShapeType =
+  | 'select'
+  | 'rect'
+  | 'ellipse'
+  | 'triangle'
+  | 'line'
+  | 'arrow'
+  | 'connector'
+  | 'pen'
+  | 'text'
+  | 'pan';
 
 export interface BaseShape {
   id: string;
@@ -73,7 +83,8 @@ export interface Connector {
   strokeWidth: number;
 }
 
-export type Shape = RectShape | EllipseShape | TriangleShape | LineShape | ArrowShape | PenShape | TextShape;
+export type Shape =
+  RectShape | EllipseShape | TriangleShape | LineShape | ArrowShape | PenShape | TextShape;
 
 export interface ViewportState {
   x: number;
@@ -111,7 +122,10 @@ export function getShapeBoundingBox(shape: Shape): BoundingBox {
     case 'arrow':
     case 'pen': {
       const pts = shape.points;
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
       for (let i = 0; i < pts.length; i += 2) {
         const px = shape.x + pts[i];
         const py = shape.y + pts[i + 1];
@@ -142,9 +156,13 @@ export function getShapeBoundingBox(shape: Shape): BoundingBox {
 export function getAnchorPosition(shape: Shape, anchor: AnchorSide): { x: number; y: number } {
   const bb = getShapeBoundingBox(shape);
   switch (anchor) {
-    case 'N': return { x: bb.x + bb.width / 2, y: bb.y };
-    case 'S': return { x: bb.x + bb.width / 2, y: bb.y + bb.height };
-    case 'E': return { x: bb.x + bb.width, y: bb.y + bb.height / 2 };
-    case 'W': return { x: bb.x, y: bb.y + bb.height / 2 };
+    case 'N':
+      return { x: bb.x + bb.width / 2, y: bb.y };
+    case 'S':
+      return { x: bb.x + bb.width / 2, y: bb.y + bb.height };
+    case 'E':
+      return { x: bb.x + bb.width, y: bb.y + bb.height / 2 };
+    case 'W':
+      return { x: bb.x, y: bb.y + bb.height / 2 };
   }
 }

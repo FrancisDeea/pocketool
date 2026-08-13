@@ -203,8 +203,8 @@ describe('buildSegments', () => {
       { index: 2, end: 3, value: 'a', groups: [] },
     ];
     const segments = buildSegments('a a', matches);
-    const matched = segments.filter(s => s.matched);
-    const unmatched = segments.filter(s => !s.matched);
+    const matched = segments.filter((s) => s.matched);
+    const unmatched = segments.filter((s) => !s.matched);
     expect(matched).toHaveLength(2);
     expect(unmatched).toHaveLength(1);
     expect(unmatched[0].text).toBe(' ');
@@ -216,7 +216,7 @@ describe('buildSegments', () => {
       { index: 2, end: 3, value: 'b', groups: [] },
     ];
     const segments = buildSegments('a b', matches);
-    const matched = segments.filter(s => s.matched);
+    const matched = segments.filter((s) => s.matched);
     expect(matched[0].matchIndex).toBe(0);
     expect(matched[1].matchIndex).toBe(1);
   });

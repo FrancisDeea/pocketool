@@ -78,13 +78,13 @@ src/tools/my-tool/
 
 ```ts
 // src/tools/my-tool/config.ts
-import type { ToolConfig } from "@/tools/types";
-import { Wrench } from "lucide-react";
+import type { ToolConfig } from '@/tools/types';
+import { Wrench } from 'lucide-react';
 
 const config: ToolConfig = {
-  id: "my-tool",
-  title: "My Tool",
-  description: "Does something useful.",
+  id: 'my-tool',
+  title: 'My Tool',
+  description: 'Does something useful.',
   icon: Wrench,
 };
 
@@ -102,13 +102,13 @@ export default function MyTool() {
 
 ### Rules
 
-| Concern | Rule |
-|---------|------|
-| **UI components** | Use atoms from `src/components/ui/`. No external UI libs. |
-| **Persistence** | Use the `db` Dexie instance (`src/db`). Never `localStorage` for tool data. |
-| **State keys** | Follow the pattern `tool:[tool-id]:[key]` for `toolStates` records. |
-| **i18n** | Add strings to `src/i18n/en/tools.json` and `src/i18n/es/tools.json`. |
-| **Heavy libraries** | Anything > 500 KB must be loaded via a dynamic import or Web Worker. |
+| Concern             | Rule                                                                        |
+| ------------------- | --------------------------------------------------------------------------- |
+| **UI components**   | Use atoms from `src/components/ui/`. No external UI libs.                   |
+| **Persistence**     | Use the `db` Dexie instance (`src/db`). Never `localStorage` for tool data. |
+| **State keys**      | Follow the pattern `tool:[tool-id]:[key]` for `toolStates` records.         |
+| **i18n**            | Add strings to `src/i18n/en/tools.json` and `src/i18n/es/tools.json`.       |
+| **Heavy libraries** | Anything > 500 KB must be loaded via a dynamic import or Web Worker.        |
 
 ---
 
@@ -133,16 +133,17 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 <type>(<scope>): <short description>
 ```
 
-| Type | When to use |
-|------|-------------|
-| `feat` | New tool or feature |
-| `fix` | Bug fix |
+| Type       | When to use                          |
+| ---------- | ------------------------------------ |
+| `feat`     | New tool or feature                  |
+| `fix`      | Bug fix                              |
 | `refactor` | Code change with no behaviour change |
-| `test` | Adding or updating tests |
-| `docs` | Documentation only |
-| `chore` | Tooling, deps, config |
+| `test`     | Adding or updating tests             |
+| `docs`     | Documentation only                   |
+| `chore`    | Tooling, deps, config                |
 
 **Examples:**
+
 ```
 feat(base64): add encoder/decoder tool
 fix(json-viewer): correct search match count off-by-one
@@ -177,5 +178,6 @@ pnpm test:e2e
 ```
 
 For a new tool, the minimum expected coverage is:
+
 - Unit: core logic functions (data transforms, validators, helpers)
 - E2E: happy path (tool loads, performs its main action, output is correct)

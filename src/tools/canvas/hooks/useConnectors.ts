@@ -2,7 +2,6 @@ import { useState, useCallback, useRef } from 'react';
 import type { Connector, AnchorSide, CanvasState } from '../types';
 import { getAnchorPosition } from '../types';
 
-
 const ANCHOR_DETECT_RADIUS = 24; // px in screen space
 
 export interface ConnectorDraft {
@@ -27,7 +26,7 @@ const generateId = () => {
 export function useConnectors(
   state: CanvasState,
   pushState: (s: CanvasState) => void,
-  viewport: { x: number; y: number; scale: number },
+  viewport: { x: number; y: number; scale: number }
 ) {
   const [draft, setDraft] = useState<ConnectorDraft | null>(null);
   const draftRef = useRef<ConnectorDraft | null>(null);
@@ -60,7 +59,7 @@ export function useConnectors(
 
       return closest;
     },
-    [state.shapes],
+    [state.shapes]
   );
 
   /** Called when a pointer-down happens in connector mode */
@@ -78,7 +77,7 @@ export function useConnectors(
         setDraft(newDraft);
       }
     },
-    [findClosestAnchor],
+    [findClosestAnchor]
   );
 
   /** Called on pointer-move to update the draft endpoint and detect target anchor */
@@ -94,7 +93,7 @@ export function useConnectors(
       const closest = findClosestAnchor(worldX, worldY);
       setHoveredAnchor(closest ? { shapeId: closest.shapeId, anchor: closest.anchor } : null);
     },
-    [findClosestAnchor],
+    [findClosestAnchor]
   );
 
   /** Called on pointer-up to finalise or cancel the connector */
@@ -126,7 +125,7 @@ export function useConnectors(
       setDraft(null);
       setHoveredAnchor(null);
     },
-    [findClosestAnchor, state, pushState],
+    [findClosestAnchor, state, pushState]
   );
 
   const cancelConnector = useCallback(() => {

@@ -11,10 +11,10 @@ type TabsProps = {
 
 export function Tabs({ defaultValue, value, onValueChange, children, className = '' }: TabsProps) {
   return (
-    <TabsPrimitive.Root 
-      defaultValue={defaultValue} 
-      value={value} 
-      onValueChange={onValueChange} 
+    <TabsPrimitive.Root
+      defaultValue={defaultValue}
+      value={value}
+      onValueChange={onValueChange}
       className={className}
     >
       {children}
@@ -83,11 +83,7 @@ export function TabsContent({
   return (
     <TabsPrimitive.Content
       value={value}
-      className={[
-        'outline-none mt-2',
-        'data-[state=active]:animate-fade-in',
-        className,
-      ].join(' ')}
+      className={['outline-none mt-2', 'data-[state=active]:animate-fade-in', className].join(' ')}
     >
       {children}
     </TabsPrimitive.Content>

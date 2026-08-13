@@ -55,7 +55,7 @@ export function PointHandles({ shape, viewport, snap, onChange }: PointHandlesPr
     if (index === 0) {
       // Moving start point (x, y)
       const targetAbsEnd = absPoints[1];
-      
+
       shapeNode.x(snappedX);
       shapeNode.y(snappedY);
 
@@ -82,7 +82,7 @@ export function PointHandles({ shape, viewport, snap, onChange }: PointHandlesPr
       points[3] = dx * sin + dy * cos;
       shapeNode.points([0, 0, points[2], points[3]]);
     }
-    
+
     return { x: shapeNode.x(), y: shapeNode.y(), points };
   };
 

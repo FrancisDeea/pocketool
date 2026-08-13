@@ -87,9 +87,7 @@ export function DropdownMenuCheckboxItem({
 }
 
 export function DropdownMenuSeparator() {
-  return (
-    <DropdownMenuPrimitive.Separator className="h-px my-1 bg-border" />
-  );
+  return <DropdownMenuPrimitive.Separator className="h-px my-1 bg-border" />;
 }
 
 export function DropdownMenuLabel({
@@ -101,10 +99,7 @@ export function DropdownMenuLabel({
 }) {
   return (
     <DropdownMenuPrimitive.Label
-      className={[
-        'px-3 py-1.5 text-xs font-semibold text-text-tertiary',
-        className,
-      ].join(' ')}
+      className={['px-3 py-1.5 text-xs font-semibold text-text-tertiary', className].join(' ')}
     >
       {children}
     </DropdownMenuPrimitive.Label>

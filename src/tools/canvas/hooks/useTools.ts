@@ -40,7 +40,7 @@ export function useTools(
   viewport: ViewportState,
   snap: boolean,
   onTextCreate?: (shape: Shape) => void,
-  pendingProperties?: PendingToolProperties,
+  pendingProperties?: PendingToolProperties
 ) {
   const [newShape, setNewShape] = useState<Shape | null>(null);
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
@@ -54,10 +54,18 @@ export function useTools(
   const originRef = useRef(origin);
 
   // Keep refs in sync for values that come from props
-  useEffect(() => { viewportRef.current = viewport; }, [viewport]);
-  useEffect(() => { snapRef.current = snap; }, [snap]);
-  useEffect(() => { stateRef.current = state; }, [state]);
-  useEffect(() => { pendingPropsRef.current = pendingProperties; }, [pendingProperties]);
+  useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+  useEffect(() => {
+    snapRef.current = snap;
+  }, [snap]);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+  useEffect(() => {
+    pendingPropsRef.current = pendingProperties;
+  }, [pendingProperties]);
 
   const DEFAULT_COLORS: Record<ShapeType, { fill: string; stroke: string }> = {
     select: { fill: 'transparent', stroke: 'transparent' },
@@ -139,7 +147,12 @@ export function useTools(
           shape = { ...baseShape, type: 'line', points: [0, 0, 0, 0] } as LineShape;
           break;
         case 'arrow':
-          shape = { ...baseShape, type: 'arrow', points: [0, 0, 0, 0], headSize: 'medium' } as ArrowShape;
+          shape = {
+            ...baseShape,
+            type: 'arrow',
+            points: [0, 0, 0, 0],
+            headSize: 'medium',
+          } as ArrowShape;
           break;
         case 'pen':
           shape = { ...baseShape, type: 'pen', points: [0, 0], tension: 0.5 } as PenShape;
@@ -162,7 +175,7 @@ export function useTools(
       }
     },
     // Only re-create when the active tool changes; viewport/snap/state via refs
-    [activeTool],
+    [activeTool]
   );
 
   const handleMouseMove = useCallback(
@@ -170,7 +183,7 @@ export function useTools(
       if (!newShapeRef.current) return;
 
       // Ignore multi-touch for drawing
-      if ('touches' in e.evt && (e.evt as any).touches.length > 1) return;
+      if ('touches' in e.evt && e.evt.touches.length > 1) return;
 
       const stage = e.target.getStage();
       if (!stage) return;
@@ -228,7 +241,7 @@ export function useTools(
       setNewShape(updated);
     },
     // Only depends on activeTool; all other state via refs/closures
-    [activeTool],
+    [activeTool]
   );
 
   const handleMouseUp = useCallback(() => {

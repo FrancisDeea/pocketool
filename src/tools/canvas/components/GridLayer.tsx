@@ -1,7 +1,7 @@
-import { Layer, Shape } from "react-konva";
-import { useStore } from "@nanostores/react";
-import { $theme } from "@/stores/theme";
-import type { ViewportState } from "../types";
+import { Layer, Shape } from 'react-konva';
+import { useStore } from '@nanostores/react';
+import { $theme } from '@/stores/theme';
+import type { ViewportState } from '../types';
 
 interface GridLayerProps {
   viewport: ViewportState;
@@ -17,10 +17,16 @@ interface GridLayerProps {
  * ensuring pixel-perfect sharpness at any zoom level.
  * Also renders a crosshair at world origin (0,0) as a permanent reference.
  */
-export function GridLayer({ viewport, width, height, isVisible = true, showOrigin = true }: GridLayerProps) {
+export function GridLayer({
+  viewport,
+  width,
+  height,
+  isVisible = true,
+  showOrigin = true,
+}: GridLayerProps) {
   const theme = useStore($theme);
-  const isDark = theme.includes("dark");
-  const isHC = theme.includes("-hc");
+  const isDark = theme.includes('dark');
+  const isHC = theme.includes('-hc');
 
   const isZoomedOut = viewport.scale < 0.6;
 
@@ -92,8 +98,8 @@ export function GridLayer({ viewport, width, height, isVisible = true, showOrigi
           if (showOrigin) {
             // Infinite light green cross at world (0, 0)
             const crossColor = isDark
-              ? "rgba(74, 222, 128, 0.45)" // Light green (green-400 equivalent)
-              : "rgba(34, 197, 94, 0.45)"; // Slightly darker green for light mode
+              ? 'rgba(74, 222, 128, 0.45)' // Light green (green-400 equivalent)
+              : 'rgba(34, 197, 94, 0.45)'; // Slightly darker green for light mode
 
             context.beginPath();
             context.strokeStyle = crossColor;
@@ -119,4 +125,3 @@ export function GridLayer({ viewport, width, height, isVisible = true, showOrigi
     </Layer>
   );
 }
-

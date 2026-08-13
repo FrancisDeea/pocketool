@@ -146,14 +146,10 @@ function ClaimRow({ label, value }: { label: string; value: unknown }) {
     <div className="flex flex-col gap-0.5 py-1.5 border-b border-border last:border-0">
       <div className="flex items-center gap-2">
         <span className="text-xs font-mono font-semibold text-accent">{label}</span>
-        {description && (
-          <span className="text-[10px] text-text-tertiary">{description}</span>
-        )}
+        {description && <span className="text-[10px] text-text-tertiary">{description}</span>}
       </div>
       <span className="text-xs font-mono text-text-primary break-all">
-        {isTs
-          ? `${String(value)} → ${formatTimestamp(value as number)}`
-          : JSON.stringify(value)}
+        {isTs ? `${String(value)} → ${formatTimestamp(value as number)}` : JSON.stringify(value)}
       </span>
     </div>
   );
@@ -194,10 +190,7 @@ function Section({
 }
 
 export default function JwtDecoder() {
-  const savedToken = useLiveQuery(
-    () => db.toolStates.get('tool:jwt-decoder:last-token'),
-    [],
-  );
+  const savedToken = useLiveQuery(() => db.toolStates.get('tool:jwt-decoder:last-token'), []);
 
   const [token, setToken] = useState('');
   const [tokenLoaded, setTokenLoaded] = useState(false);
@@ -205,14 +198,9 @@ export default function JwtDecoder() {
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const history = useLiveQuery(
-    () =>
-      db.toolHistory
-        .where('toolId')
-        .equals('jwt-decoder')
-        .reverse()
-        .sortBy('timestamp'),
+    () => db.toolHistory.where('toolId').equals('jwt-decoder').reverse().sortBy('timestamp'),
     [],
-    [],
+    []
   );
 
   useEffect(() => {
@@ -240,10 +228,7 @@ export default function JwtDecoder() {
 
   const decoded = useMemo(() => parseJwt(token), [token]);
 
-  const status = useMemo(
-    () => (decoded.ok ? getTokenStatus(decoded.payload) : null),
-    [decoded],
-  );
+  const status = useMemo(() => (decoded.ok ? getTokenStatus(decoded.payload) : null), [decoded]);
 
   const handleCopy = useCallback(
     async (section: CopiedSection) => {
@@ -256,7 +241,7 @@ export default function JwtDecoder() {
       setCopied(section);
       setTimeout(() => setCopied(null), 2000);
     },
-    [decoded],
+    [decoded]
   );
 
   const handleClear = useCallback(async () => {
@@ -392,7 +377,7 @@ export default function JwtDecoder() {
 
               {/* Claim annotations */}
               {Object.keys(decoded.payload).some(
-                (k) => getClaimDescription(k) !== null || isTimestampClaim(k),
+                (k) => getClaimDescription(k) !== null || isTimestampClaim(k)
               ) && (
                 <div className="rounded-xl bg-surface border border-border overflow-hidden">
                   <div className="px-4 py-2 border-b border-border">
@@ -402,9 +387,7 @@ export default function JwtDecoder() {
                   </div>
                   <div className="px-4 py-2">
                     {Object.entries(decoded.payload)
-                      .filter(
-                        ([k]) => getClaimDescription(k) !== null || isTimestampClaim(k),
-                      )
+                      .filter(([k]) => getClaimDescription(k) !== null || isTimestampClaim(k))
                       .map(([k, v]) => (
                         <ClaimRow key={k} label={k} value={v} />
                       ))}

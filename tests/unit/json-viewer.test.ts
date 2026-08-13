@@ -30,11 +30,7 @@ function countNodes(data: unknown): number {
   return count;
 }
 
-function searchJson(
-  data: unknown,
-  query: string,
-  path = '',
-): string[] {
+function searchJson(data: unknown, query: string, path = ''): string[] {
   const results: string[] = [];
   const q = query.toLowerCase();
 

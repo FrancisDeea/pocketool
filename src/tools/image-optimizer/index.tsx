@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from 'react';
 import {
   Download,
   Loader2,
@@ -8,21 +8,21 @@ import {
   RefreshCw,
   Lock,
   Unlock,
-} from "lucide-react";
-import Button from "@ui/Button";
-import Badge from "@ui/Badge";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/db";
-import CanvasComparison from "./components/CanvasComparison";
+} from 'lucide-react';
+import Button from '@ui/Button';
+import Badge from '@ui/Badge';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/db';
+import CanvasComparison from './components/CanvasComparison';
 
 // Preferences stored in Dexie
 interface ImagePreferences {
-  format: "webp" | "jpeg" | "png";
+  format: 'webp' | 'jpeg' | 'png';
   quality: number;
 }
 
 const DEFAULT_PREFS: ImagePreferences = {
-  format: "webp",
+  format: 'webp',
   quality: 80,
 };
 
@@ -31,20 +31,17 @@ type PipelineState = {
   url: string;
   width: number;
   height: number;
-  format: "webp" | "jpeg" | "png";
+  format: 'webp' | 'jpeg' | 'png';
   quality: number;
 };
 
 export default function ImageOptimizer() {
-  const prefsRecord = useLiveQuery(() =>
-    db.toolStates.get("tool:image-optimizer:preferences"),
-  );
-  const prefs: ImagePreferences =
-    (prefsRecord?.content as ImagePreferences) ?? DEFAULT_PREFS;
+  const prefsRecord = useLiveQuery(() => db.toolStates.get('tool:image-optimizer:preferences'));
+  const prefs: ImagePreferences = (prefsRecord?.content as ImagePreferences) ?? DEFAULT_PREFS;
 
   const updatePrefs = (newPrefs: Partial<ImagePreferences>) => {
     db.toolStates.put({
-      id: "tool:image-optimizer:preferences",
+      id: 'tool:image-optimizer:preferences',
       content: { ...prefs, ...newPrefs },
       updatedAt: Date.now(),
     });
@@ -73,48 +70,33 @@ export default function ImageOptimizer() {
 
     const img = new Image();
     img.src = url;
-    img.onload = () =>
-      setOriginalDimensions({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onload = () => setOriginalDimensions({ w: img.naturalWidth, h: img.naturalHeight });
   }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       const f = e.dataTransfer.files[0];
-      if (f && f.type.startsWith("image/")) {
+      if (f && f.type.startsWith('image/')) {
         handleFile(f);
       }
     },
-    [handleFile],
+    [handleFile]
   );
 
   const handleWidthChange = (val: string) => {
     const w = val ? Number(val) : undefined;
     setLocalWidth(w);
-    if (
-      w &&
-      localMaintainRatio &&
-      originalDimensions.h &&
-      originalDimensions.w
-    ) {
-      setLocalHeight(
-        Math.round(w * (originalDimensions.h / originalDimensions.w)),
-      );
+    if (w && localMaintainRatio && originalDimensions.h && originalDimensions.w) {
+      setLocalHeight(Math.round(w * (originalDimensions.h / originalDimensions.w)));
     }
   };
 
   const handleHeightChange = (val: string) => {
     const h = val ? Number(val) : undefined;
     setLocalHeight(h);
-    if (
-      h &&
-      localMaintainRatio &&
-      originalDimensions.h &&
-      originalDimensions.w
-    ) {
-      setLocalWidth(
-        Math.round(h * (originalDimensions.w / originalDimensions.h)),
-      );
+    if (h && localMaintainRatio && originalDimensions.h && originalDimensions.w) {
+      setLocalWidth(Math.round(h * (originalDimensions.w / originalDimensions.h)));
     }
   };
 
@@ -129,28 +111,28 @@ export default function ImageOptimizer() {
     targetW: number,
     targetH: number,
     mime: string,
-    quality?: number,
+    quality?: number
   ): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement("canvas");
+        const canvas = document.createElement('canvas');
         canvas.width = targetW;
         canvas.height = targetH;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return reject(new Error("No canvas context"));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject(new Error('No canvas context'));
 
         ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, targetW, targetH);
 
         canvas.toBlob(
           (blob) => {
             if (blob) resolve(blob);
-            else reject(new Error("Canvas export failed"));
+            else reject(new Error('Canvas export failed'));
           },
           mime,
-          quality,
+          quality
         );
       };
       img.onerror = reject;
@@ -166,21 +148,15 @@ export default function ImageOptimizer() {
       const targetW = localWidth || originalDimensions.w;
       const targetH = localHeight || originalDimensions.h;
       const mime =
-        prefs.format === "png"
-          ? "image/png"
-          : prefs.format === "jpeg"
-            ? "image/jpeg"
+        prefs.format === 'png'
+          ? 'image/png'
+          : prefs.format === 'jpeg'
+            ? 'image/jpeg'
             : `image/${prefs.format}`;
-      const quality = prefs.format === "png" ? undefined : prefs.quality / 100;
+      const quality = prefs.format === 'png' ? undefined : prefs.quality / 100;
 
       // Single operation from original
-      const blob = await performCanvasOp(
-        originalUrl,
-        targetW,
-        targetH,
-        mime,
-        quality,
-      );
+      const blob = await performCanvasOp(originalUrl, targetW, targetH, mime, quality);
 
       const url = URL.createObjectURL(blob);
       if (pipeline?.url) URL.revokeObjectURL(pipeline.url);
@@ -203,9 +179,8 @@ export default function ImageOptimizer() {
   const handleDownload = useCallback(() => {
     if (!pipeline?.blob || !file) return;
 
-    const originalName =
-      file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
-    const a = document.createElement("a");
+    const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    const a = document.createElement('a');
     a.href = pipeline.url;
     a.download = `${originalName}-pocketool.${pipeline.format}`;
     a.click();
@@ -228,9 +203,7 @@ export default function ImageOptimizer() {
   };
 
   const savings =
-    file && pipeline?.blob
-      ? ((1 - pipeline.blob.size / file.size) * 100).toFixed(1)
-      : null;
+    file && pipeline?.blob ? ((1 - pipeline.blob.size / file.size) * 100).toFixed(1) : null;
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 h-[calc(100dvh-var(--topbar-height)-3rem)]">
@@ -248,12 +221,10 @@ export default function ImageOptimizer() {
 
               <div className="flex gap-2 items-end mb-4">
                 <div className="flex-1">
-                  <label className="text-xs text-text-tertiary block mb-1">
-                    Ancho (px)
-                  </label>
+                  <label className="text-xs text-text-tertiary block mb-1">Ancho (px)</label>
                   <input
                     type="number"
-                    value={localWidth || ""}
+                    value={localWidth || ''}
                     onChange={(e) => handleWidthChange(e.target.value)}
                     placeholder="Original"
                     className="w-full px-3 py-1.5 bg-surface-hover border border-border rounded-md text-sm outline-none focus:border-accent"
@@ -263,29 +234,19 @@ export default function ImageOptimizer() {
                   <button
                     onClick={() => setLocalMaintainRatio(!localMaintainRatio)}
                     className={[
-                      "p-1.5 rounded-md hover:bg-surface-hover transition-colors",
-                      localMaintainRatio ? "text-accent" : "text-text-tertiary",
-                    ].join(" ")}
-                    title={
-                      localMaintainRatio
-                        ? "Desbloquear proporción"
-                        : "Bloquear proporción"
-                    }
+                      'p-1.5 rounded-md hover:bg-surface-hover transition-colors',
+                      localMaintainRatio ? 'text-accent' : 'text-text-tertiary',
+                    ].join(' ')}
+                    title={localMaintainRatio ? 'Desbloquear proporción' : 'Bloquear proporción'}
                   >
-                    {localMaintainRatio ? (
-                      <Lock size={14} />
-                    ) : (
-                      <Unlock size={14} />
-                    )}
+                    {localMaintainRatio ? <Lock size={14} /> : <Unlock size={14} />}
                   </button>
                 </div>
                 <div className="flex-1">
-                  <label className="text-xs text-text-tertiary block mb-1">
-                    Alto (px)
-                  </label>
+                  <label className="text-xs text-text-tertiary block mb-1">Alto (px)</label>
                   <input
                     type="number"
-                    value={localHeight || ""}
+                    value={localHeight || ''}
                     onChange={(e) => handleHeightChange(e.target.value)}
                     placeholder="Original"
                     className="w-full px-3 py-1.5 bg-surface-hover border border-border rounded-md text-sm outline-none focus:border-accent"
@@ -314,44 +275,36 @@ export default function ImageOptimizer() {
                 </span>
               </div>
 
-              <label className="text-xs text-text-tertiary block mb-1">
-                Formato de Salida
-              </label>
+              <label className="text-xs text-text-tertiary block mb-1">Formato de Salida</label>
               <div className="flex gap-1 mb-4">
-                {(["webp", "jpeg", "png"] as const).map((f) => (
+                {(['webp', 'jpeg', 'png'] as const).map((f) => (
                   <button
                     key={f}
                     onClick={() => updatePrefs({ format: f })}
                     className={[
-                      "px-2 py-1 text-xs font-medium rounded-md w-full",
+                      'px-2 py-1 text-xs font-medium rounded-md w-full',
                       prefs.format === f
-                        ? "bg-accent text-white"
-                        : "bg-surface-hover text-text-secondary",
-                    ].join(" ")}
+                        ? 'bg-accent text-white'
+                        : 'bg-surface-hover text-text-secondary',
+                    ].join(' ')}
                   >
                     {f.toUpperCase()}
                   </button>
                 ))}
               </div>
 
-              {prefs.format !== "png" && (
+              {prefs.format !== 'png' && (
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs text-text-tertiary">
-                      Calidad
-                    </label>
-                    <span className="text-xs text-text-primary font-mono">
-                      {prefs.quality}%
-                    </span>
+                    <label className="text-xs text-text-tertiary">Calidad</label>
+                    <span className="text-xs text-text-primary font-mono">{prefs.quality}%</span>
                   </div>
                   <input
                     type="range"
                     min="1"
                     max="100"
                     value={prefs.quality}
-                    onChange={(e) =>
-                      updatePrefs({ quality: Number(e.target.value) })
-                    }
+                    onChange={(e) => updatePrefs({ quality: Number(e.target.value) })}
                     className="w-full accent-accent"
                   />
                 </div>
@@ -397,12 +350,10 @@ export default function ImageOptimizer() {
       {/* Main Canvas Area */}
       <div
         className={[
-          "flex-1 relative rounded-xl border border-border bg-surface-hover overflow-hidden flex flex-col min-h-[400px] transition-all duration-200",
-          isDragging
-            ? "ring-2 ring-accent ring-inset bg-accent-muted/10 scale-[0.99]"
-            : "",
-          !file ? "cursor-pointer hover:bg-surface" : "",
-        ].join(" ")}
+          'flex-1 relative rounded-xl border border-border bg-surface-hover overflow-hidden flex flex-col min-h-[400px] transition-all duration-200',
+          isDragging ? 'ring-2 ring-accent ring-inset bg-accent-muted/10 scale-[0.99]' : '',
+          !file ? 'cursor-pointer hover:bg-surface' : '',
+        ].join(' ')}
         onClick={() => !file && inputRef.current?.click()}
         onDrop={(e) => {
           setIsDragging(false);
@@ -414,10 +365,7 @@ export default function ImageOptimizer() {
         }}
         onDragLeave={() => setIsDragging(false)}
       >
-        <CanvasComparison
-          originalUrl={originalUrl}
-          processedUrl={pipeline?.url || null}
-        />
+        <CanvasComparison originalUrl={originalUrl} processedUrl={pipeline?.url || null} />
 
         <input
           ref={inputRef}
@@ -440,19 +388,14 @@ export default function ImageOptimizer() {
             {pipeline?.url && (
               <div className="flex flex-col gap-2 items-end pointer-events-auto">
                 <div className="flex gap-2">
-                  {savings && Number(savings) > 0 && (
-                    <Badge variant="success">-{savings}%</Badge>
-                  )}
-                  <Badge variant="accent">
-                    Optimizada: {formatSize(pipeline.blob.size)}
-                  </Badge>
+                  {savings && Number(savings) > 0 && <Badge variant="success">-{savings}%</Badge>}
+                  <Badge variant="accent">Optimizada: {formatSize(pipeline.blob.size)}</Badge>
                 </div>
                 <span className="text-xs px-2 py-1 bg-surface/80 rounded-md shadow-sm border border-border w-fit font-mono backdrop-blur-md">
                   {pipeline.width} x {pipeline.height} px
                 </span>
                 <span className="text-xs text-accent mt-1 drop-shadow-md">
-                  Pipeline: Resize ➔ Compress {pipeline.format.toUpperCase()} (
-                  {pipeline.quality}%)
+                  Pipeline: Resize ➔ Compress {pipeline.format.toUpperCase()} ({pipeline.quality}%)
                 </span>
               </div>
             )}

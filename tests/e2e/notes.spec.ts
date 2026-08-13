@@ -22,8 +22,6 @@ test.describe('Quick Notes', () => {
 
   test('shows empty state when no notes', async ({ page }) => {
     // On a fresh page, the empty state should show
-    await expect(
-      page.getByText(/No hay notas aún|Selecciona o crea una nota/),
-    ).toBeVisible();
+    await expect(page.getByText(/No hay notas aún|Selecciona o crea una nota/)).toBeVisible();
   });
 });

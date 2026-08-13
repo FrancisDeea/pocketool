@@ -4,12 +4,8 @@ import { db, addToolHistory } from '@/db';
 import type { CanvasState } from '../types';
 
 export function useVersions() {
-  const versions = useLiveQuery(() => 
-    db.toolHistory
-      .where('toolId')
-      .equals('canvas')
-      .reverse()
-      .sortBy('timestamp'),
+  const versions = useLiveQuery(
+    () => db.toolHistory.where('toolId').equals('canvas').reverse().sortBy('timestamp'),
     []
   );
 
@@ -26,7 +22,7 @@ export function useVersions() {
     const version = await db.toolHistory.get(id);
     if (version) {
       await db.toolHistory.update(id, {
-        data: { ...(version.data as any), name: newName }
+        data: { ...(version.data as { state: CanvasState }), name: newName },
       });
     }
   }, []);
@@ -35,6 +31,6 @@ export function useVersions() {
     versions: versions || [],
     saveVersion,
     deleteVersion,
-    renameVersion
+    renameVersion,
   };
 }

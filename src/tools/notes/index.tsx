@@ -1,13 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import {
-  Plus,
-  Search,
-  Trash2,
-  Tag,
-  X,
-  StickyNote,
-  Clock,
-} from 'lucide-react';
+import { Plus, Search, Trash2, Tag, X, StickyNote, Clock } from 'lucide-react';
 import Button from '@ui/Button';
 import ScrollArea from '@ui/ScrollArea';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -28,11 +20,7 @@ function formatDate(ts: number): string {
 
 export default function Notes() {
   // Reactive query — automatically re-renders when DB changes
-  const notes = useLiveQuery(
-    () => db.notes.orderBy('updatedAt').reverse().toArray(),
-    [],
-    [],
-  );
+  const notes = useLiveQuery(() => db.notes.orderBy('updatedAt').reverse().toArray(), [], []);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,7 +29,7 @@ export default function Notes() {
 
   const selectedNote = useMemo(
     () => notes.find((n) => n.id === selectedId) ?? null,
-    [notes, selectedId],
+    [notes, selectedId]
   );
 
   const allTags = useMemo(() => {
@@ -55,9 +43,7 @@ export default function Notes() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (n) =>
-          n.title.toLowerCase().includes(q) ||
-          n.content.toLowerCase().includes(q),
+        (n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
       );
     }
     if (filterTag) {
@@ -89,7 +75,7 @@ export default function Notes() {
         await db.notes.update(selectedId, { content: value, updatedAt: Date.now() });
       }
     },
-    [selectedId],
+    [selectedId]
   );
 
   const handleDelete = useCallback(
@@ -97,7 +83,7 @@ export default function Notes() {
       await db.notes.delete(id);
       if (selectedId === id) setSelectedId(null);
     },
-    [selectedId],
+    [selectedId]
   );
 
   const handleAddTag = useCallback(async () => {
@@ -122,7 +108,7 @@ export default function Notes() {
         updatedAt: Date.now(),
       });
     },
-    [selectedId, selectedNote],
+    [selectedId, selectedNote]
   );
 
   return (
@@ -189,14 +175,9 @@ export default function Notes() {
           <div className="space-y-1 pr-1">
             {filteredNotes.length === 0 && (
               <div className="text-center py-12">
-                <StickyNote
-                  size={32}
-                  className="mx-auto text-text-tertiary mb-3"
-                />
+                <StickyNote size={32} className="mx-auto text-text-tertiary mb-3" />
                 <p className="text-sm text-text-tertiary">
-                  {notes.length === 0
-                    ? 'No hay notas aún. ¡Crea una!'
-                    : 'Sin resultados'}
+                  {notes.length === 0 ? 'No hay notas aún. ¡Crea una!' : 'Sin resultados'}
                 </p>
               </div>
             )}
@@ -309,17 +290,10 @@ export default function Notes() {
           <div className="flex-1 flex items-center justify-center animate-fade-in">
             <div className="text-center">
               <div className="w-20 h-20 bg-surface rounded-3xl border border-border flex items-center justify-center mx-auto mb-6 shadow-sm">
-                <StickyNote
-                  size={40}
-                  className="text-text-tertiary opacity-40"
-                />
+                <StickyNote size={40} className="text-text-tertiary opacity-40" />
               </div>
-              <p className="text-text-secondary font-medium">
-                Selecciona una nota para editar
-              </p>
-              <p className="text-xs text-text-tertiary mt-2">
-                O crea una nueva para empezar
-              </p>
+              <p className="text-text-secondary font-medium">Selecciona una nota para editar</p>
+              <p className="text-xs text-text-tertiary mt-2">O crea una nueva para empezar</p>
             </div>
           </div>
         )}

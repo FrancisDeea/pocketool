@@ -1,15 +1,6 @@
 import Button from '@/components/ui/Button';
-import {
-  Bold,
-  Italic,
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Minus,
-  Plus,
-  X,
-} from 'lucide-react';
-import type { Shape } from '../types';
+import { Bold, Italic, AlignCenter, AlignLeft, AlignRight, Minus, Plus, X } from 'lucide-react';
+import type { ArrowShape, Shape, TextShape } from '../types';
 
 interface PropertiesPanelProps {
   selectedShapes: Shape[];
@@ -50,7 +41,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
 
       {/* Fill */}
       <div className="flex items-center gap-2 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Fill</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          Fill
+        </label>
         <div className="relative h-7 w-7 overflow-hidden rounded-md border border-border cursor-pointer">
           <input
             type="color"
@@ -69,7 +62,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
 
       {/* Stroke */}
       <div className="flex items-center gap-2 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Stroke</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          Stroke
+        </label>
         <div className="relative h-7 w-7 overflow-hidden rounded-md border border-border cursor-pointer">
           <input
             type="color"
@@ -88,7 +83,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
 
       {/* Stroke Width */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">W</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          W
+        </label>
         <Button
           variant="ghost"
           size="sm"
@@ -114,7 +111,9 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
 
       {/* Opacity */}
       <div className="flex items-center gap-2 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Opacity</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          Opacity
+        </label>
         <input
           type="range"
           min={0}
@@ -133,14 +132,16 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
         <>
           <div className="h-6 w-px bg-border/70 shrink-0" />
           <div className="flex items-center gap-1.5 shrink-0">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Head</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+              Head
+            </label>
             {(['small', 'medium', 'large'] as const).map((sz) => (
               <Button
                 key={sz}
-                variant={(first as any).headSize === sz ? 'primary' : 'ghost'}
+                variant={first.headSize === sz ? 'primary' : 'ghost'}
                 size="sm"
                 className="h-7 w-7 p-0 text-[10px] font-bold"
-                onClick={() => onUpdate({ headSize: sz } as any)}
+                onClick={() => onUpdate({ headSize: sz } satisfies Partial<ArrowShape>)}
               >
                 {sz[0].toUpperCase()}
               </Button>
@@ -155,29 +156,29 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
           <div className="h-6 w-px bg-border/70 shrink-0" />
           <div className="flex items-center gap-1 shrink-0">
             <Button
-              variant={(first as any).fontStyle?.includes('bold') ? 'primary' : 'ghost'}
+              variant={first.fontStyle?.includes('bold') ? 'primary' : 'ghost'}
               size="sm"
               className="h-7 w-7 p-0"
               onClick={() =>
                 onUpdate({
-                  fontStyle: (first as any).fontStyle?.includes('bold')
-                    ? (first as any).fontStyle.replace('bold', '').trim()
-                    : `${(first as any).fontStyle} bold`.trim(),
-                })
+                  fontStyle: first.fontStyle?.includes('bold')
+                    ? first.fontStyle.replace('bold', '').trim()
+                    : `${first.fontStyle} bold`.trim(),
+                } satisfies Partial<TextShape>)
               }
             >
               <Bold size={14} />
             </Button>
             <Button
-              variant={(first as any).fontStyle?.includes('italic') ? 'primary' : 'ghost'}
+              variant={first.fontStyle?.includes('italic') ? 'primary' : 'ghost'}
               size="sm"
               className="h-7 w-7 p-0"
               onClick={() =>
                 onUpdate({
-                  fontStyle: (first as any).fontStyle?.includes('italic')
-                    ? (first as any).fontStyle.replace('italic', '').trim()
-                    : `${(first as any).fontStyle} italic`.trim(),
-                })
+                  fontStyle: first.fontStyle?.includes('italic')
+                    ? first.fontStyle.replace('italic', '').trim()
+                    : `${first.fontStyle} italic`.trim(),
+                } satisfies Partial<TextShape>)
               }
             >
               <Italic size={14} />
@@ -186,26 +187,26 @@ export function PropertiesPanel({ selectedShapes, onUpdate, onClose }: Propertie
           <div className="h-6 w-px bg-border/70 shrink-0" />
           <div className="flex items-center gap-1 shrink-0">
             <Button
-              variant={(first as any).align === 'left' ? 'primary' : 'ghost'}
+              variant={first.align === 'left' ? 'primary' : 'ghost'}
               size="sm"
               className="h-7 w-7 p-0"
-              onClick={() => onUpdate({ align: 'left' } as any)}
+              onClick={() => onUpdate({ align: 'left' } satisfies Partial<TextShape>)}
             >
               <AlignLeft size={14} />
             </Button>
             <Button
-              variant={(first as any).align === 'center' ? 'primary' : 'ghost'}
+              variant={first.align === 'center' ? 'primary' : 'ghost'}
               size="sm"
               className="h-7 w-7 p-0"
-              onClick={() => onUpdate({ align: 'center' } as any)}
+              onClick={() => onUpdate({ align: 'center' } satisfies Partial<TextShape>)}
             >
               <AlignCenter size={14} />
             </Button>
             <Button
-              variant={(first as any).align === 'right' ? 'primary' : 'ghost'}
+              variant={first.align === 'right' ? 'primary' : 'ghost'}
               size="sm"
               className="h-7 w-7 p-0"
-              onClick={() => onUpdate({ align: 'right' } as any)}
+              onClick={() => onUpdate({ align: 'right' } satisfies Partial<TextShape>)}
             >
               <AlignRight size={14} />
             </Button>

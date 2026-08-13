@@ -14,7 +14,7 @@ export function useHistory(initialState: CanvasState) {
   indexRef.current = index;
 
   const pushState = useCallback((state: CanvasState) => {
-    setHistory(prev => {
+    setHistory((prev) => {
       const currentIndex = indexRef.current;
       const current = prev[currentIndex];
 
@@ -44,14 +44,14 @@ export function useHistory(initialState: CanvasState) {
   }, []);
 
   const undo = useCallback(() => {
-    setIndex(prev => {
+    setIndex((prev) => {
       if (prev <= 0) return prev;
       return prev - 1;
     });
   }, []);
 
   const redo = useCallback(() => {
-    setIndex(prev => {
+    setIndex((prev) => {
       if (prev >= historyRef.current.length - 1) return prev;
       return prev + 1;
     });

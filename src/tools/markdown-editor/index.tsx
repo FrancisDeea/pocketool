@@ -59,10 +59,7 @@ export default function MarkdownEditor() {
   const isDark = theme.includes('dark');
 
   // Load persisted content from Dexie
-  const savedContent = useLiveQuery(
-    () => db.toolStates.get('tool:markdown-editor:content'),
-    [],
-  );
+  const savedContent = useLiveQuery(() => db.toolStates.get('tool:markdown-editor:content'), []);
   const [content, setContent] = useState(DEFAULT_MARKDOWN);
   const [contentLoaded, setContentLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -71,14 +68,9 @@ export default function MarkdownEditor() {
 
   // History entries
   const history = useLiveQuery(
-    () =>
-      db.toolHistory
-        .where('toolId')
-        .equals('markdown-editor')
-        .reverse()
-        .sortBy('timestamp'),
+    () => db.toolHistory.where('toolId').equals('markdown-editor').reverse().sortBy('timestamp'),
     [],
-    [],
+    []
   );
 
   // Load saved content once
@@ -141,8 +133,7 @@ export default function MarkdownEditor() {
   useEffect(() => {
     if (!previewRef.current) return;
 
-    const mermaidBlocks =
-      previewRef.current.querySelectorAll('code.language-mermaid');
+    const mermaidBlocks = previewRef.current.querySelectorAll('code.language-mermaid');
     if (mermaidBlocks.length === 0) return;
 
     let isStale = false;
@@ -161,14 +152,14 @@ export default function MarkdownEditor() {
 
         // Create container while keeping the pre hidden during render
         pre.style.display = 'none';
-        
+
         try {
           const { svg } = await mermaid.render(
             `mermaid-${Date.now()}-${idx}`,
-            block.textContent ?? '',
+            block.textContent ?? ''
           );
           if (isStale) return; // Drop if another keypress happened
-          
+
           const container = document.createElement('div');
           container.className = 'mermaid-container my-4 flex justify-center';
           container.innerHTML = svg;
@@ -248,7 +239,9 @@ ${html}
               disabled={history.length === 0}
               className={[
                 'p-1 rounded text-text-tertiary transition-colors cursor-pointer',
-                history.length > 0 ? 'hover:text-text-primary hover:bg-surface-hover' : 'opacity-40',
+                history.length > 0
+                  ? 'hover:text-text-primary hover:bg-surface-hover'
+                  : 'opacity-40',
               ].join(' ')}
               title="Historial"
             >
@@ -272,7 +265,12 @@ ${html}
                       >
                         <span className="font-mono">{preview}…</span>
                         <span className="block text-[10px] text-text-tertiary mt-0.5">
-                          {new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(entry.timestamp))}
+                          {new Intl.DateTimeFormat('es', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }).format(new Date(entry.timestamp))}
                         </span>
                       </button>
                     );
@@ -334,7 +332,7 @@ ${html}
                 ref={previewRef}
                 className={[
                   'h-full overflow-auto p-4 rounded-xl bg-surface border border-border prose prose-sm max-w-none',
-                  isDark ? 'prose-invert' : ''
+                  isDark ? 'prose-invert' : '',
                 ].join(' ')}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
@@ -360,7 +358,7 @@ ${html}
             ref={previewRef}
             className={[
               'flex-1 overflow-auto p-6 rounded-xl bg-surface border border-border prose prose-sm max-w-none',
-              isDark ? 'prose-invert' : ''
+              isDark ? 'prose-invert' : '',
             ].join(' ')}
             dangerouslySetInnerHTML={{ __html: html }}
           />

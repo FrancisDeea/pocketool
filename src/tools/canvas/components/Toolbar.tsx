@@ -6,9 +6,9 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@/components/ui/DropdownMenu";
-import Button from "@/components/ui/Button";
-import Tooltip from "@/components/ui/Tooltip";
+} from '@/components/ui/DropdownMenu';
+import Button from '@/components/ui/Button';
+import Tooltip from '@/components/ui/Tooltip';
 import {
   MousePointer2,
   Square,
@@ -28,7 +28,6 @@ import {
   Minus,
   Save,
   History,
-  Download,
   Upload,
   FileJson,
   Trash2,
@@ -36,9 +35,9 @@ import {
   ChevronDown,
   Share2,
   Camera,
-} from "lucide-react";
-import type { ShapeType } from "../types";
-import { t } from "@/utils/i18n";
+} from 'lucide-react';
+import type { ShapeType } from '../types';
+import { t } from '@/utils/i18n';
 
 interface ToolbarProps {
   activeTool: ShapeType;
@@ -96,42 +95,38 @@ export function Toolbar({
   };
 
   const selectionTools = [
-    { id: "select", icon: MousePointer2, label: "Select", shortcut: "V" },
-    { id: "pan", icon: Hand, label: "Pan", shortcut: "H" },
+    { id: 'select', icon: MousePointer2, label: 'Select', shortcut: 'V' },
+    { id: 'pan', icon: Hand, label: 'Pan', shortcut: 'H' },
   ];
 
   const shapeTools = [
-    { id: "rect", icon: Square, label: "Rectangle", shortcut: "R" },
-    { id: "ellipse", icon: Circle, label: "Ellipse", shortcut: "E" },
-    { id: "triangle", icon: Triangle, label: "Triangle", shortcut: "T" },
+    { id: 'rect', icon: Square, label: 'Rectangle', shortcut: 'R' },
+    { id: 'ellipse', icon: Circle, label: 'Ellipse', shortcut: 'E' },
+    { id: 'triangle', icon: Triangle, label: 'Triangle', shortcut: 'T' },
   ];
 
   const lineTools = [
-    { id: "line", icon: Slash, label: "Line", shortcut: "L" },
-    { id: "arrow", icon: ArrowRight, label: "Arrow", shortcut: "A" },
+    { id: 'line', icon: Slash, label: 'Line', shortcut: 'L' },
+    { id: 'arrow', icon: ArrowRight, label: 'Arrow', shortcut: 'A' },
   ];
 
   const otherTools = [
-    { id: "connector", icon: LinkIcon, label: "Connector", shortcut: "C" },
-    { id: "pen", icon: Pencil, label: "Pen", shortcut: "P" },
-    { id: "text", icon: Type, label: "Text", shortcut: "X" },
+    { id: 'connector', icon: LinkIcon, label: 'Connector', shortcut: 'C' },
+    { id: 'pen', icon: Pencil, label: 'Pen', shortcut: 'P' },
+    { id: 'text', icon: Type, label: 'Text', shortcut: 'X' },
   ];
 
   const renderToolButton = (tool: {
     id: string;
-    icon: any;
+    icon: typeof MousePointer2;
     label: string;
     shortcut: string;
   }) => (
-    <Tooltip
-      key={tool.id}
-      content={`${tool.label} (${tool.shortcut})`}
-      side="bottom"
-    >
+    <Tooltip key={tool.id} content={`${tool.label} (${tool.shortcut})`} side="bottom">
       <Button
-        variant={activeTool === tool.id ? "primary" : "ghost"}
+        variant={activeTool === tool.id ? 'primary' : 'ghost'}
         size="sm"
-        className={activeTool === tool.id ? "" : "text-text-secondary"}
+        className={activeTool === tool.id ? '' : 'text-text-secondary'}
         onClick={() => setActiveTool(tool.id as ShapeType)}
       >
         <tool.icon size={18} />
@@ -140,7 +135,10 @@ export function Toolbar({
   );
 
   return (
-    <div className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-0.5 sm:gap-1 rounded-xl border bg-surface/80 p-1 sm:p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface max-w-[calc(100vw-2.5rem)] sm:max-w-max overflow-x-auto no-scrollbar" style={{ touchAction: 'pan-x' }}>
+    <div
+      className="absolute top-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-0.5 sm:gap-1 rounded-xl border bg-surface/80 p-1 sm:p-1.5 shadow-2xl backdrop-blur-md transition-all hover:bg-surface max-w-[calc(100vw-2.5rem)] sm:max-w-max overflow-x-auto no-scrollbar"
+      style={{ touchAction: 'pan-x' }}
+    >
       <div className="flex items-center gap-1 shrink-0">
         {/* Selection Tools */}
         {selectionTools.map(renderToolButton)}
@@ -152,22 +150,16 @@ export function Toolbar({
           <Tooltip content="Shapes" side="bottom">
             <DropdownMenuTrigger asChild>
               <Button
-                variant={
-                  shapeTools.some((t) => t.id === activeTool)
-                    ? "primary"
-                    : "ghost"
-                }
+                variant={shapeTools.some((t) => t.id === activeTool) ? 'primary' : 'ghost'}
                 size="sm"
                 className={
                   shapeTools.some((t) => t.id === activeTool)
-                    ? "gap-1 px-2"
-                    : "gap-1 px-2 text-text-secondary"
+                    ? 'gap-1 px-2'
+                    : 'gap-1 px-2 text-text-secondary'
                 }
               >
                 {(() => {
-                  const tool =
-                    shapeTools.find((t) => t.id === activeTool) ||
-                    shapeTools[0];
+                  const tool = shapeTools.find((t) => t.id === activeTool) || shapeTools[0];
                   return <tool.icon size={18} />;
                 })()}
                 <ChevronDown size={12} className="opacity-50" />
@@ -179,13 +171,11 @@ export function Toolbar({
               <DropdownMenuItem
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id as ShapeType)}
-                className={activeTool === tool.id ? "bg-surface-hover" : ""}
+                className={activeTool === tool.id ? 'bg-surface-hover' : ''}
               >
                 <tool.icon size={16} />
                 <span className="flex-1">{tool.label}</span>
-                <span className="text-[10px] opacity-50 font-mono">
-                  {tool.shortcut}
-                </span>
+                <span className="text-[10px] opacity-50 font-mono">{tool.shortcut}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -196,21 +186,16 @@ export function Toolbar({
           <Tooltip content="Lines & Arrows" side="bottom">
             <DropdownMenuTrigger asChild>
               <Button
-                variant={
-                  lineTools.some((t) => t.id === activeTool)
-                    ? "primary"
-                    : "ghost"
-                }
+                variant={lineTools.some((t) => t.id === activeTool) ? 'primary' : 'ghost'}
                 size="sm"
                 className={
                   lineTools.some((t) => t.id === activeTool)
-                    ? "gap-1 px-2"
-                    : "gap-1 px-2 text-text-secondary"
+                    ? 'gap-1 px-2'
+                    : 'gap-1 px-2 text-text-secondary'
                 }
               >
                 {(() => {
-                  const tool =
-                    lineTools.find((t) => t.id === activeTool) || lineTools[0];
+                  const tool = lineTools.find((t) => t.id === activeTool) || lineTools[0];
                   return <tool.icon size={18} />;
                 })()}
                 <ChevronDown size={12} className="opacity-50" />
@@ -222,13 +207,11 @@ export function Toolbar({
               <DropdownMenuItem
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id as ShapeType)}
-                className={activeTool === tool.id ? "bg-surface-hover" : ""}
+                className={activeTool === tool.id ? 'bg-surface-hover' : ''}
               >
                 <tool.icon size={16} />
                 <span className="flex-1">{tool.label}</span>
-                <span className="text-[10px] opacity-50 font-mono">
-                  {tool.shortcut}
-                </span>
+                <span className="text-[10px] opacity-50 font-mono">{tool.shortcut}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -243,7 +226,7 @@ export function Toolbar({
       <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
       <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-        <Tooltip content={`${translate("tools.canvas.undo", "Deshacer")} (Ctrl+Z)`} side="bottom">
+        <Tooltip content={`${translate('tools.canvas.undo', 'Deshacer')} (Ctrl+Z)`} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -255,7 +238,10 @@ export function Toolbar({
           </Button>
         </Tooltip>
 
-        <Tooltip content={`${translate("tools.canvas.redo", "Rehacer")} (Ctrl+Shift+Z)`} side="bottom">
+        <Tooltip
+          content={`${translate('tools.canvas.redo', 'Rehacer')} (Ctrl+Shift+Z)`}
+          side="bottom"
+        >
           <Button
             variant="ghost"
             size="sm"
@@ -281,19 +267,13 @@ export function Toolbar({
           </Tooltip>
           <DropdownMenuContent side="bottom" align="center">
             <DropdownMenuLabel>Grid Options</DropdownMenuLabel>
-            <DropdownMenuCheckboxItem
-              checked={showGrid}
-              onCheckedChange={setShowGrid}
-            >
+            <DropdownMenuCheckboxItem checked={showGrid} onCheckedChange={setShowGrid}>
               <div className="flex items-center gap-2">
                 <Grid size={16} />
                 <span>Show Grid</span>
               </div>
             </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showOrigin}
-              onCheckedChange={setShowOrigin}
-            >
+            <DropdownMenuCheckboxItem checked={showOrigin} onCheckedChange={setShowOrigin}>
               <div className="flex items-center gap-2">
                 <Plus size={16} />
                 <span>Show Origin</span>
@@ -302,20 +282,13 @@ export function Toolbar({
             <DropdownMenuCheckboxItem checked={snap} onCheckedChange={setSnap}>
               <div className="flex items-center gap-2">
                 <Magnet size={16} />
-                <span>{translate("tools.canvas.snapToGrid", "Snap to Grid")}</span>
+                <span>{translate('tools.canvas.snapToGrid', 'Snap to Grid')}</span>
               </div>
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>
-              Zoom: {Math.round(zoom * 100)}%
-            </DropdownMenuLabel>
+            <DropdownMenuLabel>Zoom: {Math.round(zoom * 100)}%</DropdownMenuLabel>
             <div className="flex items-center justify-between p-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={onZoomOut}
-              >
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onZoomOut}>
                 <Minus size={14} />
               </Button>
               <Button
@@ -326,12 +299,7 @@ export function Toolbar({
               >
                 Reset
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={onZoomIn}
-              >
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onZoomIn}>
                 <Plus size={14} />
               </Button>
             </div>
@@ -352,18 +320,16 @@ export function Toolbar({
       <div className="mx-0.5 h-6 w-px bg-border shrink-0" />
 
       <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-        <Tooltip content={`${translate("tools.canvas.saveVersion", "Guardar Versión")} (Ctrl+S)`} side="bottom">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-text-secondary"
-            onClick={onSaveVersion}
-          >
+        <Tooltip
+          content={`${translate('tools.canvas.saveVersion', 'Guardar Versión')} (Ctrl+S)`}
+          side="bottom"
+        >
+          <Button variant="ghost" size="sm" className="text-text-secondary" onClick={onSaveVersion}>
             <Save size={18} />
           </Button>
         </Tooltip>
 
-        <Tooltip content={translate("tools.canvas.versions", "Versiones")} side="bottom">
+        <Tooltip content={translate('tools.canvas.versions', 'Versiones')} side="bottom">
           <Button
             variant="ghost"
             size="sm"
@@ -379,7 +345,10 @@ export function Toolbar({
 
       <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
         <DropdownMenu>
-          <Tooltip content={translate("tools.canvas.importExport", "Importar/Exportar")} side="bottom">
+          <Tooltip
+            content={translate('tools.canvas.importExport', 'Importar/Exportar')}
+            side="bottom"
+          >
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-text-secondary gap-1 px-1.5">
                 <Share2 size={18} />
@@ -390,21 +359,21 @@ export function Toolbar({
           <DropdownMenuContent side="bottom" align="end" className="min-w-[160px]">
             <DropdownMenuItem onClick={onExportPng} className="gap-3">
               <Camera size={16} className="text-text-tertiary" />
-              <span>{translate("tools.canvas.exportPng", "Exportar PNG")}</span>
+              <span>{translate('tools.canvas.exportPng', 'Exportar PNG')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onExportJson} className="gap-3">
               <FileJson size={16} className="text-text-tertiary" />
-              <span>{translate("tools.canvas.exportJson", "Exportar JSON")}</span>
+              <span>{translate('tools.canvas.exportJson', 'Exportar JSON')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onImportJson} className="gap-3">
               <Upload size={16} className="text-text-tertiary" />
-              <span>{translate("tools.canvas.importJson", "Importar JSON")}</span>
+              <span>{translate('tools.canvas.importJson', 'Importar JSON')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Tooltip content={translate("tools.canvas.clear", "Limpiar")} side="bottom">
+        <Tooltip content={translate('tools.canvas.clear', 'Limpiar')} side="bottom">
           <Button
             variant="danger"
             size="sm"
