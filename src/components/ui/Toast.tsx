@@ -42,13 +42,10 @@ let toastCounter = 0;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = useCallback(
-    (type: ToastType, message: string, duration = 4000) => {
-      const id = `toast-${++toastCounter}`;
-      setToasts((prev) => [...prev, { id, type, message, duration }]);
-    },
-    [],
-  );
+  const addToast = useCallback((type: ToastType, message: string, duration = 4000) => {
+    const id = `toast-${++toastCounter}`;
+    setToasts((prev) => [...prev, { id, type, message, duration }]);
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -69,13 +66,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function ToastItem({
-  toast,
-  onDismiss,
-}: {
-  toast: Toast;
-  onDismiss: (id: string) => void;
-}) {
+function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
   const Icon = icons[toast.type];
 
   useEffect(() => {

@@ -37,13 +37,16 @@ export function findMatches(regex: RegExp, text: string): RegexMatch[] {
     let m: RegExpExecArray | null;
     let lastIndex = -1;
     while ((m = r.exec(text)) !== null) {
-      if (m.index === lastIndex) { r.lastIndex++; continue; }
+      if (m.index === lastIndex) {
+        r.lastIndex++;
+        continue;
+      }
       lastIndex = m.index;
       matches.push({
         index: m.index,
         end: m.index + m[0].length,
         value: m[0],
-        groups: m.slice(1).map(g => g ?? ''),
+        groups: m.slice(1).map((g) => g ?? ''),
       });
     }
   } else {
@@ -53,7 +56,7 @@ export function findMatches(regex: RegExp, text: string): RegexMatch[] {
         index: m.index,
         end: m.index + m[0].length,
         value: m[0],
-        groups: m.slice(1).map(g => g ?? ''),
+        groups: m.slice(1).map((g) => g ?? ''),
       });
     }
   }
@@ -130,19 +133,11 @@ export default function RegexTester() {
   };
 
   const { regex, error } = useMemo(() => parseRegex(pattern, flags), [pattern, flags]);
-  const matches = useMemo(
-    () => (regex ? findMatches(regex, testString) : []),
-    [regex, testString],
-  );
-  const segments = useMemo(
-    () => buildSegments(testString, matches),
-    [testString, matches],
-  );
+  const matches = useMemo(() => (regex ? findMatches(regex, testString) : []), [regex, testString]);
+  const segments = useMemo(() => buildSegments(testString, matches), [testString, matches]);
 
   const toggleFlag = (f: string) => {
-    const next = flags.includes(f)
-      ? flags.replace(f, '')
-      : flags + f;
+    const next = flags.includes(f) ? flags.replace(f, '') : flags + f;
     setFlags(next);
     persist({ flags: next });
   };
@@ -173,7 +168,6 @@ export default function RegexTester() {
 
   return (
     <div className="flex flex-col gap-4 h-[calc(100dvh-var(--topbar-height)-3rem)] overflow-y-auto">
-
       {/* Pattern row */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
@@ -182,14 +176,12 @@ export default function RegexTester() {
             <input
               type="text"
               value={pattern}
-              onChange={e => handlePatternChange(e.target.value)}
+              onChange={(e) => handlePatternChange(e.target.value)}
               placeholder="pattern"
               spellCheck={false}
               className={[
                 'w-full px-3 py-2 bg-surface border rounded-lg font-mono text-sm outline-none transition-colors',
-                error
-                  ? 'border-red-500 focus:border-red-500'
-                  : 'border-border focus:border-accent',
+                error ? 'border-red-500 focus:border-red-500' : 'border-border focus:border-accent',
               ].join(' ')}
             />
           </div>
@@ -222,7 +214,12 @@ export default function RegexTester() {
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Copied' : 'Copy'}
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleClear} disabled={!pattern && !testString}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClear}
+              disabled={!pattern && !testString}
+            >
               <Trash2 size={14} /> Clear
             </Button>
           </div>
@@ -242,7 +239,9 @@ export default function RegexTester() {
         {pattern && !error && (
           <>
             {matches.length > 0 ? (
-              <Badge variant="accent">{matches.length} {matches.length === 1 ? 'match' : 'matches'}</Badge>
+              <Badge variant="accent">
+                {matches.length} {matches.length === 1 ? 'match' : 'matches'}
+              </Badge>
             ) : testString ? (
               <Badge>No matches</Badge>
             ) : null}
@@ -252,7 +251,6 @@ export default function RegexTester() {
 
       {/* Main panels */}
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
-
         {/* Test string input */}
         <div className="flex-1 flex flex-col gap-2">
           <label className="text-xs font-semibold uppercase text-text-secondary tracking-widest">
@@ -260,7 +258,7 @@ export default function RegexTester() {
           </label>
           <textarea
             value={testString}
-            onChange={e => handleTestStringChange(e.target.value)}
+            onChange={(e) => handleTestStringChange(e.target.value)}
             placeholder="Paste text to test against your pattern..."
             spellCheck={false}
             className="flex-1 min-h-[180px] lg:min-h-0 w-full px-3 py-2 bg-surface border border-border rounded-lg font-mono text-sm outline-none focus:border-accent resize-none transition-colors"
@@ -273,22 +271,23 @@ export default function RegexTester() {
             Highlighted Output
           </label>
           <div className="flex-1 min-h-[180px] lg:min-h-0 px-3 py-2 bg-surface border border-border rounded-lg font-mono text-sm overflow-auto whitespace-pre-wrap break-all">
-            {testString
-              ? segments.map((seg, i) =>
-                  seg.matched ? (
-                    <mark
-                      key={i}
-                      className="bg-accent/30 text-text-primary rounded-sm px-0.5"
-                      title={`Match ${(seg.matchIndex ?? 0) + 1}`}
-                    >
-                      {seg.text}
-                    </mark>
-                  ) : (
-                    <span key={i}>{seg.text}</span>
-                  ),
+            {testString ? (
+              segments.map((seg, i) =>
+                seg.matched ? (
+                  <mark
+                    key={i}
+                    className="bg-accent/30 text-text-primary rounded-sm px-0.5"
+                    title={`Match ${(seg.matchIndex ?? 0) + 1}`}
+                  >
+                    {seg.text}
+                  </mark>
+                ) : (
+                  <span key={i}>{seg.text}</span>
                 )
-              : <span className="text-text-tertiary">Output will appear here...</span>
-            }
+              )
+            ) : (
+              <span className="text-text-tertiary">Output will appear here...</span>
+            )}
           </div>
         </div>
       </div>
@@ -306,8 +305,12 @@ export default function RegexTester() {
                 className="flex items-start gap-3 px-3 py-2 bg-surface border border-border rounded-lg text-sm font-mono"
               >
                 <span className="text-accent font-semibold w-6 shrink-0">{i + 1}</span>
-                <span className="text-text-primary break-all">{m.value || <em className="text-text-tertiary">empty string</em>}</span>
-                <span className="text-text-tertiary ml-auto shrink-0">@{m.index}–{m.end}</span>
+                <span className="text-text-primary break-all">
+                  {m.value || <em className="text-text-tertiary">empty string</em>}
+                </span>
+                <span className="text-text-tertiary ml-auto shrink-0">
+                  @{m.index}–{m.end}
+                </span>
                 {m.groups.length > 0 && (
                   <div className="flex gap-1 flex-wrap mt-1">
                     {m.groups.map((g, gi) => (

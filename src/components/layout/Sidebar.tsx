@@ -62,7 +62,7 @@ export default function Sidebar({
 
   // SSR default is false (open) to match static HTML generation
   // In mobile mode, always show expanded
-  const collapsed = isMobile ? false : (isMounted ? storeCollapsed : false);
+  const collapsed = isMobile ? false : isMounted ? storeCollapsed : false;
 
   // Mobile: full sidebar, slides in from left with animation
   if (isMobile) {
@@ -82,9 +82,7 @@ export default function Sidebar({
             <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
               <Wrench size={14} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-text-primary">
-              Pocketool
-            </span>
+            <span className="text-sm font-semibold text-text-primary">Pocketool</span>
           </a>
           <button
             onClick={onClose}
@@ -147,9 +145,7 @@ export default function Sidebar({
             <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
               <Wrench size={14} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-text-primary">
-              Pocketool
-            </span>
+            <span className="text-sm font-semibold text-text-primary">Pocketool</span>
           </a>
         )}
         <button

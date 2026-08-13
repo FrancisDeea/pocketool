@@ -12,7 +12,10 @@ test.describe('Navigation', () => {
 
   test('navigates to a tool from home page', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('link', { name: /JSON Viewer/ }).first().click();
+    await page
+      .getByRole('link', { name: /JSON Viewer/ })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/tool\/json-viewer/);
   });
 

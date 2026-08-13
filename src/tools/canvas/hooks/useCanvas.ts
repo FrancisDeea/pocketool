@@ -2,7 +2,6 @@ import { useState, useCallback, useRef } from 'react';
 import type Konva from 'konva';
 import type { ViewportState } from '../types';
 
-
 export function useCanvas() {
   // Viewport always starts at origin regardless of what's passed (no persistence)
   const [viewport, setViewport] = useState<ViewportState>({ x: 0, y: 0, scale: 1 });
@@ -22,7 +21,7 @@ export function useCanvas() {
 
     // Two-finger pan / trackpad scroll (no ctrl/meta = scroll, not pinch)
     if (!e.ctrlKey && !e.metaKey) {
-      setViewport(v => ({
+      setViewport((v) => ({
         ...v,
         x: v.x - e.deltaX,
         y: v.y - e.deltaY,
@@ -34,9 +33,12 @@ export function useCanvas() {
     const scaleBy = 1.05;
     const pointer = stage.getPointerPosition() || { x: 0, y: 0 };
 
-    setViewport(v => {
+    setViewport((v) => {
       const oldScale = v.scale;
-      const newScale = Math.max(0.1, Math.min(10, e.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy));
+      const newScale = Math.max(
+        0.1,
+        Math.min(10, e.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy)
+      );
       const mousePointTo = {
         x: (pointer.x - v.x) / oldScale,
         y: (pointer.y - v.y) / oldScale,
@@ -73,7 +75,7 @@ export function useCanvas() {
         return;
       }
 
-      setViewport(v => {
+      setViewport((v) => {
         const scaleFactor = dist / lastDist.current;
         const newScale = Math.max(0.1, Math.min(10, v.scale * scaleFactor));
 
@@ -108,7 +110,7 @@ export function useCanvas() {
   }, []);
 
   const handlePan = useCallback((dx: number, dy: number) => {
-    setViewport(v => ({ ...v, x: v.x + dx, y: v.y + dy }));
+    setViewport((v) => ({ ...v, x: v.x + dx, y: v.y + dy }));
   }, []);
 
   return {

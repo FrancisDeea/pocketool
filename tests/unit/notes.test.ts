@@ -32,18 +32,12 @@ function createNote(overrides: Partial<Note> = {}): Note {
   };
 }
 
-function filterNotes(
-  notes: Note[],
-  searchQuery: string,
-  filterTag: string | null,
-): Note[] {
+function filterNotes(notes: Note[], searchQuery: string, filterTag: string | null): Note[] {
   let result = notes;
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     result = result.filter(
-      (n) =>
-        n.title.toLowerCase().includes(q) ||
-        n.content.toLowerCase().includes(q),
+      (n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
     );
   }
   if (filterTag) {
@@ -160,10 +154,7 @@ describe('Notes logic', () => {
 
   describe('getAllTags', () => {
     it('extracts unique sorted tags', () => {
-      const notes = [
-        createNote({ tags: ['b', 'a'] }),
-        createNote({ tags: ['c', 'a'] }),
-      ];
+      const notes = [createNote({ tags: ['b', 'a'] }), createNote({ tags: ['c', 'a'] })];
       expect(getAllTags(notes)).toEqual(['a', 'b', 'c']);
     });
 

@@ -12,10 +12,7 @@ const DEFAULT_PREFS: ImagePreferences = {
 };
 
 // Pure merge logic extracted from the component's updatePrefs
-function mergePrefs(
-  base: ImagePreferences,
-  partial: Partial<ImagePreferences>,
-): ImagePreferences {
+function mergePrefs(base: ImagePreferences, partial: Partial<ImagePreferences>): ImagePreferences {
   return { ...base, ...partial };
 }
 

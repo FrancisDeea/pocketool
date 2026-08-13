@@ -27,10 +27,7 @@ function isStorageAvailable(): boolean {
 
 /** Check if CompressionStream API is available */
 function isCompressionAvailable(): boolean {
-  return (
-    typeof CompressionStream !== 'undefined' &&
-    typeof DecompressionStream !== 'undefined'
-  );
+  return typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
 }
 
 /** Compress a string using CompressionStream (gzip) */
@@ -81,9 +78,7 @@ async function decompress(data: string): Promise<string> {
     },
   });
 
-  const decompressedStream = stream.pipeThrough(
-    new DecompressionStream('gzip'),
-  );
+  const decompressedStream = stream.pipeThrough(new DecompressionStream('gzip'));
   const reader = decompressedStream.getReader();
   const chunks: Uint8Array[] = [];
 
@@ -133,9 +128,7 @@ export function storageGet<T>(key: string): StorageResult<T> {
 /**
  * Get a value from localStorage (async, supports compressed values).
  */
-export async function storageGetAsync<T>(
-  key: string,
-): Promise<StorageResult<T>> {
+export async function storageGetAsync<T>(key: string): Promise<StorageResult<T>> {
   if (!isStorageAvailable()) {
     return { ok: false, error: 'unavailable' };
   }
@@ -163,10 +156,7 @@ export async function storageGetAsync<T>(
 /**
  * Set a value in localStorage. Compresses values larger than 50KB.
  */
-export async function storageSet<T>(
-  key: string,
-  value: T,
-): Promise<StorageResult<void>> {
+export async function storageSet<T>(key: string, value: T): Promise<StorageResult<void>> {
   if (!isStorageAvailable()) {
     return { ok: false, error: 'unavailable' };
   }
@@ -175,10 +165,7 @@ export async function storageSet<T>(
     const serialized = JSON.stringify(value);
 
     let toStore: string;
-    if (
-      serialized.length > COMPRESSION_THRESHOLD &&
-      isCompressionAvailable()
-    ) {
+    if (serialized.length > COMPRESSION_THRESHOLD && isCompressionAvailable()) {
       toStore = await compress(serialized);
     } else {
       toStore = serialized;
@@ -187,10 +174,7 @@ export async function storageSet<T>(
     localStorage.setItem(key, toStore);
     return { ok: true, data: undefined };
   } catch (error: unknown) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'QuotaExceededError'
-    ) {
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       return { ok: false, error: 'quota_exceeded' };
     }
     return { ok: false, error: 'unavailable' };
@@ -231,9 +215,7 @@ export function storageExport(): Record<string, unknown> {
 /**
  * Import a backup JSON object into localStorage.
  */
-export async function storageImport(
-  backup: Record<string, unknown>,
-): Promise<void> {
+export async function storageImport(backup: Record<string, unknown>): Promise<void> {
   for (const [key, value] of Object.entries(backup)) {
     await storageSet(key, value);
   }
@@ -251,9 +233,6 @@ export function getStorageVersion(toolId: string): number | null {
 /**
  * Set the storage version for a tool.
  */
-export async function setStorageVersion(
-  toolId: string,
-  version: number,
-): Promise<void> {
+export async function setStorageVersion(toolId: string, version: number): Promise<void> {
   await storageSet(`tool:${toolId}:__version__`, version);
 }

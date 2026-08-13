@@ -26,7 +26,7 @@ function snapBoxToGrid(
   y: number,
   width: number,
   height: number,
-  scale: number,
+  scale: number
 ): { x: number; y: number } {
   const tolerance = Math.min(GRID_SIZE / 2, 6 / scale);
 
@@ -76,9 +76,10 @@ function ShapeRendererInner({
     strokeWidth: shape.strokeWidth,
     // Keep stroke constant regardless of node scale (zoom + resize)
     strokeScaleEnabled: false,
-    hitStrokeWidth: (shape.type === 'line' || shape.type === 'arrow' || shape.type === 'pen')
-      ? Math.max(shape.strokeWidth || 0, 20 / scale)
-      : (shape.strokeWidth || 0),
+    hitStrokeWidth:
+      shape.type === 'line' || shape.type === 'arrow' || shape.type === 'pen'
+        ? Math.max(shape.strokeWidth || 0, 20 / scale)
+        : shape.strokeWidth || 0,
     opacity: shape.opacity,
     rotation: shape.rotation,
     scaleX: shape.scaleX,
@@ -110,7 +111,7 @@ function ShapeRendererInner({
           worldY - (shape as EllipseShape).radiusY,
           width,
           height,
-          viewport.scale,
+          viewport.scale
         );
         return {
           x: (snapped.x + (shape as EllipseShape).radiusX) * viewport.scale + viewport.x,
@@ -204,25 +205,13 @@ function ShapeRendererInner({
       );
 
     case 'ellipse':
-      return (
-        <Ellipse
-          {...commonProps}
-          radiusX={shape.radiusX}
-          radiusY={shape.radiusY}
-        />
-      );
+      return <Ellipse {...commonProps} radiusX={shape.radiusX} radiusY={shape.radiusY} />;
 
     case 'triangle': {
       // Use a closed Line (polygon) instead of RegularPolygon for full control
       // x/y is top-left corner; triangle points: bottom-left, top-center, bottom-right
       const { width, height } = shape;
-      return (
-        <Line
-          {...commonProps}
-          points={[0, height, width / 2, 0, width, height]}
-          closed
-        />
-      );
+      return <Line {...commonProps} points={[0, height, width / 2, 0, width, height]} closed />;
     }
 
     case 'line':

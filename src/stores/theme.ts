@@ -18,9 +18,7 @@ function detectInitialTheme(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
 
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const prefersHighContrast = window.matchMedia(
-    '(prefers-contrast: more)',
-  ).matches;
+  const prefersHighContrast = window.matchMedia('(prefers-contrast: more)').matches;
 
   if (prefersDark && prefersHighContrast) return 'dark-hc';
   if (prefersDark) return 'dark';

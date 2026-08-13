@@ -13,9 +13,7 @@ export default function ScrollArea({
   orientation = 'vertical',
 }: ScrollAreaProps) {
   return (
-    <ScrollAreaPrimitive.Root
-      className={['overflow-hidden', className].join(' ')}
-    >
+    <ScrollAreaPrimitive.Root className={['overflow-hidden', className].join(' ')}>
       <ScrollAreaPrimitive.Viewport className="w-full h-full rounded-[inherit]">
         {children}
       </ScrollAreaPrimitive.Viewport>

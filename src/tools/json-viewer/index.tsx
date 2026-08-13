@@ -48,9 +48,7 @@ function JsonNode({
 
   const isObject = data !== null && typeof data === 'object';
   const isArray = Array.isArray(data);
-  const entries = isObject
-    ? Object.entries(data as Record<string, unknown>)
-    : [];
+  const entries = isObject ? Object.entries(data as Record<string, unknown>) : [];
   const count = entries.length;
 
   const matchesSearch = useMemo(() => {
@@ -128,9 +126,7 @@ function JsonNode({
             <span className="text-text-tertiary">: </span>
           </>
         )}
-        <span className="text-text-tertiary">
-          {isArray ? '[' : '{'}
-        </span>
+        <span className="text-text-tertiary">{isArray ? '[' : '{'}</span>
         {!expanded && (
           <>
             <span className="text-text-tertiary text-xs ml-1">
@@ -183,10 +179,7 @@ function formatHistoryDate(ts: number): string {
 
 export default function JsonViewer() {
   // Load last saved input from Dexie
-  const savedInput = useLiveQuery(
-    () => db.toolStates.get('tool:json-viewer:last-input'),
-    [],
-  );
+  const savedInput = useLiveQuery(() => db.toolStates.get('tool:json-viewer:last-input'), []);
   const [input, setInput] = useState('');
   const [inputLoaded, setInputLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -201,14 +194,9 @@ export default function JsonViewer() {
 
   // History entries
   const history = useLiveQuery(
-    () =>
-      db.toolHistory
-        .where('toolId')
-        .equals('json-viewer')
-        .reverse()
-        .sortBy('timestamp'),
+    () => db.toolHistory.where('toolId').equals('json-viewer').reverse().sortBy('timestamp'),
     [],
-    [],
+    []
   );
 
   // Load persisted input once
@@ -254,12 +242,12 @@ export default function JsonViewer() {
   // Scroll to matches logic
   useEffect(() => {
     if (!scrollContainerRef.current) return;
-    
+
     // Slight timeout allows React to re-render expanded states and DOM classes first
     const timer = setTimeout(() => {
       const matches = scrollContainerRef.current!.querySelectorAll('.match-node');
       setMatchCount(matches.length);
-      
+
       // If we have matches but currentMatch is uninitialized or out of bounds, reset it
       if (matches.length > 0) {
         if (currentMatch >= matches.length || currentMatch === -1) {
@@ -276,13 +264,13 @@ export default function JsonViewer() {
     if (!scrollContainerRef.current || currentMatch === -1) return;
     const matches = scrollContainerRef.current.querySelectorAll('.match-node');
     if (matches.length === 0) return;
-    
+
     // Clear previous highlights
-    matches.forEach(el => {
+    matches.forEach((el) => {
       el.classList.remove('bg-accent', 'text-white', '[&_*]:text-white');
       el.classList.add('bg-accent-muted');
     });
-    
+
     // Highlight current match
     const target = matches[currentMatch] as HTMLElement;
     if (target) {
@@ -303,8 +291,6 @@ export default function JsonViewer() {
       setCurrentMatch((prev) => (prev - 1 + matchCount) % matchCount);
     }
   }, [matchCount]);
-
-
 
   const nodeCount = useMemo(() => {
     if (!parsed.ok) return 0;
@@ -333,9 +319,7 @@ export default function JsonViewer() {
 
   const handleCopy = useCallback(async () => {
     if (parsed.ok) {
-      await navigator.clipboard.writeText(
-        JSON.stringify(parsed.data, null, 2),
-      );
+      await navigator.clipboard.writeText(JSON.stringify(parsed.data, null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -343,10 +327,7 @@ export default function JsonViewer() {
 
   const handleDownload = useCallback(() => {
     if (parsed.ok) {
-      const blob = new Blob(
-        [JSON.stringify(parsed.data, null, 2)],
-        { type: 'application/json' },
-      );
+      const blob = new Blob([JSON.stringify(parsed.data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -389,7 +370,9 @@ export default function JsonViewer() {
                 disabled={history.length === 0}
                 className={[
                   'p-1 rounded text-text-tertiary transition-colors cursor-pointer',
-                  history.length > 0 ? 'hover:text-text-primary hover:bg-surface-hover' : 'opacity-40',
+                  history.length > 0
+                    ? 'hover:text-text-primary hover:bg-surface-hover'
+                    : 'opacity-40',
                 ].join(' ')}
                 title="Historial"
               >
@@ -441,7 +424,7 @@ export default function JsonViewer() {
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder='Pega tu JSON aquí...'
+          placeholder="Pega tu JSON aquí..."
           spellCheck={false}
           className={[
             'flex-1 w-full p-4 rounded-xl resize-none',
@@ -461,26 +444,14 @@ export default function JsonViewer() {
             <span className="text-xs font-medium text-text-tertiary uppercase tracking-wide">
               Output
             </span>
-            {parsed.ok && (
-              <Badge variant="accent">{nodeCount} nodos</Badge>
-            )}
+            {parsed.ok && <Badge variant="accent">{nodeCount} nodos</Badge>}
           </div>
           <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopy}
-              disabled={!parsed.ok}
-            >
+            <Button variant="ghost" size="sm" onClick={handleCopy} disabled={!parsed.ok}>
               {copied ? <Check size={14} /> : <Copy size={14} />}
               {copied ? 'Copiado' : 'Copiar'}
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDownload}
-              disabled={!parsed.ok}
-            >
+            <Button variant="ghost" size="sm" onClick={handleDownload} disabled={!parsed.ok}>
               <Download size={14} />
               Descargar
             </Button>
@@ -507,17 +478,31 @@ export default function JsonViewer() {
               />
               <button
                 onClick={() => setExactMatch(!exactMatch)}
-                className={['p-1.5 rounded transition-colors', exactMatch ? 'text-white bg-accent' : 'text-text-tertiary hover:text-text-primary hover:bg-surface-hover'].join(' ')}
+                className={[
+                  'p-1.5 rounded transition-colors',
+                  exactMatch
+                    ? 'text-white bg-accent'
+                    : 'text-text-tertiary hover:text-text-primary hover:bg-surface-hover',
+                ].join(' ')}
                 title="Coincidencia Exacta"
               >
                 <Regex size={14} />
               </button>
               {searchQuery && matchCount > 0 && (
                 <div className="flex items-center gap-2 text-xs text-text-tertiary shrink-0">
-                  <span>{currentMatch + 1}/{matchCount}</span>
+                  <span>
+                    {currentMatch + 1}/{matchCount}
+                  </span>
                   <div className="flex bg-surface-hover rounded-md border border-border">
-                    <button onClick={handlePrevMatch} className="p-1 hover:text-text-primary"><ChevronUp size={14}/></button>
-                    <button onClick={handleNextMatch} className="p-1 hover:text-text-primary border-l border-border"><ChevronDown size={14}/></button>
+                    <button onClick={handlePrevMatch} className="p-1 hover:text-text-primary">
+                      <ChevronUp size={14} />
+                    </button>
+                    <button
+                      onClick={handleNextMatch}
+                      className="p-1 hover:text-text-primary border-l border-border"
+                    >
+                      <ChevronDown size={14} />
+                    </button>
                   </div>
                 </div>
               )}
@@ -537,7 +522,7 @@ export default function JsonViewer() {
               <button
                 onClick={() => {
                   setMaxDepth(100);
-                  setTreeKey(k => k + 1);
+                  setTreeKey((k) => k + 1);
                 }}
                 className="p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary rounded border border-transparent hover:border-border transition-colors"
                 title="Expandir todo"
@@ -548,7 +533,7 @@ export default function JsonViewer() {
                 onClick={() => {
                   setSearchQuery('');
                   setMaxDepth(0);
-                  setTreeKey(k => k + 1);
+                  setTreeKey((k) => k + 1);
                 }}
                 className="p-1 text-text-tertiary hover:bg-surface-hover hover:text-text-primary rounded border border-transparent hover:border-border transition-colors"
                 title="Colapsar todo"

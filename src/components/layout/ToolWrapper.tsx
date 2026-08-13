@@ -12,7 +12,7 @@ export default function ToolWrapper({ toolId }: ToolWrapperProps) {
     let mounted = true;
     // We clear it initially so that bridging tools doesn't flash the old one
     setComponent(null);
-    
+
     loadTool(toolId).then((Comp) => {
       if (mounted && Comp) {
         // Use functional state update to prevent React from calling the component if it's a function

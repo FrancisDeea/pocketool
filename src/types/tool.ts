@@ -42,8 +42,7 @@ export type ToolConfig = {
 
 /** Result type for storage operations */
 export type StorageResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: 'quota_exceeded' | 'unavailable' | 'parse_error' };
+  { ok: true; data: T } | { ok: false; error: 'quota_exceeded' | 'unavailable' | 'parse_error' };
 
 /** Theme variants */
 export type ThemeMode = 'light' | 'light-hc' | 'dark' | 'dark-hc';

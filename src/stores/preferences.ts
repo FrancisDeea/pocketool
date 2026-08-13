@@ -10,10 +10,7 @@ export const $locale = persistentAtom<Locale>('app:lang', 'es');
 /**
  * Sidebar collapsed state — persisted
  */
-export const $sidebarCollapsed = persistentAtom<string>(
-  'app:sidebar-collapsed',
-  'false',
-);
+export const $sidebarCollapsed = persistentAtom<string>('app:sidebar-collapsed', 'false');
 
 /**
  * Zen Mode state — Not persisted to avoid confusion on page load
@@ -30,9 +27,7 @@ export function isSidebarCollapsed(): boolean {
 }
 
 export function toggleSidebar(): void {
-  $sidebarCollapsed.set(
-    $sidebarCollapsed.get() === 'true' ? 'false' : 'true',
-  );
+  $sidebarCollapsed.set($sidebarCollapsed.get() === 'true' ? 'false' : 'true');
 }
 
 export function toggleZenMode(): void {

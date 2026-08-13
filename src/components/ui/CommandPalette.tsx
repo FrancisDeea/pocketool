@@ -64,10 +64,7 @@ export default function CommandPalette({
           <VisuallyHidden.Root>
             <DialogPrimitive.Title>Command Palette</DialogPrimitive.Title>
           </VisuallyHidden.Root>
-          <Command
-            className="flex flex-col"
-            loop
-          >
+          <Command className="flex flex-col" loop>
             <div className="flex items-center gap-2 px-4 border-b border-border">
               <Search size={16} className="text-text-tertiary shrink-0" />
               <Command.Input

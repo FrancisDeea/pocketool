@@ -10,14 +10,10 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary:
-    'bg-accent text-white hover:bg-accent-hover shadow-sm active:scale-[0.97]',
-  ghost:
-    'bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary',
-  danger:
-    'bg-danger/10 text-danger hover:bg-danger/20 active:scale-[0.97]',
-  icon:
-    'bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary p-0',
+  primary: 'bg-accent text-white hover:bg-accent-hover shadow-sm active:scale-[0.97]',
+  ghost: 'bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary',
+  danger: 'bg-danger/10 text-danger hover:bg-danger/20 active:scale-[0.97]',
+  icon: 'bg-transparent text-text-secondary hover:bg-surface-hover hover:text-text-primary p-0',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

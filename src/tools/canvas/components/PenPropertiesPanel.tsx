@@ -61,7 +61,9 @@ export function PenPropertiesPanel({ activeTool, properties, onUpdate }: PenProp
         <>
           <div className="h-6 w-px bg-border/70 shrink-0" />
           <div className="flex items-center gap-2 shrink-0">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Fill</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+              Fill
+            </label>
             <div className="relative h-7 w-7 overflow-hidden rounded-md border border-border cursor-pointer">
               <input
                 type="color"
@@ -82,7 +84,9 @@ export function PenPropertiesPanel({ activeTool, properties, onUpdate }: PenProp
 
       {/* Stroke width */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">W</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          W
+        </label>
         <Button
           variant="ghost"
           size="sm"
@@ -108,7 +112,9 @@ export function PenPropertiesPanel({ activeTool, properties, onUpdate }: PenProp
 
       {/* Opacity */}
       <div className="flex items-center gap-2 shrink-0">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Opacity</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">
+          Opacity
+        </label>
         <input
           type="range"
           min={10}
