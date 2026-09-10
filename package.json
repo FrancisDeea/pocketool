@@ -50,7 +50,7 @@
     "@radix-ui/react-visually-hidden": "^1.2.11",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.2.1",
+    "astro": "^7.2.8",
     "cmdk": "^1.1.1",
     "codemirror": "^6.0.2",
     "dexie": "^4.4.4",
